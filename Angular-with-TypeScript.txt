@@ -1,0 +1,298 @@
+What is Angular?
+For building javascript heavy apps. Usually Single Page App (SPA).
+
+What is single page app?
+Instead of reloading whole page we replace the view with another view in the content area.
+You also keep track of history. You restore the app in right state.
+
+Gmail is a good example of single page.
+
+Angular builds in modular, testable and efficient way for single page app.
+Best practices.
+Backed by google.
+Huge community.
+
+TYPESCRIPT is a superset of JavaScript.
+Useful features:
+1. Modules
+2. Classes
+3. Interfaces
+4. Compile time checking
+5. Access specifier
+
+We're gonna go with Angular 2 which is a lot way different than Angular 1
+
+--------------------------------------------
+
+4 Key players in architecture of Angular 2:
+
+1. Components - Encapsulates the template, data and behaviour of view. It can be rightly said as view component. An app has at least one component. This component is root component.
+Re-usable components.
+
+export class RatingComponent {
+	avgRate: number;
+	setRating(value) {
+
+	}
+}
+
+These components are completely decoupled from DOM.
+In Angular we use binding. If there is change in value of the property then the DOM element will auto referesh.
+So we don't require reference as in JQuery.
+
+completely decoupled from DOM -> because it makes the components unit testable.
+
+We delegate any logic not related to view to a service.
+Service is just a non-interactive class. E.g. Data access, logging, business logic, configuration.
+
+
+2. Directives - to modify DOM elements and/or extend their behaviour
+
+It does not have a html template. It adds behaviour to existing DOM.
+e.g. extending width of textbox
+
+3. Routers - Purely responsible for navigation
+
+4. Services
+
+-------------------------------
+
+npm install -g typescript 
+
+-g for global
+
+Installed: `-- typescript@2.3.3      
+
+with node js we get npm (node package manager) which we use for managing dependencies
+
+typings is a module that allows us to bring in javascript libraries into typescript
+
+npm install -g typings
+
+-------------------------------
+
+npm install -g angular-cli
+
+In tsconfig.json you can see target is es5 which is current version of javascript
+
+Look into tsconfig documentation on github
+
+Static type checking and intelligence for javascript library is obtained from ambientDependencies
+
+tsc = typescript compiler and w\ means watch mode
+lite = lite web server
+above both will be run concurrently
+
+--------------------------------
+
+js.map file is used for debugging. It will take us to corresponding line in typescript
+
+Since it is in watch mode the changes made in heading <h1> will be generated (Refreshed automatically)
+This is browsersync
+
+We write typescript code and typescript compiler automatically generates javascript for us.
+
+For production stage, we need to use typescript compilers as part of our build process. Like Gulp or Grunt.
+
+----------------------
+Why do we use directives?
+To modify the DOM
+
+====================================
+
+Naming convention:
+We start with name of component like courses and then .component.ts
+
+We write class with export keyword.
+Export -> In a module we export one or more things. Like a class, function or variable.
+
+How the compiler knows it is a component? It looks for specific keyword or metadata.
+For example,
+  we need to apply component decorator. Decorator is like annoation in Java. 
+
+If you see core module you can see export keyword which allows us to import it in our class.
+
+The decorators are FUNCTIONS. So we need to call them.
+
+We need to pass attributes/objects.
+selector specifies a css selector for host HTML element
+When angular sees an element that matches this css selector, it will create an instance of our component in the host element.
+So we are assuming that host element is an element with the tag 'courses'
+
+template -> specifies the html that will be inserted in the DOM when the components view is rendered.
+We can either make it inline or put in separate file.
+
+--------
+
+angular will recognize the components which you have explicitly referenced.
+
+We use directive to allow us to extend or control DOM.
+We used courses component to define a new element that is not part of HTML.
+
+A component has a template and a directive doesnt
+Angular has compile time checking.
+
+Custom module in import we need to mention file path.
+
+--------------------
+
+Component encapsulates the data and logic behind it. We can define properties in component and then have its view in template.
+
+In typescript we can set the type of variables unline JS.
+
+Backtick character helps break up into multiple lines
+
+{{ title }} is called interpolation
+So if the value of this porperty changes then the view will be auto refreshed.
+This is called one way binding.
+
+Component (properties) -------->  View
+
+We also have two way binding which is used in forms.
+If you type something in input field it is bound to properties.
+
+*ngFor requires an expression which is similar to what we write in for each loop.
+
+courses is the object you are iterating. of is a keyword. #course is a way to delcare local variable.
+
+*ngFor is an example of directive.
+
+----------------------------------------------
+
+In real world app we get the data from the server.
+
+Any logic should be encapsulated in a separate file which is a service.
+
+-----------------------------------
+
+Dependency Injection framework -> to inject dependencies in classes when creating it.
+It looks at the constructor and sees it needs CourseService which is a dependency.
+So it will create an instance and inject it.
+
+So now we have good separation of concerns. Data comes from server i.e. service. No tight coupling.
+Service may get the data from backend server like NodeJs or local storage or from cache or hard coded in array. The component does not care.
+
+--------------------------------------
+
+As your app grows you know maintenance becomes more challenging.
+It is better to divide the app into smaller parts.
+
+Application
+Module, module, module.....
+
+E.g. Facebook
+Messaging, Games, News Feed, etc.
+
+Class of messaging is different than games. This is module.
+
+Module -> A block of highly related classes.
+
+When we first build an App in Angular we start with a module.
+One module -> AppModule is always there.
+We can refactor this module into more smaller maintainable modules
+
+Now the structure is like:
+
+@NgModuke({
+  imports: [...], //dependencies
+  declarations: [...],  //classes part of this module
+  exports: [...],  //classes that are exported or visible to outside. Subset of declarations
+  providers: [...] //these are mainly service classes.
+})
+
+export class UserModule {
+  
+}
+
+Simple analogy: Mobile Phones
+It is not the buttons. Inside phone there are lots of chips which perform the functions.
+We only have a few buttons to use the phone.
+
+Inside a module we have lots of classes but we dont want other classes to know.
+This is implementation detail. We expose subset only.
+
+The exposed are public API
+
+We shuld make public API as small as possible. This will make changing implementation easier as it will not break anything. 
+
+-------------------------------
+
+BINDINGS
+
+Angular translates interpolation to property binding
+
+Two syntaxes for property binding:
+
+<img [src] = "imageUrl" />
+<img bind-src="imageUrl" />
+
+Which one to use?
+Stick with one syntax. Probably square brackets.
+
+for <h1>{{ title }}</h1>
+we need to write: <h1 [textContent]="title"></h1>
+
+textContent is a property of DOM element. This is not HTML tag. 
+
+Better use interpolation whenever you want to render text between elements
+
+Property binding works one way.
+Component ---> View
+
+----------------------------------
+
+CLASS BINDING
+
+//Adding class based on condition
+
+<button class="btn btn-primary [class.active]="isActive"">Submite</button>
+
+
+export class AppComponent {
+  isActive = true;
+}
+
+
+----------------------
+
+STYLE BINDING
+
+
+<button 
+    class="btn btn-primary"
+    [style.backgroundColor]="isActive ? 'blue' : 'gray'" >Submite</button>
+
+//if isActive is true then set style of backgroundColor to blue. Otherwise Gray.
+
+-----------------------
+
+EVENT BINDING
+
+To handle events raised from DOM like mouse movements.
+
+Two syntaxes:
+
+<button (click)="onClick()">Submit</button>
+<button on-click="onClick()">Submit</button>
+
+Better with first
+
+How to remember:
+When do we use parantheses? For methods() So for subscribing to events
+When do we use square brackets? Property Binding like appComponent["title"]
+
+Then we implement the method:
+
+export class AppComponent {
+  onClick() {
+    console.log("Clicked");
+  }
+}
+
+If we want to get access to event then we pass $event
+
+<button (click)="onClick($event)">Submit</button>
+
+  onClick($event) {
+    console.log("Clicked", $event);
+  }
