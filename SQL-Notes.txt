@@ -1,0 +1,112 @@
+## Normalization
+
+The first normal form rule is that we should have no repeating columns. This makes the system much more straightforward and much more useful to search.
+
+Second normal form says that if we have a composite key every column must depend on
+the entire key. Suppose we have a dependency from salesperson to salesperson ID, and from customer to customer ID. So those are not depending on the entire primary key. So to resolve that again we take those dependency values and put them into a separate table.
+
+Third normal form is that we need to have none of these dependencies at all.
+
+Boyce Codd normal form or BCNF is important is if we have multiple overlapping candidate keys
+so essentially if we’ve got another surrogate key or another candidate key then we should
+be able to apply the same rules using that key.
+So if there’s multiple columns which work perfectly well as primary keys, you should
+be able to use normalization rules on those even if it isn’t the formal primary key.
+
+
+## Data Types
+
+Format of date stored in SQL: YYYY-MM-DD
+
+datetime2 follows ISO standards. Midnight is 00 and not 24. 
+
+Convert the data into a data type that suits both the storage and SQL Server:
+
+  SELECT CAST(order_date AS VARCHAR(20))
+
+  SELECT CONVERT(VARCHAR(20), order_date) // This is more functional because an extra parameter can be passed like 101 for US-English date or 103 for British-English date format
+
+  SELECT PARSE('Monday, 6 June 2016' AS DATETIME) // PARSE will only convert from strings into dates or DATETIME or a number. So it is limited in the number of different formats you can convert but actually it would convert a lot more information.
+
+We also have: TRY_CAST, TRY_CONVERT, TRY_PARSE. This is useful when if if there is an error with the conversion process, rather than generating the error, we might actually say “ well, we want to carry on, so we are going to just generate a NULL value.
+
+
+## Schema
+
+It is an improved way of having a boundary around your objects.
+
+### Object Name Resolution
+
+Actually the object has a four-part name.
+It has a name that goes, from the server, the database, the schema, the object name and we should try to use four-part names as much as possible, because if we only use, a one-part name, then it says ok, well I’m going to have to go and have a look and find what the default schema is for that user and then look for objects within that.
+
+So three-part name is defining the database or use the current one, four part names you use the specific server or if we don’t use them the current server.
+Ok, so just understand what happens with object name resolution, try to always use two-part names and just be aware of what would happen if you use a three or a four-part name.
+
+### Create, Alter, Drop
+
+CREATE TABLE PetStore.Owner
+  OwnerID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+  OwnerName nvarchar(50) NOT NULL,
+  HairColor nvarchar(10) NULL;
+
+We have an identity column. Owner ID is an identity column starting with 1 and increasing by 1 every time they create
+
+DROP TABLE PetStore.Owner;
+
+ALTER TABLE PetSotre.Owner 
+  ADD PrefferedName nvarchar(30) NULL;
+
+
+ALTER TABLE PetStore.Owner
+  DROP COLUMN PreferredName;
+
+
+In Alter, we want to retain permission and date on that table.
+
+### Temporary Tables
+
+We create a temporary table by starting its name with a hash. It gets automatically deleted after a session but you might want to explicitly delete it once you're done with the table. This temporary table is stored in tempdb. 
+
+There is another type where you would start it with two hashes.
+When you start it with two hashes, you get what’s called a global temporary table.
+Similar idea, but now it can be seen by other sessions so it’s globally available and that way, we can pass values between different procedures, different queries as long as they’re running at the same time.
+(Typically not a good idea)
+
+### Computed Columns
+
+These are derived from other columns or from functions.
+They're often used to provide easier access to data without denormalizing it
+
+Example:
+
+CREATE TABLE PetStore.Pet
+(
+  PetID int IDENTITY(1,1) PRIMARY KEY,
+  PetName nvarchar(30) NOT NULL,
+  DateOfBirth date NOT NULL,
+  YearOfBirth AS DATEPART(year, DateOfBirth)
+);
+
+We use a function of datepart that extracts the year from the date of birth.
+
+I can just call that column that would automatically then run the function and it would give you that information from there.
+But it is not storing any data.
+All that is stored in the schema of the table is that definition.
+
+If you put PERSISTED after 'DATEPART(year, DateOfBirth)', the value, when you create a record or when you update a record, the value is stored in that table.
+But, because we have got a calculation in there, it would be automatically maintained.
+
+Updating the date of birth, it would automatically update the year of birth for your data.
+You don't have to do anything to do maintenance of it.
+Strictly we are breaking normalization rules, I have got year of birth which has a dependency on the date of birth but you have to be pragmatic sometimes and think well actually yes we are, however it means our queries run much faster.
+
+### More on Tables
+
+nvarchar means it uses unicode which is a character set for international character.
+
+For Composite key, you put Primary key syntax at the end.
+E.g.
+ PRIMARY KEY (CourierID, CourierCode)
+
+varchar(max) is specified so that the quantity of comments is not limited. The text data type is deprecated and has been replaced by varchar(max).
