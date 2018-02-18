@@ -110,3 +110,123 @@ E.g.
  PRIMARY KEY (CourierID, CourierCode)
 
 varchar(max) is specified so that the quantity of comments is not limited. The text data type is deprecated and has been replaced by varchar(max).
+
+## Types of Data Integrity
+
+1) Domain integrity: Talking about contents of an individual column. We do this by specifying correct data type.
+
+2) Entity integrity: Talking about a whole row and how it works. Unique by primary key. 
+
+3) Referential integrity: Talking about relationships between tables.
+
+Above are theoretical constructs of integrity.
+
+Null actually means unknown.
+Now where it becomes really important is with things like numbers because if we average a column and it contains nulls, the nulls are ignored.
+They are not treated as zero.
+
+## Constraints
+
+They're basically rules to follow. E.g. End of review date should be greater than start review date.
+
+Note: Field names are in square brackets (Transact SQL)
+
+ALTER TABLE [SalesLT].[Courier] ADD CONSTRAINT [DF_COURIER_StartDate] DEFAULT (getdate()) FOR [StartDate]
+GO
+
+ALTER TABLE [SalesLT].[Courier] WITH NOCHECK ADD CONSTRAINT [CK_Courier_ReviewDate] CHECK (([ReviewDate]>[StartDate]))
+GO
+
+ALTER TABLE [SalesLT].[Courier] CHECK CONSTRAINT [CK_Courier_ReviewDate]
+GO
+
+
+NOCHECK means don't check current data.
+getdate() puts in today's date if no date is given (NULL)
+
+
+### Primary and Foreign key constraints 
+
+Candidate keys are the columns that are unique and either of them can be primary keys.
+
+Foreign key constraint: It checks the existance of parent when you create a child. E.g. If an employee makes a sale, that should be valid employee ID
+This also helps to decide what to do with children when we delete parent. The children can be set to a default value, or deleted.
+
+So primary keys uniquely identify each row in a table and then a foreign key which looks to make sure that that parent record exists in that other table.
+
+### Cascading Referential Integrity
+
+Our database is almost certainly going to have multiple tables and also it is almost certain that you want to enforce a relationship between those tables the data in one reflects the data in another.
+And we can create a join between them. This is a process called referential integrity.
+
+So we have got a sales person, called Fay Burton, here.
+Now if I delete this salesperson, we can see that she has got some orders against her SalespersonID. So if we delete Fay Burton, what happens?
+Well, if we delete Fay Burton, we want to enforce a rule that says, you can’t delete this record, and that would stop Fay Burton from being deleted. So we still have Fay Burton and we still have her orders. To be able to remove Fay Burton, we would have to go through those orders, change those IDs to someone else, so we don’t lose the data, and we can still then delete Fay Burton
+because she has no orders anymore.
+
+The next one to have a look at is CASCADE, in here it’s called cascading referential integrity.
+So now what we are going to do is okay. We’ve deleted Fay Burton, and it will automatically delete any orders that are placed against her name. So they automatically get deleted.
+
+We can also set a default salesman ID to be inserted for all the employee orders of employees who left the company and have their records deleted.
+
+### Sequences
+
+This is useful to ensure uniqueness in primary key among different tables that may at some point will be merged.
+
+
+CREATE SEQUENCE Booking.BookingID AS INT
+START WITH 20001
+INCREMENT BY 10;
+
+CREATE TABLE Booking.FlightBooking
+FlightBookingID INT NOT NULL
+PRIMARY KEY CLUSTERED
+DEFAULT
+(NEXT VALUE FOR Booking.BookingID);
+
+
+NOTE: Go command is optional
+
+### Referential Integrity & cascading delete
+
+CREATE TALBE dbo.Customer
+(
+  CustomerID int IDENTITY(1,1) PRIMARY KEY,
+  CustomerName nvarchar(50) NOT NULL
+);
+
+INSERT dbo.Customer VALUES ('John'),('Jake');
+
+
+CREATE TABLE dbo.customerOrder 
+(
+  CustomerOrderID int IDENTITY(10001,1) PRIMARY KEY,
+  CustomerID int NOT NULL
+    FOREIGN KEY REFERENCES dbo.Customer(CustomerID),
+  OrderAmount decimal(18,2) NOT NULL
+);
+
+
+INSERT INTO dbo.CustomerOrder (CustomerID, OrderAmount)
+  VALUES (1,12.50), (2,14.70);
+
+
+DELETE FROM dbo.Customer WHERE CustomerID = 1 /* This won't work since there are orders for that customerid*/
+
+/* If needed, we apply cascading delete */
+
+ALTER TABLE dbo.CustomerOrder
+  ADD CONSTRAINT FK_CustomerOrder_Customer
+  FOREIGN KEY (CustomerID)
+  REFERENCES dbo.Customer(CustomerID)
+  ON DELETE CASCADE;
+
+
+Notes:
+1. You specify NOT NULL as part of the ALTER COLUMN argument.
+2. You specify PRIMARY KEY as part of the ADD CONSTRAINT argument.
+3. To use the default value, you do not specify a value.
+
+
+
+
