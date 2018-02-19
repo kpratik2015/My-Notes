@@ -228,5 +228,63 @@ Notes:
 3. To use the default value, you do not specify a value.
 
 
+## How SQL Server Accesses Data
+
+If there is no index, SQL will do table scan. The system will scan through all of the records in the table and you will see this if you look at the plans that SQL Server uses to answer the questions in a query.
+
+Above method is not optimum which is why we create index.
+
+Let's look at clustered index:
+Now the clustered index at the lowest level or the leaf level, it has all of the data. It creates pages of primary key id which reference to actual data on disk. On the top might be a page (Layer 3) containing range of employee ID for each index page.
+
+We might want to have lots of indexes but the downside is that the indexes need to be maintained. The index is brilliant for queries but they would slow down in updates and delete operations for our data. Since on the same transaction of update or delete, the index needs to be updated too.
+
+Let's talk about non-clustered index:
+In these ones, the leaf level is only going to have the columns I am interested in indexing.
+Let’s say I am interested in indexing the last name.
+So I have the last name column and the other value I am going to have in there is the clustering key, the value that’s in the clustered index.
+Now what happens now is a slightly different scenario because I am now going to look for a value.
+I am going to find what I am looking for it will point to a page, it won’t have all the data but it will have the clustering key.
+Once I have got that clustering key, we can then go on to our clustered index and find all of the data.
+So we can have one clustered index and as many non-clustered indexes as we require and our non-clustered indexes will have a clustering key that then gives us the information required to then go to the clustered index.
+
+### Selectivity, Density and Index Depth
+
+Through example, selectivity:
+So by combining with something else and actually we say ok, distribution center plus date plus customer, that is a composite index, it could be very selective.
+So selectivity is very very useful for an index.
+Low selectivity something that doesn’t have very many different values or the query we run will very rarely generate anything but a couple of those values is not a very useful index to create on your system.
+
+Density: Nearer to unique something is the more useful is for an index because then less records will get returned
+
+Index Depth: If you've got huge amounts of data in that index, you've very very large composite index.
+Then you get less records in each page and because you get less records in each page, you require more pages, more pages means that we have to have more levels in our index and therefore we’ve got more page reads to get the data out the index.
+The index is less effective, the index still need to be maintained, so again you can lose some of the benefits without gaining the performance.
+
+### Data Types and Indexes
+
+Numeric data type is the most efficient for index. However, if queries run more on character data type like first name last name or so... It might be better to index that.
+
+### Indexing Computed Columns
+
+So indexing computed columns perfectly allowed.
+Just make sure that you are aware of what would happen with the negative side of it if you do updates that later need to be maintained and just be aware that they have to be deterministic, i.e. the results of our query will always be the same, even if I run it next week, next month, next year, the result will always be the same of a deterministic query.
+
+NOTE: We can make composite index. In this case it is best to have first column as highly selective i.e. it will remove 90% of data on search. E.g. (Last Name, First Name)
+
+### Index Statistics
+
+SQL uses this to optimize query before it is run. Like which index will be actually useful and if no index at all will be useful. 
+
+Index statistics: So your indexes hold a statistics and it will have things like the selectivity, the lowest value, highest value, and a histogram of values through there, a sampling of data if you like.
+So that SQL can get a good idea of what data it contains and therefore how it should actually optimize that query.
+
+Statistics by default, are auto created and auto updated.
+You can automatically update, and there’s a stored procedure called SPUPDATESTATS that will allow you to, ok we’ve got some really important month end reports running now, I’d like to update my statistics prior to that because I know that I need a high performance for those queries.
+
+### Viewing Index Statistics
+
+E.g.:
+DBCC SHOW_STATISTICS( "Sales.SalesOrderDetail", PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID );
 
 
