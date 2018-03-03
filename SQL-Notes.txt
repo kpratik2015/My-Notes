@@ -2,8 +2,7 @@
 
 The first normal form rule is that we should have no repeating columns. This makes the system much more straightforward and much more useful to search.
 
-Second normal form says that if we have a composite key every column must depend on
-the entire key. Suppose we have a dependency from salesperson to salesperson ID, and from customer to customer ID. So those are not depending on the entire primary key. So to resolve that again we take those dependency values and put them into a separate table.
+Second normal form says that if we have a composite key every column must depend on the entire key. Suppose we have a dependency from salesperson to salesperson ID, and from customer to customer ID. So those are not depending on the entire primary key. So to resolve that again we take those dependency values and put them into a separate table.
 
 Third normal form is that we need to have none of these dependencies at all.
 
@@ -287,4 +286,170 @@ You can automatically update, and there’s a stored procedure called SPUPDATEST
 E.g.:
 DBCC SHOW_STATISTICS( "Sales.SalesOrderDetail", PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID );
 
+
+
+## What Is a View?
+
+A view is just a definition of the structure that you are going to output for your query. It does not contain any data in itself. 
+So all we can do with a view is combine data from multiple tables, output it in the format that you want.
+
+Essentially what you are doing is you are presenting the results of a query.
+
+We can combine data from multiple different columns, we can do calculations so we do not have to store calculated data in our database.
+We could create it in the view so the view at runtime when it outputs the data, then it runs the calculation and then it presents the data as we want.
+
+So a view is stored.
+The definition of it is stored in a table called syscomments.
+There is a system table that contains our view definition.
+
+So personally, I often create a view for every single table even if they are not required.
+Just so that I know in the future if there is any modification in the structure of my data, that as long as I create it to look the same through the view, the client applications will still continue to work and it gives me that safety, if you like in the future.
+So views are incredibly useful things, any talk of them slowing down queries you can realistically ignore it.
+They don’t really slow down queries to any extent, but they do give you a huge amount of functionality.
+
+### Dynamic Management Views
+
+These return some really useful system information that we can get from the system for SQL Server databases.
+
+SELECT [database_id]
+  ,[total_page_count]
+  ,[allocated_extent_page_count]
+  ,[unallocated_extent_page_count]
+FROM [AdventureWorks].[sys].[dm_db_file_space_usage]
+
+Having said that, this may not have all the information I require and in that case we can actually use a CROSS APPLY statement in here to actually get some more information and this is using sys.database_files because we can join the two together.
+
+So they are very very useful to extract system information and you can use it for troubleshooting and use it for system information or documentation about your system.
+
+### Querying Catalog Views and DMVs
+
+SELECT * FROM sys.views
+
+SELECT * FROM sys.tables
+
+SELECT * FROM sys.objects
+WHERE type_desc = 'VIEW'
+
+So, to start with, let's have a look at the dm exec connection.
+
+SELECT * FROM sys.dm_exec_connections
+
+SELECT * FROM sys.dm_exec_sessions
+
+SELECT * FROM sys.dm_exec_requests
+
+SELECT * FROM sys.dm_exec_query_stats
+ORDER BY max_logical_reads DESC;
+
+A complex query combining output of multplie DMVs:
+
+SELECT TOP(20) qs.max_logicial_reads, st.text
+  FROM sys.dm_exec_query_stats AS qs
+  CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) AS st
+  ORDER BY qs.max_logical_reads DESC;
+
+
+### Creating, Dropping and Altering Views
+
+CREATE VIEW Sales.vHighValueSales
+AS
+SELECT OrderID, OrderDate, CustomerID, OrderValue
+FROM Sales.Orders
+WHERE OrderValue > 1000
+
+So a CREATE VIEW statement is basically a SELECT statement, now just make sure in there, a standard select statement we have got the OrderID, OrderDate, CustomerID, OrderValue,
+everything in there has got a column name.
+So if you use any form of calculation or anything like that, that would appear with a NULL column name, ensure that you supply an alias column name for that column and then you have a perfectly acceptable view definition.
+
+Optional arguments:
+WITH ENCRYPTION, SCHEMABINDING, VIEW_METADATA
+
+encryption would stop you to actually be able to see the source
+of the view, the definition of the view then maybe some security and maybe I want to avoid people knowing my high value sales that are over a thousand.
+
+schema binding would stop any underlying tables from being edited so their structure wouldn’t end up breaking the view
+
+view_metadata is about holding meta data for the view, so do you want to allow queries to actually to find out information about underlying tables.
+
+
+To drop a view,
+DROP VIEW Sales.vHighValueSales
+
+
+To alter a view,
+ALTER VIEW Sales.vHighValueSales
+AS
+SELECT OrderID, OrderDate, CustomerID, OrderValue
+FROM Sales.Orders
+WHERE OrderValue > 1000
+WITH CHECK OPTION
+
+Almost same as create view however columns changed and with check option to check the values in our database or not.
+
+people enter records into a view, not knowing it’s a view, when they look at it, they don’t see the data because they don’t realize what the view outputting is different to the actuals being stored in the underlying table. WITH CHECK option prevents that, and makes sure that data going in or being altered meets the same rules as data being returned.
+
+
+### Ownership Chains
+
+An ownership chain is looking at the path you would take to get to the data.
+
+There are two types: Unbroken and broken
+
+Unbroken chain: give rights to the view to people who do not have any rights on the underlying table. So they can open the view, they can’t open the table directly.
+
+Broken chain: I own a view and XYZ owns the underlying table. Now, in that scenario, if I give someone access to the view, they would also have to have access to the data in the underlying table.
+
+Note: we can have a look at sys views and that gives information about views in the database, lists the views in the database.
+
+### Updateable Views
+
+So data can be modified through a view if you follow these rules:
+
+Now the first one, is if you include columns from one table. If the view includes data from multiple tables, then it can’t update both those tables at once. Having said that, you can create triggers on views that would allow the trigger to do the update on both the tables.
+
+The columns directly reference the table columns, so they can’t use aggregations or computations.
+They must be direct table information.
+
+The updates comply with the base table constraints
+- NULL or NOT NULL
+- Primary and foreign keys can be enforced
+
+WITH CHECK option does not prevent data being inserted that does not comply with the view definition. So if the view only displays data for this year, then you can only enter data for this year, even if the underlying table has data from multiple years.
+
+
+### Create, alter and drop view
+
+SELECT C.CustomerID, P.FirstName, P.LastName, O.OrderDate, O.SubTotal, O.TotalDue
+  FROM Sales.Customer AS C
+    INNER JOIN Person.Person as P
+      ON C.PersonID=P.BusinessEntityID
+    INNER JOIN Sales.SalesOrderHeader as O
+      ON C.CustomerID=O.CustomerID
+
+
+Above query is normal select query. Now we js add create view
+
+CREATE VIEW Sales.vw_CustomerOrders
+AS
+SELECT C.CustomerID, P.FirstName, P.LastName, O.OrderDate, O.SubTotal, O.TotalDue
+  FROM Sales.Customer AS C
+    INNER JOIN Person.Person as P
+      ON C.PersonID=P.BusinessEntityID
+    INNER JOIN Sales.SalesOrderHeader as O
+      ON C.CustomerID=O.CustomerID
+
+
+Now we can query from that view.
+
+SELECT * FROM Sales.vw_CustomerOrders
+
+You'll see that you get exactly the same results so we don't have to put in all the JOIN syntax. We could just select star from the view and it makes it much more straightforward and much more straightforward for applications to see the data that they require because if you've already sorted by columns already done the joins we need. And everything has been created in the structure that we require it.
+
+
+SELECT OBJECT_DEFINITION(OBJECT_ID(N'Sales.vw_CustomerOrders', N'V'))
+
+VIEW has another criteria which is optional which I'm entering V. That's an object type.
+V is VIEW. We could do some other things with that as well. We could use P for STORED PROCEDURE, D for DEFAULT, for example.
+
+We'll run this one, and this returns the OBJECT DEFINITION of that view.
 
