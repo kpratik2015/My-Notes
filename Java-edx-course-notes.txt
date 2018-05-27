@@ -1,0 +1,278 @@
+## Refreshing Arrays
+
+int[] a = new int[4];
+
+int[] a = {2, 0, 1, 5};
+
+## Operations with Arrays
+
+enhanced for loop:
+
+for (int elem: x) {
+  z += elem;
+}
+
+Map and Reduce are keywords borrowed from functional programming.
+
+## Generic Classes
+
+public class Pair {
+  Object one;
+  Object two;
+  public Pair(Object a, Object b) {
+    one = a;
+    two = b;
+  }
+  public void setOne(Object a) {one = a;}
+  public void setTwo(Object b) {two = b;}
+  public Object getOne() {return one;}
+  public Object getTwo() {return two;}
+}
+
+Now we can do:
+Pair ii = new Pair(1, 2);
+Pair si = new Pair("one", 2);
+
+However we will need explicit casting:
+  
+  String s = ss.getOne(); // would generate error
+  String s = (String) ss.getOne(); // casting
+
+To improve:
+
+A generic class has type parameters (or generic types) in it.
+
+public class Pair <A,B> {
+  A one;
+  B two;
+
+  public Pair(A a, B b) {
+    one = a;
+    two = b;
+  }
+
+  public void setOne(A a) {one=a;}
+  public void setTwo(B b) {two=b;}
+  public A getOne() {return one;}
+  public B getTwo() {return two;}
+}
+
+Now we can do:
+
+  Pair<String, Integer> si;
+
+  si = new Pair<String, Integer>("one", 2);
+
+  String s = si.getOne(); // no cast needed
+
+
+The '<>' is also called diamond operator. We're doing type inference.
+
+This results in a class that depends on the concrete types given.
+
+Generics: Provide a mechanism to check the compatibility of objects of several types at compile time.
+
+
+ArrayList<E> is a popular Java class that implements a resizable ordered collection using arrays
+
+If you provide concrete types, on making mistake like adding string to integer ArrayList, the error is generated at compile time.
+
+When creating an object of a class that uses generics, such as ArrayList<E>, we need to indicate the type that can be stored in this object (e.g., Integer, String, etc.). E is not a valid type in Java.
+
+
+We create an object of ArrayList<MyClass>, which we have previously coded.
+
+ArrayList<MyClass> list = new ArrayList<MyClass>();
+
+What kind of objects can be stored in it?
+Objects of type MyClass and all its subclasses
+
+
+
+## Generic Methods
+
+Example:
+
+void inv(T[] data) {
+  int lo = 0;
+  int hi = data.length - 1;
+
+  while( lo < hi ) {
+    T aux = data[lo];
+    data[lo] = data[hi];
+    data[hi] = aux;
+    lo++; hi--;
+  }
+}
+
+Instead of T, you could have used any other identifier of your choice, as long as it is not a reserved one and you write it with a capital initial.
+We also need to declare variable aux of (generic) type T.
+
+
+Now we can use inv() method for array of integers as well as arrays of strings or so on.
+
+when defining a generic method with what we have seen so far, in the body of the methods we can only use other methods that are defined for all possible
+types we might instantiate the type parameter with.
+
+there are additional concepts like bounded type parameters and wildcard types.
+
+
+
+Considering the following classes and interfaces (note that their implementation is not provided by simplicity)
+
+public interface I {...}
+public class A implements I {...}
+public class B extends A {...}
+public class C<E> {
+    private E a;
+    
+    public void set (E v){
+        this.a = v;
+    }
+}
+
+If we create an instance C<I> c = new C<I>();, what types are allowed for attribute a?
+Only I, A and B 
+
+Attribute a can take types I and all the classes that implement this interface, which are A and B in this case. E is not an existing type, but the way of noting the use of generics in a class or method. C does not implement the interface I
+
+
+## Linked Lists
+
+In a linked list where we have the references to the first (top) and last (tail) nodes. Which of the following operations is more computationally expensive?
+Extracting from tail - To extract from the tail we need the reference to the second-to-last node of the list. To get this reference we need to traverse the linked list from the first node.
+
+class Node {
+  private Object elem;
+  private Node next;
+  public Node(Object e, Node n) {
+    elem = e;
+    next = n;
+  }
+  public void setElem(Object e) {elem=e;}
+  public void setNext(Node n) {next = n;}
+  public Object getElem() {return elem;}
+  public Node getNext() {return next;}
+}
+
+public class LinkedList {
+  private Node top;
+  public LinkedList() {top=null;}
+
+
+  private void insert(Object e, Node prev) {
+    if( prev != null ) { // list is empty
+      Node n = new Node(e, prev.getNext());
+      prev.setNext(n);
+    }
+  }
+
+
+  private Object extract(Node prev) {
+    if(prev == null || prev.getNext() == null) {
+      return null;
+    }
+    Object e = prev.getNext().getElem();
+    prev.setNext(prev.getNext().getNext());
+    return e; // return element data and remove it.
+  }
+
+}
+
+
+public int size() {
+  int n = 0;
+  for(
+    Node aux = top;
+    aux != null;
+    aux = aux.getNext();
+  ) { n++; }
+
+  return n;
+}
+
+private Node search(Object e) {
+  Node aux = null;
+
+  for(
+    aux = top;
+    (aux != null) && (!aux.getElem().equals(e));
+    aux = aux.getNext();
+  );
+
+  return aux;
+}
+
+
+## Collections
+
+Collection inherits from the superinterface Iterable
+which has an interesting method, called “forEach”,
+which can be used to perform a certain action for all the elements of the Collection.
+
+Collection has several subinterfaces.
+List refers to ordered collections (or sequences),
+where the user can decide in which position to insert each element.
+
+Elements are identified by an integer index representing their position.
+Set
+refers to collections that do not contain duplicated elements.
+Queue refers to collections where elements are inserted on one end
+and extracted on the other end.
+Deque
+is a particularization of Queue,
+allowing insertion and extraction of elements on both ends.
+
+Some popular Java classes which implement the interface List,
+and due to the properties of inheritance, also the interfaces Iterable and Collection are 
+ArrayList, LinkedList and Stack.
+LinkedList also implements the interfaces Deque
+and Queue.
+HashSet is another useful Java class, and in this case, it implements the interface Set
+and its superinterfaces;
+PriorityQueue,
+implements the interface Queue
+and its superinterfaces.
+
+
+Traverse elements of list and display. Two different methods.
+
+public class Class {
+    
+    public static void main(String[] argv) {
+        
+        List<String> myList = new ArrayList<String>();
+ 
+        myList.add("a");
+        myList.add("b");
+        myList.add("c");
+        myList.add("d");
+ 
+        method1(myList);
+        method2(myList);
+    }
+
+    private static void method1(List<String> list) {
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println(list.get(i));
+        }        
+    }
+
+    private static void method2(List<String> list)     {
+        Iterator<String> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+    }
+}
+
+
+ArrayList
+
+The class ArrayList implements the List interface,
+using internally a resizable array, guaranteeing a constant access time to all its elements.
+
+It is important to remember that if we define a data type for the ArrayList
+we could store objects of that data type and all its subclasses due
+to the properties of inheritance and polymorphism of object-oriented programming.
+
