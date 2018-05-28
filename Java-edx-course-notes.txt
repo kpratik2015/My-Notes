@@ -276,3 +276,26 @@ It is important to remember that if we define a data type for the ArrayList
 we could store objects of that data type and all its subclasses due
 to the properties of inheritance and polymorphism of object-oriented programming.
 
+
+
+STACKS
+
+All values in the stack are indistinguishable. Therefore, the only thing that matters is the number of symbols inside of the stack at any particular moment.
+
+LIFO
+
+Remember that in the interface we define only the header of the methods:
+the name,
+the types of arguments and of the result.
+The body is left to the implementation,
+which we will do later on.
+
+
+Pop removes the top objects from the stack.
+But, typically, another method is defined as well called top or peek,
+which allows us to have a look at the top element without removing it from the stack.
+We would get a copy from the top element.
+The top element remains in the stack.
+
+https://docs.oracle.com/javase/8/docs/api/java/util/Stack.html
+
