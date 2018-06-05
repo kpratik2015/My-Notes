@@ -299,3 +299,6 @@ The top element remains in the stack.
 
 https://docs.oracle.com/javase/8/docs/api/java/util/Stack.html
 
+If we use an array to implement a stack, the main problem that we find is:
+The stack will have a maximum size and it could be full.
+
