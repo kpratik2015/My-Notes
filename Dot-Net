@@ -120,3 +120,81 @@ Unboxing: reverse of boxing. int y = Convert.ToInt32(o);
 
 Generics was then introduced to solve problems with object.
 
+### Pass by reference 2 ways:
+
+swap(ref a, ref b);
+calc(a, b, out c, out d);
+public static void calc(int p, int q, out int r, out int s)
+{
+    r = p + q;
+    s = p * q;
+}
+
+public static void swap(ref int x, ref int y)
+{
+    x = y + -x + (y = x);
+}
+
+### Generics 
+
+string name = "Pratik";
+string city = "Pune";
+NewSwap(ref name, ref city);
+Console.WriteLine("name = {0}, city = {1}", name, city);
+public static void NewSwap<T>(ref T x, ref T y)
+{
+  T z = x;
+  x = y;
+  y = z;
+}
+
+
+### Internal v/s public
+
+internal class can be used inside assembly and not outside. 
+assembly is the .exe/dll.
+The internal access specifier hides its member variables and methods from other classes and objects, that is resides in other namespace. The variable or classes that are declared with internal can be access by any member within application. It is the default access specifiers for a class in C# programming.
+
+### Getter and setter
+
+public string Name
+{
+		get
+		{
+				return name;
+		}
+
+		set
+		{
+				name = value;
+		}
+}
+
+string name;
+
+To get this done automatically for a property. Right click on property name and click on Quick Action and refactoring.
+
+Getters and Setters help us to perform checks or formatting or other things. This is why they are used.
+
+Auto implementation: public string Name { get; set; }
+
+### Constructor
+
+public Employee()
+{
+		// Constructor
+		Empno = 1234;
+		Name = "Pratik";
+		Dept = "IT";
+		Salary = 66667;
+}
+
+// In void main:
+// OLD: Employee emp1 = new Employee();
+// NEW:
+Employee emp2 = new Employee { Name="Bob", Empno = 4321 };
+
+We can have a static constructor. It increments static variable whenever class instantiated.
+Note: static method is for using static variables.
+
+### To make a class not be a base class for some child class i.e. stop inhertiance. We use sealed keyword before class
