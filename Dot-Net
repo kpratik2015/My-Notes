@@ -1,1 +1,62 @@
 ## Dot Net Concepts
+
+### Why dot net ?
+
+Microsoft provides support.
+Learning curve reduces due to one environment providing support for multiple tech.
+Microsoft introduced disconnected arch. in dot net. That allows data to be copied on client, work on it and then send to server.
+Dot Net introduced ASP.NET that allowed compilation instead of previously interpretation.
+
+### COM
+Component Object Model (or DLL): Helps reusability. Dot Net solved problem of DLL hell. The problem disallowed use of another app that would override another app's similar object.
+COM was restricted to VB, C++. Memory management was also a pain. 
+.NET introduced common object runtime i.e. an execution environment for components written in any language.
+.NET allowed interoperability in web services.
+
+### Architecture
+Bottom to top:
+OS																				-		Visual	
+Common Language Runtime like JRE					-		Studio
+Base Class Library												-		.NET
+XML, ASP.NET, windows forms								
+Common Language Specification : It allows a different langugae to provide standard for communicate with .NET							
+C++, C#, VB (different langugaes of .NET) : Each language will have its own compiler. Below this the components remain same. 
+
+Something to know about: https://www.mono-project.com/
+
+### .NET Core Components
+
+CLR provides an execution engine for managed applications
+
+FCL
+
+### Java v/s .NET
+
+JAVA
+- Intermediate lang. is bytecode
+- Original design targeted interpretation
+- Java VMs with JIT compilation are used
+
+.NET
+- Intermediate lang. is MSIL (MSIL is Common Language Specificaiton) [Microsoft Intermediate Language]
+- Provides JIT compilation (removes overhead of interpretation
+
+CLR understands CLS and not machine code.
+
+### Common Language Runtime
+
+CLR sits on top of OS to provide a virtual environment for hosting managed applications. Managed applications are those that require CLR.
+CLR loads modules containing executable and executes their code.
+Code might be managed or unmanaged. - In either case CLR determines what to do with it.
+Managed code is written in pseudo machine language.
+
+Physical copy of our code is in MSIL. On running the code, JIT compiler comes in picture and converts to native code.
+
+### Language for .NET
+
+C# since it has strict standards. Like case sensitive. 
+Microsoft provides few languages like C++, Visual Basic, and C#. Other languages are from 3rd party.
+
+.NET increases developer productivity by providing type safety, garbage collection and exceptions.
+
+
