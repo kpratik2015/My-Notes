@@ -60,3 +60,63 @@ Microsoft provides few languages like C++, Visual Basic, and C#. Other languages
 .NET increases developer productivity by providing type safety, garbage collection and exceptions.
 
 
+V2.0 and V4.0 are main versions. Since CLR verison changed. In V3.0 WPF, WCF and WF (Windows Workflow foundation) came.
+Language Integrated Query (LINQ) came in V3.5
+
+### Visual Studio 2015 Hands on with .NET
+One solution in .NET can have multiple projects. E.g. Banking application is solution and then we can have bank website, desktop, etc.
+Everything you do in .NET is a class. 
+
+The things in 'using ...' do not have physical folders like java. They are namespace.
+Namespace is a collection of namespaces and classes. E.g. Linq is a namespace inside System namespace.
+
+Red color : method to echo back something
+Blue color : keyword / class
+
+Console.ReadLine(); will wait even if you start in debugging.
+
+Use F10 to debug step by step.
+
+On pressing F10, when reached function. If you press F11, then it will debug the function.
+
+Breakpoint will execute code till that point and then start debugging.
+
+### Basic Coding
+
+string myname = "Pratik";
+string greet = "Wassup?";
+Console.WriteLine("Hello {0}! {1}", myname, greet);
+Console.ReadLine();
+string msg = string.Format("How is .NET {0}. And {1}", myname, greet);
+Console.WriteLine(msg);
+
+Developer command prompt inside visual studio tools. Type command: ildasm 
+It's integrated language disassembler
+Any compiled file is assembly.
+mscorlib is MS file that has all namespaces stored.
+.ctor is constructor in IL code.
+S on icon denotes static.
+
+### Memory
+
+Data segment
+Code segment
+Heap
+Stack : declared variables stored here.
+
+Objects will always point to the heap.
+E.g. 
+object o;
+int x = 20;
+o = x; // object will create copy and point to heap
+Console.WriteLine(o);	// 20
+x = 30;	
+Console.WriteLine(o);	// 20
+
+In object we can store anything. It's called as boxing. A scalar value you can box in object.
+Object is advantage to a certain extent as we can store any variable type in it. However, if we do for i 1..1000 o = x; It will create 1000 copies that will decrease performance.
+
+Unboxing: reverse of boxing. int y = Convert.ToInt32(o);
+
+Generics was then introduced to solve problems with object.
+
