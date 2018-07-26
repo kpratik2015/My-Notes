@@ -198,3 +198,33 @@ We can have a static constructor. It increments static variable whenever class i
 Note: static method is for using static variables.
 
 ### To make a class not be a base class for some child class i.e. stop inhertiance. We use sealed keyword before class
+
+### DLL
+
+Most of the time in DLL there are no print statements i.e. writeline. And 80% of the time DLL is constructed.
+We can create it using class library option from New of Visual Studio.
+
+Then in executable file with static void main() we do:
+using DllName;
+ClassNameInDLL obj = new ClassNameInDLL();
+obj.method();
+
+#### There are 2 concepts in Assembly:
+- Private
+- Shared : can be shared by multiple projects. This reduces copies generated of DLLs.
+
+Global Assemlby Cache (GAC) has all the shared DLLs. Location: C:\Windows\assembly
+
+An example on key: Bank locker. It opens up only after your own key and the key with banker is inserted at same time.
+So with public key concept in dll, it secures against same name dll being inserted.
+
+#### Sn utility creates a key and then we can put in our project. It gets combined. Thus, making the dll strong.
+
+You gotta publish the dll to GAC after public key combining.
+
+The public key will be used to encrypt the hidden private key.
+
+gacutil will put DLL in GAC area. (this isn't mandatory)
+
+Proper command: gacutil /i calc.dll
+
