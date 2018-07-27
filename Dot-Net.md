@@ -353,3 +353,45 @@ class TestEvent
 
 Events can be raised in constructor, properties and methods.
 Event of parent class cannot be raised in derived class.
+
+
+### Collections
+
+ArrayList: object based and dynamic. Isn't type safe.
+HashTables: 
+List: dynamic and type safe (i.e. we provide datatype)
+
+E.g.
+```
+List<Products> plist = new List<Products>();
+plist.Add(new Products { Pno = 100, Pname = "Monitor", Stock = 200 });
+plist.Add(new Products { Pno = 101, Pname = "CPU", Stock = 1200 });
+plist.Add(new Products { Pno = 102, Pname = "Keyboard", Stock = 500 });
+plist.Add(new Products { Pno = 103, Pname = "Laptop", Stock = 100 });
+
+Console.WriteLine("\n");
+
+foreach(Products prod in plist)
+{
+		Console.WriteLine($"{prod.Pno} {prod.Pname} {prod.Stock}");
+}
+```
+
+### Windows Forms
+
+WPF is latest.
+Form1 or some other name are objects of Form. 
+F4 to bring up properties
+
+E.g. 
+```
+public partial class Form1 : Form
+```
+
+partial because one class is divided into 2 files physically. Then at compilation both have to be combined.
+
+To run another form that has different name, go in Program.cs and change name
+```
+Application.Run(new Form1());
+```
+
