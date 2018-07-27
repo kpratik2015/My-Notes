@@ -82,14 +82,14 @@ On pressing F10, when reached function. If you press F11, then it will debug the
 Breakpoint will execute code till that point and then start debugging.
 
 ### Basic Coding
-
+```
 string myname = "Pratik";
 string greet = "Wassup?";
 Console.WriteLine("Hello {0}! {1}", myname, greet);
 Console.ReadLine();
 string msg = string.Format("How is .NET {0}. And {1}", myname, greet);
 Console.WriteLine(msg);
-
+```
 Developer command prompt inside visual studio tools. Type command: ildasm 
 It's integrated language disassembler
 Any compiled file is assembly.
@@ -106,13 +106,14 @@ Stack : declared variables stored here.
 
 Objects will always point to the heap.
 E.g. 
+```
 object o;
 int x = 20;
 o = x; // object will create copy and point to heap
 Console.WriteLine(o);	// 20
 x = 30;	
 Console.WriteLine(o);	// 20
-
+```
 In object we can store anything. It's called as boxing. A scalar value you can box in object.
 Object is advantage to a certain extent as we can store any variable type in it. However, if we do for i 1..1000 o = x; It will create 1000 copies that will decrease performance.
 
@@ -121,7 +122,7 @@ Unboxing: reverse of boxing. int y = Convert.ToInt32(o);
 Generics was then introduced to solve problems with object.
 
 ### Pass by reference 2 ways:
-
+```
 swap(ref a, ref b);
 calc(a, b, out c, out d);
 public static void calc(int p, int q, out int r, out int s)
@@ -134,9 +135,9 @@ public static void swap(ref int x, ref int y)
 {
     x = y + -x + (y = x);
 }
-
+```
 ### Generics 
-
+```
 string name = "Pratik";
 string city = "Pune";
 NewSwap(ref name, ref city);
@@ -148,7 +149,7 @@ public static void NewSwap<T>(ref T x, ref T y)
   y = z;
 }
 
-
+```
 ### Internal v/s public
 
 internal class can be used inside assembly and not outside. 
@@ -156,7 +157,7 @@ assembly is the .exe/dll.
 The internal access specifier hides its member variables and methods from other classes and objects, that is resides in other namespace. The variable or classes that are declared with internal can be access by any member within application. It is the default access specifiers for a class in C# programming.
 
 ### Getter and setter
-
+```
 public string Name
 {
 		get
@@ -171,7 +172,7 @@ public string Name
 }
 
 string name;
-
+```
 To get this done automatically for a property. Right click on property name and click on Quick Action and refactoring.
 
 Getters and Setters help us to perform checks or formatting or other things. This is why they are used.
@@ -179,7 +180,7 @@ Getters and Setters help us to perform checks or formatting or other things. Thi
 Auto implementation: public string Name { get; set; }
 
 ### Constructor
-
+```
 public Employee()
 {
 		// Constructor
@@ -193,7 +194,7 @@ public Employee()
 // OLD: Employee emp1 = new Employee();
 // NEW:
 Employee emp2 = new Employee { Name="Bob", Empno = 4321 };
-
+```
 We can have a static constructor. It increments static variable whenever class instantiated.
 Note: static method is for using static variables.
 
@@ -228,3 +229,72 @@ gacutil will put DLL in GAC area. (this isn't mandatory)
 
 Proper command: gacutil /i calc.dll
 
+### Delegates
+
+Delegate helps to propagate the functioning to a method. Where the method is present is not known so we use delegate.
+If we want to store a reference to function name then we use delegate.
+It helps to fill in the blanks.
+Another main thing is Events.
+
+Example:
+```
+MyMaths mm = new MyMaths(); // class which has add method
+MyDelegates.CalcDelegate cd = new MyDelegates.CalcDelegate(mm.add); // MyDelegates class has CalcDelegate
+int x = cd(10, 40);
+Console.WriteLine("Addition: {0}", x);
+int x = cd(10, 40);
+Console.WriteLine("Addition: {0}", x);
+cd = new MyDelegates.CalcDelegate(mm.multiply);
+Console.WriteLine("Multiplication: {0}", cd(3, 9));
+Console.ReadLine();
+```
+
+#### Multicase delegate
+
+One delegate is associated with multiple things. 
+Doesn't work if both functions return in below example.
+E.g.
+```
+MyDelegates.CalcDelegate cd = new MyDelegates.CalcDelegate(mm.add);
+cd += new MyDelegates.CalcDelegate(mm.diff);
+```
+
+#### Delegate inside function
+
+E.g.
+```
+class MyDelegates
+{
+		public delegate int CalcDelegate(int x, int y);
+		public delegate void TopDelegate(string name);
+		public void MakePizza(TopDelegate td, string name)
+		{
+				Console.WriteLine("Today is Friday");
+				Console.WriteLine("Month is July");
+				Console.WriteLine("-------");
+				td(name);
+				Console.WriteLine("-------");
+				Console.WriteLine("Year is 2018");
+				Console.WriteLine("Its Raining");
+		}
+
+}
+
+ class TestDelegate
+{
+	public static void Main()
+	{
+			MyDelegates.TopDelegate td = new MyDelegates.TopDelegate(CheeseTop);
+			MyDelegates md = new MyDelegates();
+			md.MakePizza(td, "Tom");
+			Console.ReadLine();
+	}
+
+	private static void CheeseTop(string name)
+	{
+			Console.WriteLine("This is Cheese Topping");
+			Console.WriteLine("We are using Mozerala Cheese");
+			Console.WriteLine("Thank You!");
+	}
+}
+```
