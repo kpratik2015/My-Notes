@@ -298,3 +298,58 @@ class MyDelegates
 	}
 }
 ```
+
+
+_Note: Another way to use variable in print - Console.WriteLine($"Thank You {name}");_
+
+### Events
+
+Why use Events or publish / subscribe?
+Any number of classes can be notified when an event is raised.
+
+At the most basic conceptual level, Events are what let the computer react to what you do, rather than you being required to react to what the computer does
+
+1. Declare Event (Class level)
+2. Raise Event: raising event on some condition (Class level)
+3. Handle Event: like where to display a message (User/Client level)
+
+E.g.
+```
+class Products
+{
+		public int Pno { get; set; }
+		public string Pname { get; set; }
+		public int Stock { get; set; }
+		public delegate void StockHandler(string msg);
+		// StockChange is event name. 
+		// When the event is raised, it will execute the delegated method StockHandler
+		public event StockHandler StockChange; 
+		public void AddQty(int qty)
+		{
+				if(StockChange != null)			// This is important
+					StockChange("Stock had changed");
+				Stock += qty;
+		}
+}
+    
+class TestEvent
+{
+	public static void Main()
+	{
+	    Products pd = new Products { Pno = 101, Pname = "Monitor", Stock = 300 };
+			// Immediately after object is created. The object has to subscribe to the event to get the message.
+			pd.StockChange += Pd_StockChange; // press TAB after += to get auto insertion of handling event (subscribing)
+	    pd.AddQty(50);
+	    Console.WriteLine($"Stock = {pd.Stock}");
+	    Console.ReadLine();
+	}
+	
+	private static void Pd_StockChange(string msg)
+	{
+			Console.WriteLine(msg);
+	}
+}
+```
+
+Events can be raised in constructor, properties and methods.
+Event of parent class cannot be raised in derived class.
