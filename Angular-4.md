@@ -30,6 +30,10 @@ Endpoints that are accessible via the HTTP Protocol
 
 It is a library that helps create new angular project with some boiler plate code. It also helps deployable package.
 
+## Code Editor
+
+Visual Studio Code Editor
+
 ## Setup 
 
 Download [Nodejs](https://nodejs.org/en/download/) which has npm package.
@@ -63,6 +67,46 @@ ng - v
 ng serve --open
 
 ```
+
+## Project Structure
+
+### e2e
+
+End to end tests for application. Automated tests to simulate real user.
+
+### node_modules
+
+third party libraries the app may depend upon. This is for development.
+
+### src
+
+This is where we have actual source code of our app.
+
+assets folder stores images or icon or stuff
+
+environments folder stores configuration settings for different environment
+
+index.html contains our angular application. The css n js will be dynamically inserted
+
+main.ts is the starting point. Bootstrapping Main module of our app.
+
+polyfills.ts have some parts of javascripts that are needed by angular
+
+styles.css has global styles of our app
+
+test.ts is used for setting up testing environment
+
+.editorconfig when in team envinronment all team should use same settings
+
+karma.conf.js is test runner for js files
+
+package.json has settings like name and version. It contains dependencies. You can delete whatever u dnt need
+
+Devdependencies are for development environment only. Not for production.
+
+tsconfig.js has type of settings for typescript compiler
+
+tslint is a static analysis for typescript code.
 
 ## Components
 
