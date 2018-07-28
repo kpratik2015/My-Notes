@@ -175,10 +175,18 @@ drawPoint( {
 
 Cohesion principle. Class groups properties and functions that are highly related.
 
+### Note: '?' question mark symbol after variable indicates it is optional. Also, parameters to the right of first optional parameter should all be optional. This allows creating an object with no arguements to be passed. Since typescript does not allow multiple constructor type.
+
 ```
 class Point {
   x: number;
   y: number;
+	
+	constructor(x?: number, y?: number) {
+		this.x = x;
+		this.y = y;
+	}
+	
 	draw() {
 		console.log('X: ', this.x + ', Y: ' + this.y);
 	}
@@ -187,8 +195,5 @@ class Point {
 }
 
 let point = new Point(); // have to allocate memory for object with new keyword
-point.x = 1;
-point.y = 2;
 point.draw();
 ```
-
