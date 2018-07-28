@@ -24,13 +24,51 @@ _Now ng -v provides versions of all the things angular installed_
 Now make sure you have typescript installed > v2.16. If not, do the following:
 
 ```
-npm install typescript@2.2.1 --save
+npm install typescript@2.7.2 --save
 
 ng - v
 
 ng serve --open
 
 ```
+
+## Components
+
+Where you'll spend most of your time. They are basic building blocks.
+
+Technically they are classes with component decorator.
+
+We can't communicate with the code defined in component class.
+
+Opening: \components101\src\app\app.component.ts
+
+You'll find 3 sections:
+- import statement is input. You can import services
+- component decorator @component. We're using component from above class. There is app-root in index.html.
+- AppComponent defines events that occur in the template through data binding. 
+
+```
+ng g component my-new-component
+```
+Above command generates 4 files.
+_g is shorthand for generate. spec.ts file is used for unit testing_
+Other area affected is app.module.ts.
+
+Going to components101\src\app\my-new-component\my-new-component.component.ts
+
+Copy selector and go to app.component.html to add following:
+
+```
+<app-my-new-component></app-my-new-component>
+```
+
+Go back to console and type 
+
+```
+ng serve
+```
+
+Then you can go to [localhost:4200](http://localhost:4200/)
 
 
 
