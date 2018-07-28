@@ -302,3 +302,41 @@ https://docs.oracle.com/javase/8/docs/api/java/util/Stack.html
 If we use an array to implement a stack, the main problem that we find is:
 The stack will have a maximum size and it could be full.
 
+The optimal solution for implementing a Stack is A linked list because it can grow and decrease its size dynamically. 
+
+For implementing stacks using a linked list: It can be implemented by storing only one reference to the first element of the LinkedList
+
+A node of a linked list (meaning a simply–linked list) used for implementing stacks... stores a data item and a reference to the next node.
+
+If we really get out of memory with linked lists, we would get some low-level system exception,
+and this is in contrast to the array-based implementation,
+where there are some limits due to the creation of arrays.
+
+For recrusion (e.g. factorial)
+Have you seen the data structure we have used?
+It is a stack
+and what we have called environments are actually called stack frames.
+
+Stack frame includes
+all the arguments,
+all the local variables, and where to return to the end of the method,
+and all the information for this call to be executed.
+
+
+In the call stack, this is one of the names it's given to the stack, the call stack, a stack
+frame keeps everything that is needed to evaluate the call.
+And after returning
+this stack frame is removed.
+
+-------------
+IMPORTANT:
+In the implementation of a array-based circular queues, which is the recommended operator to increment the index that points at the first element?
+With the operator % (module), you can add +1 to an index array and you will get the first position if the index goes beyond the end position: index = (index+1)%array.length. For instance, if the array length is 10 and the index is 9, that statement will move the index back to 0 (the first position of the array).
+
+In a queue, implemented with an array and generics: Only any object type can be stored
+Generics can hold any object type in Java, but not primitive types.
+
+-------------
+
+
+
