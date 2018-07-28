@@ -138,7 +138,37 @@ let doLog = (message) => console.log(message); // in C# we call this lambda func
 
 let doLog = () => console.log('anything');
 
+```
 
+## Interfaces
 
 ```
+// Inline annotation way:
+
+let drawPoint = (point: {x : number, y: number}) => {
+  // ...
+}
+
+drawPoint( {
+  x: 1,
+  y: 2
+} )
+
+// Interface:
+// use skull naming convention while naming interface that is uppercase starting letter.
+interface Point {
+  x: number,
+  y: number
+}
+
+let drawPoint = (point: Point) => {
+  // ...
+}
+
+drawPoint( {
+  x: 1,
+  y: 2
+} )
+```
+
 
