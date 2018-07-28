@@ -26,6 +26,10 @@ Business Logic
 
 Endpoints that are accessible via the HTTP Protocol
 
+## Angular CLI
+
+It is a library that helps create new angular project with some boiler plate code. It also helps deployable package.
+
 ## Setup 
 
 Download [Nodejs](https://nodejs.org/en/download/) which has npm package.
