@@ -171,4 +171,24 @@ drawPoint( {
 } )
 ```
 
+## Classes
+
+Cohesion principle. Class groups properties and functions that are highly related.
+
+```
+class Point {
+  x: number;
+  y: number;
+	draw() {
+		console.log('X: ', this.x + ', Y: ' + this.y);
+	}
+	getDistance(another: Point) {
+	}
+}
+
+let point = new Point(); // have to allocate memory for object with new keyword
+point.x = 1;
+point.y = 2;
+point.draw();
+```
 
