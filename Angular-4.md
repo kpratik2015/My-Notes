@@ -108,6 +108,32 @@ tsconfig.js has type of settings for typescript compiler
 
 tslint is a static analysis for typescript code.
 
+## Webpack
+
+Angular CLI uses webpack to combine our scripts, stylesheets and other stuff into bundles and minifies the bunbles
+
+main.bundle.js has all our core code
+
+styles.bundle.js has styles stored in javascript bundle
+
+vendor.bundle.js has 3rd party code
+
+Whenever you modify a file, webpack recompiles the bundle and displays the output.
+
+### It is called Hot Module Reloading
+
+## AngularJS vs Angular 2 vs  Angular 4
+
+AngularJS was introduced in 2010. The framework was not designed keeping the current frameworks in mind. So they redesigned it to Angular 2 in 2016. 
+
+Angular 4 came out after Angular 2.3. Angular 4 was not a new framework, it wasn't a major upgrade.
+
+Angular libraries:
+- core
+- compiler
+- http
+- router
+
 ## Components
 
 Where you'll spend most of your time. They are basic building blocks.
