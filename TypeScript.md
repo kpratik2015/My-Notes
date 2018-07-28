@@ -197,3 +197,104 @@ class Point {
 let point = new Point(); // have to allocate memory for object with new keyword
 point.draw();
 ```
+
+## Access Modifiers
+
+public, private and protected. Default: public.
+
+```
+class Point {
+  private x: number;
+  private y: number;
+	
+	constructor(x?: number, y?: number) {
+		this.x = x;
+		this.y = y;
+	}
+	
+	draw() {
+		console.log('X: ', this.x + ', Y: ' + this.y);
+	}
+	getDistance(another: Point) {
+	}
+}
+
+let point = new Point(1, 2); // works
+// point.x = 2; // error 
+point.draw();
+```
+
+### Making code smaller
+
+```
+class Point {
+	constructor(private x?: number, private y?: number) {
+	}
+	
+	draw() {
+		console.log('X: ', this.x + ', Y: ' + this.y);
+	}
+	getDistance(another: Point) {
+	}
+}
+
+let point = new Point(1, 2);
+point.draw();
+```
+
+## Properties
+
+```
+class Point {
+	constructor(private x?: number, private y?: number) {
+	}
+	
+	draw() {
+		console.log('X: ', this.x + ', Y: ' + this.y);
+	}
+	getX() {
+		return this.x;
+	}
+	setX( value ) {
+		if( value < 0 ) {
+			throw new Error('value cannot be less than 0.);
+		}
+		
+		this.x = value;
+			
+	}
+}
+
+let point = new Point(1, 2);
+let x = point.getX();
+point.setX(10);
+point.draw();
+```
+
+Using properties:
+
+```
+class Point {
+	constructor(private x?: number, private y?: number) {
+	}
+	
+	draw() {
+		console.log('X: ', this.x + ', Y: ' + this.y);
+	}
+	get X() {
+		return this.x;
+	}
+	set X( value ) {
+		if( value < 0 ) {
+			throw new Error('value cannot be less than 0.);
+		}
+		this.x = value;
+			
+	}
+}
+
+let point = new Point(1, 2);
+let x = point.X;
+point.X = 10;
+point.draw();
+```
