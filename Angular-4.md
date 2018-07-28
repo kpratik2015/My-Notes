@@ -1,5 +1,33 @@
 # Angular 4 from Scratch
 
+## Why Angular ?
+
+- Gives our applications clean structure
+- Easier to maintain than vanilla javascript
+- Includes a lot of re-usable code like navigation
+- Makes our applications more testable
+- Using Angular makes life easier
+
+## Architecture of Angular Apps
+
+### Front-End
+
+HTML, CSS, TypeScript, Angular
+
+HTML Templates, Presentation Logic
+
+### Back-End
+
+Data + APIs
+
+Business Logic
+
+### HTTP Services/APIs
+
+Endpoints that are accessible via the HTTP Protocol
+
+## Setup 
+
 Download [Nodejs](https://nodejs.org/en/download/) which has npm package.
 
 After installing check in cmd with command: node -v 
