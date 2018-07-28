@@ -104,4 +104,41 @@ let backgroundColor = Color.Red;
 
 ```
 
+## Type Assertions
+
+```
+let message; // type is any
+message = 'abc';
+let endsWithC = (<string> message).endsWith('c');
+// OR
+let alternativeWay = (message as string).endsWith('c');
+// this does not restructure the object in memory but it allows typescript's intellisense to generate suggestions and errors based on type
+
+```
+
+## Arrow Functions
+
+```
+// TRADITIONAL:
+let log = function(message) {
+  console.log(message);
+}
+
+// Arrow One:
+
+let doLog = (message) => {
+  console.log(message);
+}
+
+// If we have only one line of code inside then:
+
+let doLog = (message) => console.log(message); // in C# we call this lambda function
+
+// If no parameters:
+
+let doLog = () => console.log('anything');
+
+
+
+```
 
