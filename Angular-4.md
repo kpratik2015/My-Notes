@@ -382,3 +382,22 @@ e.g. colspan in html is attr.colspan for dom (to write in square bracket)
 </table>
 ```
 
+## Adding bootstrap
+
+```
+npm install bootstrap --save 
+```
+--save adds it to package.json
+
+Benefit of adding in package.json is that all the dependencies are listed. This will allow someone checking source folder to execute below command and download the dependencies:
+```
+npm install
+```
+This allows us to ignore node_modules folder for version control.
+
+In styles.css
+```
+@import "~bootstrap/dist/css/bootstrap.css";
+```
+Now we can use bootstrap in templates.
+
