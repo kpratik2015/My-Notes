@@ -483,3 +483,45 @@ imports: [
 ]
 // ...
 ```
+
+## Pipes
+
+Built-in:
+- Uppercase
+- Lowercase
+- Decimal
+- Currency
+- Percent
+
+```
+// ...
+{{ course.students | number }}
+{{ course.rating | number: '1.2-2' }} // rounding 1 digit before decimal and round upto 2 after decimal
+{{ course.price | current: 'AUD' : true : '3.2-2' }} // currency can take multiple. True is for symbol
+{{ course.releaseDate | date:'shortDate' }}
+// ...
+```
+[All date formats](https://angular.io/api/common/DatePipe)
+
+## Custom Pipes
+
+summary.pipe.ts
+```
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+  name: 'summary'
+})
+
+export class SumarryPipe implements PipeTransform {
+  transform(value: string, args?: any) {
+    if(!value) return null;
+    
+    return value.substr(0, 50) + '...';
+  }
+}
+```
+app.module.ts
+```
+delcarations: [ SummaryPipe ]
+```
