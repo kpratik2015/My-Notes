@@ -330,3 +330,37 @@ point.draw();
 
 In typescript we define different modules and export functions, types or classes. Angular modules are little different, they are organization of your code in smaller different areas.
 
+## Extras/Tips
+
+_Constructor short hand_
+constructor(public likesCount: number) {
+}
+
+_ternary operator_
+Traditional:
+```
+if (this.isSelected) {
+	this.likesCount--;
+} else {
+	this.likesCount++;
+}
+```
+Better:
+```
+this.likesCount += (this.isSelected) ? -1 : 1;
+```
+_toggle instead of flag_
+```
+this.isSelected = !this.isSelected;
+```
+_varirable in log statement_
+```
+console.log(`likesCount: ${component.likesCount}, isSelected: ${component.isSelected}`);
+```
+_execution_
+```
+tsc *.ts --target ES5 && node main.js
+```
+--target ES5 because accessors are only available when targeting ECMAScript 5 and higher. 
+
+
