@@ -417,3 +417,28 @@ export class CoursesComponent {
 }
 ```
 
+## Style binding
+
+[All style object properties](https://www.w3schools.com/jsref/dom_obj_style.asp)
+
+```
+<button [style.backgroundColor]="isActive > 'blue' : 'white'"> </button>
+```
+
+## Event binding
+
+$event is known to angular. It represents a standard dom event that is seen in JS. 
+
+```
+// ...
+<button (click)="onSave($event)">Save</button>
+// ...
+
+export class CoursesComponent {
+  onSave($event) {
+    console.log("Button was clicked", $event);
+    }
+}
+```
+_Note: To stop 'event bubbling', we add $event.stopPropagation()_
+
