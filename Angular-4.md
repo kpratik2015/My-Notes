@@ -142,6 +142,12 @@ Parent component is App Component.
 
 Module is group of similar components.
 
+Where you'll spend most of your time. They are basic building blocks.
+
+Technically they are classes with component decorator.
+
+We can't communicate with the code defined in component class.
+
 ### Steps for components
 
 - Create a component
@@ -184,13 +190,6 @@ import { CoursesComponent } from './courses.component';
 })
 ```
 
-
-Where you'll spend most of your time. They are basic building blocks.
-
-Technically they are classes with component decorator.
-
-We can't communicate with the code defined in component class.
-
 Opening: \components101\src\app\app.component.ts
 
 You'll find 3 sections:
@@ -221,6 +220,13 @@ ng serve
 
 Then you can go to [localhost:4200](http://localhost:4200/)
 
+### Generating a Component
+
+In visual studio, press Ctrl + \` to bring up terminal.
+
+```
+ng g c component-name
+```
 
 ## Template Basics
 
@@ -285,3 +291,55 @@ export class AppComponent {
 }
 
 ```
+
+## Services
+
+Most of the time in real world application we get data from servers. When we want to unit test a component we do not want to be dependent on a live HTTP endpoint, because it will make it harder to execute the tests.
+So we create a fake http endpoint.
+
+### Naming convention
+
+courses.service.ts
+
+```
+// No decorator
+export class CoursesService {
+  getCourses() {
+    return ["c1", "c2"];
+  }
+}
+```
+
+So the service provides data to component. We can decouple logic. 
+
+_Using service_
+
+courses.component.ts 
+```
+// ...
+export class CoursesComponent {
+  title = "List of courses";
+  courses;
+  
+  constructor(service: CoursesService) { // angular will now create the service depending on constructor of service
+    // let service = new CoursesService(); // this will tightly couple courses component to courses service
+    this.courses = service.getCourses();
+  }
+}
+// ...
+```
+
+### Dependency Injection
+
+We need to instruct angular to create an instance of CoursesService and pass it to CoursesComponent. This concept is dependency injection.
+
+app.module.ts
+
+```
+// ...
+providers: [CoursesService]
+// ...
+```
+
+### Singleton: Imagine we have a lot of components and CoursesService provides data to all these components. In memory we will have single instance of CoursesService and angular will pass same instance to all the components.
+
