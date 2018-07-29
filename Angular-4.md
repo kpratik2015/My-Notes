@@ -442,3 +442,44 @@ export class CoursesComponent {
 ```
 _Note: To stop 'event bubbling', we add $event.stopPropagation()_
 
+## Event filtering and template variables
+
+email is variable name. It is template variable.
+
+```
+// ...
+<input #email (keyup.enter)="onKeyUp(email.value)" />
+// ...
+export class CoursesComponent {
+  onKeyUp(email) {
+    console.log(email);
+  }
+} 
+```
+
+## Two way binding
+
+ngModel is added to DOM object. It's a directive. Note the [()] for two way binding.
+
+```
+// ...
+<input [(ngModel)]="email" (keyup.enter)="onKeyUp()" />
+// ...
+export class CoursesComponent {
+  email = "me@example.com";
+  onKeyUp() {
+    console.log(this.email);
+  }
+} 
+```
+
+app.module.ts
+```
+import { FormsModule } from '@angular/forms';
+// ...
+imports: [ 
+  BrowserModule,
+  FormsModule 
+]
+// ...
+```
