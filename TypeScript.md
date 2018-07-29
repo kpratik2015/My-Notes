@@ -298,3 +298,35 @@ let x = point.X;
 point.X = 10;
 point.draw();
 ```
+
+## Modules
+
+In typescript we can think of each file as module (roughly). Basic example is below.
+
+point.ts
+
+```
+export class Point {
+	constructor(private x?: number, private y?: number) {
+	
+	}
+	draw() {
+		console.log('X: ', this.x + ', Y: ' + this.y);
+	}
+	
+}
+
+```
+Note the export keyword
+
+main.ts
+
+```
+import { Point } from './point'; // name of our module is point
+
+let point = new Point(1, 2);
+point.draw();
+```
+
+In typescript we define different modules and export functions, types or classes. Angular modules are little different, they are organization of your code in smaller different areas.
+
