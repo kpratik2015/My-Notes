@@ -401,3 +401,19 @@ In styles.css
 ```
 Now we can use bootstrap in templates.
 
+## Class binding
+
+If the field evaluates to be true then the class will be added.
+
+courses.component.ts
+```
+// ...
+template:  `
+  <button class="btn btn-primary" [class.active]="isActive"> </button>
+`
+// ...
+export class CoursesComponent {
+  isActive = true;
+}
+```
+
