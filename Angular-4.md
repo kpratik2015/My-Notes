@@ -341,5 +341,21 @@ providers: [CoursesService]
 // ...
 ```
 
-### Singleton: Imagine we have a lot of components and CoursesService provides data to all these components. In memory we will have single instance of CoursesService and angular will pass same instance to all the components.
+#### Singleton: Imagine we have a lot of components and CoursesService provides data to all these components. In memory we will have single instance of CoursesService and angular will pass same instance to all the components.
+  
+### Generating Services using Angular CLI
 
+```
+ng g s service-name
+```
+
+#### Note: spec files are used for testing. 
+
+@Injectable is only used when you have dependencies in your constructor
+E.g.
+```
+@Injectable()
+export class EmailService {
+  constructor(logService: logService) { }
+}
+```
