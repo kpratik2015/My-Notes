@@ -359,3 +359,26 @@ export class EmailService {
   constructor(logService: logService) { }
 }
 ```
+
+## Property Binding
+
+We bind a dom element like src with the property in our class..
+
+courses.component.ts
+```
+// ...
+template: `
+<img [src]="imageUrl" />
+`
+// ...
+```
+Note: most of the time Dom property and html tag has one to one mapping. But in some cases the name different
+e.g. colspan in html is attr.colspan for dom (to write in square bracket)
+```
+<table>
+  <tr>
+    <td [attr.colspan]="colSpanField"></td>
+  </tr>
+</table>
+```
+
