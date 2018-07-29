@@ -136,6 +136,55 @@ Angular libraries:
 
 ## Components
 
+The component encapsulates the data, html template and logic for the view. Allows re-usability.
+
+Parent component is App Component.
+
+Module is group of similar components.
+
+### Steps for components
+
+- Create a component
+- Register it in a module
+- Add an element in an HTML markup
+
+### Naming convetion 
+
+For suppose a course form named component: 
+```
+course-form.component.ts
+```
+Inside a courses.component.ts, the class name would be like:
+```
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'courses', // for <div class="courses"> we put '.courses'
+  template: '<h1>Hello</h1>'
+})
+
+export class CoursesComponent {
+
+}
+```
+
+### Registering Component
+
+In app.module.ts, @NgModule converts a plain typescript class into an angular module.
+
+```
+import { CoursesComponent } from './courses.component';
+
+@NgModule({
+  declarations: [
+  AppComponent,
+  CoursesComponent
+  ],
+  // ...
+})
+```
+
+
 Where you'll spend most of your time. They are basic building blocks.
 
 Technically they are classes with component decorator.
