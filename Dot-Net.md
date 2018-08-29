@@ -395,3 +395,35 @@ To run another form that has different name, go in Program.cs and change name
 Application.Run(new Form1());
 ```
 
+## WPF
+
+A GUI technology. Little brother silverlight is used for web applications.
+
+Easy to produce different styles
+- Web browser like navigation and placement
+- Traditional forms
+- Animated Graphics
+
+### XAML
+
+eXtensible Application Markup Language
+
+Tags are names of .Net 3.5 classes
+
+Attributes are class properties and events
+
+#### Panels
+
+Layours, like the previous page can use:
+- Canvas
+- StackPanel
+- Grid
+- DockPanel
+- A couple of others
+- All of these can be nested.
+
+### What makes WPF unique?
+
+- Vector grpahics with parse tree structure derived from markup
+- Routed events bubble up the parse tree
+- Pervasive Publish and Subscribe Model
