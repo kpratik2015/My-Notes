@@ -525,3 +525,18 @@ app.module.ts
 ```
 delcarations: [ SummaryPipe ]
 ```
+
+## Shadow DOM
+
+Allows us to apply scoped styles to elements without bleeding out to outer world.
+
+Only new browsers support this.
+```
+var el = document.querySelector('favorite')
+var root = el.createShadowRoot(); // this will restrict styling in block of code
+root.innerHTML = `
+  <style> h1 { color: red; }</style>
+  <h1> Hello </h1>
+`
+```
+
