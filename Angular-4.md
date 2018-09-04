@@ -497,7 +497,7 @@ Built-in:
 // ...
 {{ course.students | number }}
 {{ course.rating | number: '1.2-2' }} // rounding 1 digit before decimal and round upto 2 after decimal
-{{ course.price | current: 'AUD' : true : '3.2-2' }} // currency can take multiple. True is for symbol
+{{ course.price | currency: 'AUD' : true : '3.2-2' }} // currency can take multiple. True is for symbol
 {{ course.releaseDate | date:'shortDate' }}
 // ...
 ```
