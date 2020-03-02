@@ -1,3 +1,99 @@
+# Useful Links
+
+![Python Programming site](https://checkio.org/)
+
+# Things to Know of Python in CC
+
+- [::-1] for reversal of string in python
+- [::-1] adds O(n) to complexity
+- Palindrome O(n) algorithm is Manacher's algo: https://medium.com/hackernoon/manachers-algorithm-explained-longest-palindromic-substring-22cb27a5e96f
+- To make an even length string odd, fill with filler.
+  e.g. aba -> #a#b#a#
+- Raised to value in python: 2 \*\* 31
+- Simple reverse without negative or max consideration:
+
+```python
+n = 4562;
+rev = 0
+while(n > 0):
+  a = n % 10
+  rev = rev * 10 + a
+  n = n / 10
+```
+
+- Mod is used to start considering from end and divided by 10 to move forward
+
+- This is an important approach to remeber for reverse and palindrome:
+
+```python
+reverted_num = 0
+while given_number > reverted_num:
+	reverted_num = reverted_num * 10 + given_number % 10
+	given_number /= 10
+```
+
+- Python dictionary sorting
+  `popular_fruits = sorted(fruits, key=lambda x: (-fruits[x], x))`
+
+- Python dictionary iteration
+  `for key, value in dictionary.items():`
+
+- In python you can get values from 2 lists of same size using zip:
+
+```python
+l1 = ['a', 'b']
+l2 = [1, 2]
+for one, two in zip(l1, l2):
+  print(one, two)
+```
+
+- Time complexity of zip() for N iterables with M as average length of iterables: O(N\*M)
+
+- Data Structure: ![Trie](https://leetcode.com/articles/implement-trie-prefix-tree/)
+
+- For getting ascii value of a character in python:
+  `print(ord('a')) # prints 97`
+
+- For max of an integer in python use:
+
+`max_dist = sys.maxint`
+
+- Python check object memory address by:
+
+`a = []; print(id(a))`
+
+- Python list slicing creates new object. Better to use islice ?
+
+- Alternative to: `h = { 'abc' : 'something-random' }` is: `h = set(['abc'])`
+
+- Checking whether None exists:
+
+```python
+if None in (l1, l2):
+  return l1 or l2 # returns non None list
+```
+
+- In case of two list nodes traversal and creation of new listnode,
+
+  - Two references created: dummy and cursor
+  - Cursor is advanced with cursor.next while the dummy stays at the start
+  - We can finally return dummy.next (shifting to where the real stuff starts)
+
+- Primer on ![yield](https://stackoverflow.com/questions/231767/what-does-the-yield-keyword-do):
+
+  - A function with yield, when called, returns a Generator
+  - Generators are iterators because they implement the ![iterator protocol](https://docs.python.org/2/library/stdtypes.html#iterator-types), so you can iterate over them.
+  - In Python 3, you can delegate from one generator to another in both directions with yield from
+  - yield is only legal inside of a function definition, and the inclusion of yield in a function definition makes it return a generator
+
+- Short if else
+
+```python
+amount = 1
+lists = ['a']
+print(lists[0] if amount > 0 else lists)
+```
+
 # Dynamic Programming
 
 Inception: Those who cannot remember the past are condemned to repeat it.
@@ -133,6 +229,14 @@ Inside for loop, a while loop with condition while j < k
 
 Backtracking is an algorithm for finding all solutions by exploring all potential candidates. If the solution candidate turns to be not a solution (or at least not the last one), backtracking algorithm discards it by making some changes on the previous step, i.e. backtracks and then try again.
 
+**Explaining Time Complexity**
+
+Runtime of backtracking algorithms is O(b^d), where b is the branching factor and d is the maximum depth of recursion.
+
+Backtracking is characterized by a number of decisions b that can be made at each level of recursion. If you visualize the recursion tree, this is the number of children each internal node has. You can also think of b as standing for "base", which can help you remember that b is the base of the exponential.
+
+If we can make b decisions at each level of recursion, and we expand the recursion tree to d levels (ie: each path has a length of d), then we get b^d nodes. Since backtracking is exhaustive and must visit each one of these nodes, the runtime is O(b^d).
+
 **Example (Combination problem)**
 
 Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent.
@@ -208,6 +312,69 @@ backtrack("", "23")
 .
 ```
 
+**Example (Generate Parentheses)**
+
+Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+
+For example, given n = 3, a solution set is:
+
+```
+[
+  "((()))",
+  "(()())",
+  "(())()",
+  "()(())",
+  "()()()"
+]
+```
+
+_Visualization_
+
+```
+3O 3C             [(, (, (, -, -, -]
+2O 2C 1O 1C       [(, (, -, -, (, -]
+2O 1C 1O 2C       [(, (, -, (, -, -]
+1O 1C 2O 2C       [(, -, (, (, -, -]
+1O 1C 1O 1C 1O 1C [(, -, (, -, (, -]
+
+2O 2C             [(, (, -, -]
+1O 1C 1O 1C       [(, -, (, -]
+```
+
+_Solution_
+
+```python
+class Solution(object):
+    def generateParenthesis(self, N):
+        ans = []
+        def backtrack(S = '', left = 0, right = 0):
+            if len(S) == 2 * N:
+                ans.append(S)
+                return
+            if left < N:
+                backtrack(S+'(', left+1, right)
+            if right < left:
+                backtrack(S+')', left, right+1)
+
+        backtrack()
+        return ans
+```
+
+**Stack Trace**
+
+I/P = 2
+
+```
+-> backtrack('', 0, 0)
+  -> backtrack('(', 1, 0)
+    -> backtrack('((', 2, 0)
+    -> backtrack('(()', 2, 1)
+    -> backtrack('(())', 2, 2)
+  -> backtrack('()', 1, 1)
+    -> backtrack('()(', 2, 1)
+    -> backtrack('()()', 2, 2)
+```
+
 # Python N-Sum one code
 
 The core is to implement a fast 2-pointer to solve 2-sum, and recursion to reduce the N-sum to 2-sum. Some optimization was be made knowing the list is sorted.
@@ -239,3 +406,51 @@ def fourSum(self, nums, target):
     findNsum(sorted(nums), target, 4, [], results)
     return results
 ```
+
+# Pattern searching, first index - KMP (Knuth Morris Pratt) algorithm
+
+1. Generate LPS array i.e. longest prefix which is also a suffix
+
+- lps[0] is always 0. So iterator starts from 1 until `len(pattern) - 1`
+- Two iterators: i = 1 and j = 0
+  - i++ & j++ when pat[i] == pat[j] and lps[i] = j `j represents length of LPS`
+  - on mismatch 2 options:
+    - (1) j > 0 then j = lps[j-1] i.e. store previous longest on j (to skip those many characters) and **not increment i here to search for a match or get to 0**
+    - (2) lps[i] = 0 and i++ e.g. at `C` in pattern: `AAC`
+
+```python
+def computeLPSArray(pat, M, lps):
+  """
+  pat -> pattern string
+  M -> length of pattern
+  lps -> [0]*M
+  """
+  j = 0 # length of the previous longest prefix suffix
+  lps[0] # lps[0] is always 0
+  i = 1
+  # the loop calculates lps[i] for i = 1 to M-1
+  while i < M:
+      if pat[i]== pat[j]:
+          j += 1
+          lps[i] = j
+          i += 1
+      else:
+          # This is tricky. Consider the example.
+          # AAACAAAA and i = 7. The idea is similar
+          # to search step.
+          if j != 0:
+              j = lps[j-1]
+              # Also, note that we do not increment i here
+          else:
+              lps[i] = 0
+              i += 1
+```
+
+2. Look for sub pattern
+
+- `i = j = 0` until `i < len(txt)` where j points to
+- pat[j] == txt[i] -> j++, i++
+- j == len(pat) -> found pattern at i-j index and j = lps[j-1]
+- i < len(txt) and pat[j] != txt[i]:
+  - j != 0 -> j = lps[j-1]
+  - else -> i += 1
