@@ -1,6 +1,6 @@
 # Useful Links
 
-![Python Programming site](https://checkio.org/)
+[Python Programming site](https://checkio.org/)
 
 # Things to Know of Python in CC
 
@@ -49,14 +49,14 @@ for one, two in zip(l1, l2):
 
 - Time complexity of zip() for N iterables with M as average length of iterables: O(N\*M)
 
-- Data Structure: ![Trie](https://leetcode.com/articles/implement-trie-prefix-tree/)
+- Data Structure: [Trie](https://leetcode.com/articles/implement-trie-prefix-tree/)
 
 - For getting ascii value of a character in python:
   `print(ord('a')) # prints 97`
 
 - For max of an integer in python use:
 
-`max_dist = sys.maxint`
+`max_dist = sys.maxsize`
 
 - Python check object memory address by:
 
@@ -79,10 +79,10 @@ if None in (l1, l2):
   - Cursor is advanced with cursor.next while the dummy stays at the start
   - We can finally return dummy.next (shifting to where the real stuff starts)
 
-- Primer on ![yield](https://stackoverflow.com/questions/231767/what-does-the-yield-keyword-do):
+- Primer on [yield](https://stackoverflow.com/questions/231767/what-does-the-yield-keyword-do):
 
   - A function with yield, when called, returns a Generator
-  - Generators are iterators because they implement the ![iterator protocol](https://docs.python.org/2/library/stdtypes.html#iterator-types), so you can iterate over them.
+  - Generators are iterators because they implement the [iterator protocol](https://docs.python.org/2/library/stdtypes.html#iterator-types), so you can iterate over them.
   - In Python 3, you can delegate from one generator to another in both directions with yield from
   - yield is only legal inside of a function definition, and the inclusion of yield in a function definition makes it return a generator
 
@@ -92,6 +92,17 @@ if None in (l1, l2):
 amount = 1
 lists = ['a']
 print(lists[0] if amount > 0 else lists)
+```
+
+- List of int to int -> `int(''.join(map(str,numList)))`
+
+- Reversing in pythonic way
+
+```python
+l, r = 0, len(nums)-1
+while l < r:
+  nums[l], nums[r] = nums[r], nums[l]
+  l +=1 ; r -= 1
 ```
 
 # Dynamic Programming
@@ -454,3 +465,33 @@ def computeLPSArray(pat, M, lps):
 - i < len(txt) and pat[j] != txt[i]:
   - j != 0 -> j = lps[j-1]
   - else -> i += 1
+
+# Permutations of a string
+
+Refer: [https://stackoverflow.com/a/53917934/3289199](https://stackoverflow.com/a/53917934/3289199)
+
+```python
+def permute(self, data, i, length, permutes):
+  if i == length:
+      permutes.append(int(''.join(data)))
+  else:
+      for j in range(i,length):
+          #swap
+          data[i], data[j] = data[j], data[i]
+          self.permute(data, i+1, length, permutes)
+          data[i], data[j] = data[j], data[i]   # backtrack
+```
+
+![illustration for 'ABC'](https://i.stack.imgur.com/pOyO1.png)
+
+# Next Permutation Trick
+
+Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.
+
+```
+1,2,3 → 1,3,2
+3,2,1 → 1,2,3
+1,1,5 → 1,5,1
+```
+
+![Trick](https://leetcode.com/media/original_images/31_Next_Permutation.gif)
