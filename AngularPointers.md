@@ -104,6 +104,80 @@
 ## Takeaways
 
 - A component(@component) is a directive-with-a-template
+- HTTP API known as HttpClient which is based on top of XMLHttpRequest interface
+
+  ```typescript
+  @NgModule({
+  imports: [
+    BrowserModule,
+    // import HttpClientModule after BrowserModule. Order matters.
+    HttpClientModule,
+  ],
+  ......
+  })
+  export class AppModule {}
+  ```
+
+- Error handling in subscribe: `.subscribe((data) => {}, error => {})`
+- RxJS is a library for composing asynchronous and callback-based code in a functional, reactive style using Observables.
+- Observer is an interface for a consumer of push-based notifications
+
+  ```typescript
+  interface Observer<T> {
+    closed?: boolean;
+    next: (value: T) => void;
+    error: (err: any) => void;
+    complete: () => void;
+  }
+  ```
+
+- RxJs Subjects: A subject is a kind of advanced observable that returns values to more than one observer, which allows it to act as a kind of event emitter. OR A Subject is a special type of Observable which shares a single execution path among observers.
+
+- Short hand notation of subscribe
+
+  ```typescript
+  myObservable.subscribe(
+    x => console.log("Observer got a next value: " + x),
+    err => console.error("Observer got an error: " + err),
+    () => console.log("Observer got a complete notification")
+  );
+  ```
+
+- Whenever we create an [Angular Element](https://blog.angulartraining.com/tutorial-how-to-create-custom-angular-elements-55aea29d80c5), we create a new custom HTML element that can be used on any webpage, even if that webpage does not use Angular at all
+
+- Custom elements (or Web Components) are a Web Platform feature which extends HTML by allowing you to define a tag whose content is created and controlled by JavaScript code.
+
+  ![](https://miro.medium.com/max/1802/1*m911WG6xC1eExLFZkutIDA.png)
+
+  _Note: replace target value in tsconfig.json from es5 to es2015 as in browsers that support Custom Elements natively_
+
+- When a component is not a part of any other component and is also not a root of Angular application, we need to put it in `entryComponents` so that it does not get dropped in tree shaking proccess.
+
+- The Angular `<ng-container>` is a grouping element that doesn't interfere with styles or layout because Angular doesn't put it in the DOM.
+
+  ![](https://miro.medium.com/max/1230/1*j-TJRTA11OrLKdLrmrjQjA.png)
+
+- `*ngTemplateOutlet` used for two scenarios — to insert a common template in various sections of a view irrespective of loops or condition and to make a highly configured component
+
+  ![](https://miro.medium.com/max/1918/1*M2mxgv1g3VcftdHOFFmTdw.png)
+
+- Typings for custom elements `const container = document.createElement('my-container') as NgElement & WithProperties<{message: string}>;`
+
+- JIT v/s AOT: Just-in-Time (JIT) is a type of compilation that compiles your app in the browser at runtime (dev environment) and Ahead-of-Time (AOT) is a type of compilation that compiles your app at build time (prod environment).
+
+- Enable binding expression validation: `"angularCompilerOptions": {"fullTemplateTypeCheck": true, ... }`
+
+- You can disable binding expression type checking using \$any() type cast function(by surrounding the expression). `template: '{{$any(this).contacts.email}}'`
+
+- Non null type assertion operator: `{{contact!.email}}` i.e. to tell TypeScript that the variable 'contact' cannot be null, we can use ! operator
+
+- Codelyzer provides set of tslint rules for static code analysis of Angular TypeScript projects. `ng new codelyzer && ng lint`
+
+- Angular animations require adding animations: [] metadata in @Component
+
+- Using DomSanitizer we can inject the dynamic Html,Style,Script,Url
+
+- Angular Language Service - get completions, errors, hints, and navigation inside your Angular templates
 
 ## Q&A
 
@@ -160,6 +234,12 @@ As soon as a promise is made, the execution takes place. However, this is not th
 
 Attribute (ngClass), Structural (\*ngIf) and Custom (Dropdown).
 
+**Components** — These are directives with a template.
+**Structural directives** — These directives change the DOM layout by adding and removing DOM elements.
+**Attribute directives** — These directives change the appearance or behavior of an element, component, or another directive.
+
+Create directive by `ng generate directive <name>`
+
 8. Annotation v/s Decorator
 
 => @Component is annotation and adds metadata that gives a class special meaning.
@@ -214,5 +294,108 @@ Angular provides support to create custom directives for the following:
 **ngOnDestroy**: It is invoked right before the component is destroyed by Angular. You can use this hook in order to unsubscribe observables and detach event handlers for avoiding any kind of memory leaks.
 
 ![](https://github.com/sudheerj/angular-interview-questions/raw/master/images/lifecycle.png)
+
+15. What is router outlet?
+
+The RouterOutlet is a directive from the router library and it acts as a placeholder that marks the spot in the template where the router should display the components for that outlet. Router outlet is used like a component,
+
+16. What is Angular Universal?
+
+Angular Universal is a server-side rendering module for Angular applications in various scenarios. This is a community driven project and available under @angular/platform-server package. Recently Angular Universal is integrated with Angular CLI.
+
+17. What is folding?
+
+The compiler can only resolve references to exported symbols in the metadata. Folding is a process in which the collector evaluate an expression during collection and record the result in the .metadata.json instead of the original expression. Compiler can't fold spread operator on arrays, objects created using new keywords and function calls.
+
+18. What are macros?
+
+The AOT compiler supports macros in the form of functions or static methods that return an expression in a single return expression.
+
+```typescript
+// Example
+export function wrapInArray<T>(value: T): T[] {
+  return [value];
+}
+
+// Usage
+@NgModule({
+  declarations: wrapInArray(TypicalComponent)
+})
+export class TypicalModule {}
+```
+
+19. What is zone?
+
+A Zone is an execution context that persists across async tasks. Angular relies on zone.js to run Angular's change detection processes when native JavaScript operations raise events
+
+20. What is State function?
+
+Angular's state() function is used to define different states to call at the end of each transition.
+
+```typescript
+state(
+  "open",
+  style({
+    height: "300px",
+    opacity: 0.5,
+    backgroundColor: "blue"
+  })
+);
+```
+
+21. What are the case types in Angular?
+
+Angular uses capitalization conventions to distinguish the names of various types. Angular follows the list of the below case types.
+
+- **camelCase** : Symbols, properties, methods, pipe names, non-component directive selectors, constants uses lowercase on the first letter of the item. For example, "selectedUser"
+- **UpperCamelCase (or PascalCase)**: Class names, including classes that define components, interfaces, NgModules, directives, and pipes uses uppercase on the first letter of the item.
+- **dash-case (or "kebab-case")**: The descriptive part of file names, component selectors uses dashes between the words. For example, "app-user-list".
+- **UPPER_UNDERSCORE_CASE**: All constants uses capital letters connected with underscores. For example, "NUMBER_OF_USERS".
+
+22. What are the class decorators in Angular?
+
+@Component(), @Directive(), @Pipe(), @Injectable(), @NgModule()
+
+23. What are class field decorators?
+
+@Input, @Output
+
+24. How do you select an element with in a component template?
+
+You can use @ViewChild directive to access elements in the view directly. Let's take input element with a reference,
+
+```typescript
+<input #uname>
+```
+
+and define view child directive and access it in ngAfterViewInit lifecycle hook
+
+```typescript
+@ViewChild('uname') input;
+
+ngAfterViewInit() {
+  console.log(this.input.nativeElement.value);
+}
+```
+
+25. How do you detect route change in Angular?
+
+`this.router.events.subscribe((event: Event) => {})`
+
+26. What is the purpose of innerHTML?
+
+The innerHtml is a property of HTML-Elements, which allows you to set it's html-content programatically. Let's display the below html code snippet in a
+tag as below using innerHTML binding, `<div [innerHTML]="htmlSnippet"></div>`
+and define the htmlSnippet property from any component
+
+```typescript
+export class myComponent {
+  htmlSnippet: string = "<b>Hello World</b>, Angular";
+}
+```
+
+27. What is safe navigation operator?
+
+The safe navigation operator(?)(or known as Elvis Operator) is used to guard against null and undefined values in property paths when you are not aware whether a path exists or not. i.e. It returns value of the object path if it exists, else it returns the null value.
 
 ### More Q&As at [https://github.com/sudheerj/angular-interview-questions](https://github.com/sudheerj/angular-interview-questions)

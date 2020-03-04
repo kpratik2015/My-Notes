@@ -105,6 +105,10 @@ while l < r:
   l +=1 ; r -= 1
 ```
 
+- Avoiding integer overflow: `mid = low + (high - low) / 2`
+
+- `mid = (low + high) // 2` change to `mid = (low + high) >> 1` will be faster
+
 # Dynamic Programming
 
 Inception: Those who cannot remember the past are condemned to repeat it.
