@@ -162,6 +162,27 @@ Randomly going over concepts of Java.
 
   - With this cost in mind, there are many situations where we should prefer static nested classes. When instances of the nested class will outlive instances of the enclosing class or or if reflection on those nested classes is involved, the nested class should be static to prevent memory leaks.
 
+- **package-private** — The member is accessible from any class in the package where it is declared. Technically known as default access, this is the access level you get if no access modifier is specified (except for interface members, which are public by default).
+
+- If a method overrides a superclass method, it cannot have a more restrictive access level in the subclass than in the superclass. This is necessary to ensure that an instance of the subclass is usable anywhere that an instance of the superclass is usable (the Liskov substitution principle)
+
+- A nonzero-length array is always mutable, so it is wrong for a class to have a public static final array field, or an accessor that returns such a field.
+
+  ```java
+  // Potential security hole!
+  public static final Thing[] VALUES = { ... };
+
+  // Solutions
+  private static final Thing[] PRIVATE_VALUES = { ... };
+  public static final List<Thing> VALUES = Collections.unmodifiableList(Arrays.asList(PRIVATE_VALUES));
+
+  // OR
+  private static final Thing[] PRIVATE_VALUES = { ... };
+  public static final Thing[] values() {
+    return PRIVATE_VALUES.clone();
+  }
+  ```
+
 ## Effective Java
 
 1. Consider static factory methods instead of constructors
