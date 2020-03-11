@@ -183,9 +183,35 @@ Randomly going over concepts of Java.
   }
   ```
 
+- A way for having a constant utility class
+
+  ```java
+  // Constant utility class
+  public class PhysicalConstants {
+    private PhysicalConstants() { } // Prevents instantiation
+    public static final double AVOGADROS_NUMBER = 6.022_140_857e23;
+    public static final double BOLTZMANN_CONST = 1.380_648_52e-23;
+    public static final double ELECTRON_MASS = 9.109_383_56e-31;
+  }
+  ```
+
+- When you encounter an existing class with a tag field, consider refactoring it into a hierarchy.
+
+- While you can pass a List<String> to a parameter of type List, you can’t pass it to a parameter of type List<Object>. There are subtyping rules for generics, and List<String> is a subtype of the raw type List, but not of the parameterized type List<Object>. As a consequence, you lose type safety if you use a raw type such as List, but not if you use a parameterized type such as List<Object>
+
+- Safer alternative to raw types is _unbounded wildcard types_. For example, the unbounded wildcard type for the generic type Set<E> is Set<?> (read “set of some type”).
+
+  ```java
+  // Legitimate use of raw type - instanceof operator
+  if (o instanceof Set) { // Raw type
+    Set<?> s = (Set<?>) o; // Wildcard type
+    // ...
+  }
+  ```
+
 ## Effective Java
 
-1. Consider static factory methods instead of constructors
+**1.** Consider static factory methods instead of constructors
 
 ```java
 public static Boolean valueOf(boolean b) {
@@ -203,7 +229,7 @@ public static Boolean valueOf(boolean b) {
 
 _Common Names for static factory methods: from, of, vlaueOf, getInstance, newInstance, getType, newType, and type_
 
-2. Consider a builder when faced with many constructor parameters
+**2.** Consider a builder when faced with many constructor parameters
 
 Javabeans pattern of setters in parameterless constructor has serious disadvantages.
 The builder is typically a static member class of the class it builds.
@@ -238,7 +264,7 @@ public class NutritionFacts {
 NutritionFacts cocaCola = new NutritionFacts.Builder(240).calories(100).build();
 ```
 
-3. Enforce the singleton property with a private constructor or an enum type
+**3.** Enforce the singleton property with a private constructor or an enum type
 
 - Private Constructor approach
 
@@ -262,7 +288,7 @@ public enum Elvis {
 }
 ```
 
-4. Enforce noninstantiability with a private constructor
+**4.** Enforce noninstantiability with a private constructor
 
 Attempting to enforce noninstantiability by making a class abstract does not work. The class can be subclassed and the subclass instantiated.
 
@@ -277,7 +303,7 @@ public class UtilityClass {
 }
 ```
 
-5. Prefer dependency injection to hardwiring resources
+**5.** Prefer dependency injection to hardwiring resources
 
 Do not use a singleton or static utility class to implement a class that depends on one or more underlying resources whose behavior affects that of the class, and do not have the class create these resources directly
 
@@ -293,7 +319,7 @@ public class SpellChecker {
 }
 ```
 
-6. Avoid creating unnecessary objects
+**6.** Avoid creating unnecessary objects
 
 For e.g., the factory method Boolean.valueOf(String) is preferable to the constructor Boolean(String), which was deprecated in Java 9. Since the constructor must create a new object each time it's called.
 
@@ -311,7 +337,7 @@ public class RomanNumerals {
 
 **Prefer primitives to boxed primitives, and watch out for unintentional autoboxing. E.g. long over Long**
 
-7. Eliminate obsolete object references
+**7.** Eliminate obsolete object references
 
 The fix for this sort of problem is simple: null out references once they become obsolete.
 _Nulling out object references should be the exception rather than the norm._
@@ -320,7 +346,7 @@ Common sources of memory leaks are: caches, listeners and other callbacks.
 
 Such memory leaks can be identified by _heap profiler_
 
-8. Avoid finalizers and cleaners
+**8.** Avoid finalizers and cleaners
 
 **Use of implements AutoCloseable or [try-with-resources/try-finally](https://www.baeldung.com/java-try-with-resources)**
 
@@ -332,7 +358,7 @@ _To protect nonfinal classes from finalizer attacks, write a final finalize meth
 
 FileInputStream, FileOutputStream, ThreadPoolExecutor, and java.sql.Connection, have finalizers that serve as safety nets -- free the resource if user forgets to
 
-9. Prefer try-with-resources to try-finally
+**9.** Prefer try-with-resources to try-finally
 
 ```java
 // try-with-resources on multiple resources - short and sweet
@@ -347,7 +373,7 @@ static void copy(String src, String dst) throws IOException {
 }
 ```
 
-10. Consider implementing Comparable
+**10.** Consider implementing Comparable
 
 If you are writing a value class with an obvious natural ordering, such as alphabetical order, numerical order, or chronological order, you should implement the Comparable interface.
 
@@ -357,6 +383,238 @@ Compares this object with the specified object for order. Returns a negative int
 */
 public interface Comparable<T> {
   int compareTo(T t);
+}
+```
+
+**11.** Minimize mutability
+
+The Java platform libraries contain many immutable classes, including `String`, the boxed primitive classes, and `BigInteger` and `BigDecimal`.
+
+To make a class immutable, follow these five rules:
+
+- Don’t provide methods that modify the object’s state (known as mutators)
+- Ensure that the class can’t be extended - Instead of making an immutable class final, you can make all of its constructors private or package-private and add public static factories in place of the public constructors.
+- Make all fields final
+- Make all fields private
+- Ensure exclusive access to any mutable components
+
+In an immutable class, methods return new instances and the method names are prepositions (such as plus) rather than verbs (such as add).
+
+An immutable object can be in exactly one state, the state in which it was
+created.
+
+Immutable objects are inherently thread-safe; they require no synchronization. Immutable objects can be shared freely.
+
+Opting for static factories in place of public constructors when designing a new class gives you the flexibility to add caching later, without modifying clients.
+
+You need not and should not provide a clone method or copy constructor on an immutable class.
+
+Immutable objects provide failure atomicity for free. Their state never changes, so there is no possibility of a temporary inconsistency.
+
+One caveat should be added concerning serializability. If you choose to have your immutable class implement Serializable and it contains one or more fields that refer to mutable objects, you must provide an explicit readObject or readResolve method, or use the ObjectOutputStream.writeUnshared and ObjectInputStream.readUnshared methods, even if the default serialized form
+is acceptable.
+
+To summarize, resist the urge to write a setter for every getter. **Classes should be immutable unless there’s a very good reason to make them mutable.**
+
+**The major disadvantage of immutable classes is that they require a separate object for each distinct value.**
+
+**12.** Favor composition over inheritance
+
+Unlike method invocation, inheritance violates encapsulation.
+
+Hashset's `addAll()` internally calls `add()`. This “self-use” is an implementation detail, not guaranteed to hold in all implementations of the Java platform and subject to change from release to release.
+
+If the superclass acquires a new method in a subsequent release and
+you have the bad luck to have given the subclass a method with the same signature and a different return type, your subclass will no longer compile.
+
+Instead of extending an existing class, give your new class a private field that references an instance of the existing class. This design is called composition because the existing class becomes a component of the new one.
+
+Note that the implementation is broken into two pieces, the class itself and a reusable forwarding class, which contains all of the forwarding methods and nothing else:
+
+```java
+// Wrapper class - uses composition in place of inheritance
+public class InstrumentedSet<E> extends ForwardingSet<E> {
+  private int addCount = 0;
+
+  public InstrumentedSet(Set<E> s) {
+    super(s);
+  }
+
+  @Override
+  public boolean add(E e) {
+    addCount++;
+    return super.add(e);
+  }
+
+  @Override
+  public boolean addAll(Collection<? extends E> c) {
+    addCount += c.size();
+    return super.addAll(c);
+  }
+
+  public int getAddCount() {
+    return addCount;
+  }
+}
+
+// Reusable forwarding class
+public class ForwardingSet<E> implements Set<E> {
+  private final Set<E> s;
+
+  public ForwardingSet(Set<E> s) {
+    this.s = s;
+  }
+
+  public void clear() {
+    s.clear();
+  }
+
+  public boolean contains(Object o) {
+    return s.contains(o);
+  }
+
+  public boolean isEmpty() {
+    return s.isEmpty();
+  }
+
+  public int size() {
+    return s.size();
+  }
+
+  public Iterator<E> iterator() {
+    return s.iterator();
+  }
+
+  public boolean add(E e) {
+    return s.add(e);
+  }
+
+  public boolean remove(Object o) {
+    return s.remove(o);
+  }
+
+  public boolean containsAll(Collection<?> c) {
+    return s.containsAll(c);
+  }
+
+  public boolean addAll(Collection<? extends E> c) {
+    return s.addAll(c);
+  }
+
+  public boolean removeAll(Collection<?> c) {
+    return s.removeAll(c);
+  }
+
+  public boolean retainAll(Collection<?> c) {
+    return s.retainAll(c);
+  }
+
+  public Object[] toArray() {
+    return s.toArray();
+  }
+
+  public <T> T[] toArray(T[] a) {
+    return s.toArray(a);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return s.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return s.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return s.toString();
+  }
+}
+```
+
+The InstrumentedSet class is known as a wrapper class because each InstrumentedSet instance contains (“wraps”) another Set instance. This is also known as the Decorator pattern because the InstrumentedSet class “decorates” a set by adding instrumentation.
+
+Inheritance propagates any flaws in the superclass’s API, while composition lets you design a new API that hides these flaws.
+
+**13.** Design and document for inheritance or else prohibit it
+
+A method that invokes overridable methods contains a description of these invocations at the end of its documentation comment. The description is in a special section of the specification, labeled “Implementation Requirements,” which is generated by the Javadoc tag @implSpec.
+
+Constructors must not invoke overridable methods, directly or indirectly. The Cloneable and Serializable interfaces present special difficulties. It is generally not a good idea for a class designed for inheritance to implement either of these interfaces because they place a substantial burden on programmers who extend the class.
+
+**14.** Prefer interfaces to abstract classes
+
+If you want to have two classes extend the same abstract class, you have to place it high up in the type hierarchy where it is an ancestor of both classes.
+
+Although many interfaces specify the behavior of Object methods such as equals and hashCode, you are not permitted to provide default methods for them. Also, interfaces are not permitted to contain instance fields or nonpublic static members (with the exception of private static methods). Finally, you can’t add default methods to an interface that you don’t control.
+
+_Skeletal Implementation:_ As a simple example, consider the Map.Entry interface. The obvious primitives are getKey, getValue, and (optionally) setValue. Since you are not allowed to provide default implementations for the Object methods, all implementations are placed in the skeletal implementation class:
+
+```java
+// Skeletal implementation class
+public abstract class AbstractMapEntry<K,V> implements Map.Entry<K,V> {
+  // Entries in a modifiable map must override this method
+  @Override public V setValue(V value) {
+    throw new UnsupportedOperationException();
+  }
+  // Implements the general contract of Map.Entry.equals
+  @Override public boolean equals(Object o) { ... }
+  // Implements the general contract of Map.Entry.hashCode
+  @Override public int hashCode() { ... }
+  @Override public String toString() { ... }
+}
+```
+
+Good documentation is absolutely essential in a skeletal implementation.
+
+**15.** Favor static member classes over nonstatic
+
+There are four kinds of nested classes: _static member classes, nonstatic member classes, anonymous classes, and local classes_. All but the first kind are known as inner classes.
+
+A **static member class** is the simplest kind of nested class. It is best thought of as an ordinary class that happens to be declared inside another class and has access to all of the enclosing class’s members, even those declared private. If it is declared private, it is accessible only within the enclosing class, and so forth. One common use of a static member class is as a public helper class, useful only in conjunction with its outer class.
+
+Each instance of a nonstatic member class is implicitly associated with an enclosing instance of its containing class. Within instance methods of a nonstatic member class, you can invoke methods on the enclosing instance or obtain a reference to the enclosing instance using the qualified this construct. One common use of a nonstatic member class is to define an Adapter that allows an instance of the outer class to be viewed as an instance of some unrelated class.
+
+```java
+// Typical use of a nonstatic member class
+public class MySet<E> extends AbstractSet<E> {
+  ... // Bulk of the class omitted
+  @Override public Iterator<E> iterator() {
+    return new MyIterator();
+  }
+  private class MyIterator implements Iterator<E> {
+  ...
+  }
+}
+```
+
+**If you declare a member class that does not require access to an enclosing instance, always put the static modifier in its declaration** A common use of private static member classes is to represent components of the object represented by their enclosing class.
+
+As you would expect, an _anonymous class_ has no name. It is not a member of
+its enclosing class. You can’t instantiate them except at the point they’re declared. You can’t perform instanceof tests or do anything else that requires you to name the class. You can’t declare an anonymous class to implement multiple interfaces or to extend a class and implement an interface at the same time. Clients of an anonymous class can’t invoke any members except those it inherits from its supertype.
+_lambdas_ are now preferred over annonymous classes.
+
+Local classes are the least frequently used of the four kinds of nested classes. A local class can be declared practically anywhere a local variable can be declared and obeys the same scoping rules.
+
+**15.** Prefer lists to arrays
+
+First, arrays are covariant. This scary-sounding word means simply that if Sub is a subtype of Super, then the array type Sub[] is a subtype of the array type Super[]. Generics, by contrast, are invariant: for any two distinct types Type1 and Type2, List<Type1> is neither a subtype nor a supertype of List<Type2>.
+
+Types such as E, List<E>, and List<String> are technically known as nonreifiable types. Intuitively speaking, a non-reifiable type is one whose runtime representation contains less information than its compile-time representation. Because of erasure, the only parameterized types that are reifiable are unbounded wildcard types such as List<?> and Map<?,?>
+
+```java
+// List-based Chooser - typesafe
+public class Chooser<T> {
+  private final List<T> choiceList;
+  public Chooser(Collection<T> choices) {
+    choiceList = new ArrayList<>(choices);
+  }
+  public T choose() {
+    Random rnd = ThreadLocalRandom.current();
+    return choiceList.get(rnd.nextInt(choiceList.size()));
+  }
 }
 ```
 
