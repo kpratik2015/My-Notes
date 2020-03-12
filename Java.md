@@ -618,6 +618,238 @@ public class Chooser<T> {
 }
 ```
 
+**16.** Favor generic types & methods
+
+We can generify a class if it wasn't parameterized to begin with.
+
+```java
+public class X<E> { ... }   // public class X { ... }
+private E[] elements;       // private Object[] elements;
+(E[]) new Object[CAPACITY]; // new Object[CAPACITY]
+
+// Generic method syntax below
+// Generic method
+public static <E> Set<E> union(Set<E> s1, Set<E> s2) {
+  Set<E> result = new HashSet<>(s1);
+  result.addAll(s2);
+  return result;
+}
+```
+
+Because generics are implemented by erasure, you can use a single object for all required type parameterizations, but you need to write a static factory method to repeatedly dole out the object for each requested type parameterization. This pattern, called the _generic singleton factory_.
+
+```java
+// Generic singleton factory pattern
+private static UnaryOperator<Object> IDENTITY_FN = (t) -> t;
+
+@SuppressWarnings("unchecked")
+public static <T> UnaryOperator<T> identityFunction() {
+  return (UnaryOperator<T>) IDENTITY_FN;
+}
+
+// Practical Usage
+String[] strings = { "jute", "hemp", "nylon" };
+UnaryOperator<String> sameString = identityFunction();
+for (String s : strings)
+  System.out.println(sameString.apply(s));
+```
+
+**17.** Use bounded wildcards to increase API flexibility
+
+Solve such errors: `Iterable<Integer> cannot be converted to Iterable<Number>` or `Collection<Object> is not a subtype of Collection<Number>`
+
+```java
+// Wildcard type for a parameter that serves as an E producer
+public void pushAll(Iterable<? extends E> src) { // Iterable of some substype of E
+  for (E e : src)
+    push(e);
+}
+// Wildcard type for parameter that serves as an E consumer
+public void popAll(Collection<? super E> dst) {
+  while (!isEmpty())
+    dst.add(pop());
+}
+```
+
+**PECS stands for producer-extends, consumer-super**
+
+For error like incompatible types: Object cannot be converted to CAP#1
+
+```java
+public static void swap(List<?> list, int i, int j) {
+  swapHelper(list, i, j);
+}
+
+// Private helper method for wildcard capture
+private static <E> void swapHelper(List<E> list, int i, int j) {
+  list.set(i, list.set(j, list.get(i)));
+}
+```
+
+**18.** Combine generics and varargs judiciously
+
+When you invoke a varargs method, an array is created to hold the varargs parameters
+
+```java
+// Safe method with a generic varargs parameter
+@SafeVarargs
+static <T> List<T> flatten(List<? extends T>... lists) {
+  List<T> result = new ArrayList<>();
+  for (List<? extends T> list : lists)
+    result.addAll(list);
+  return result;
+}
+
+// List as a typesafe alternative to a generic varargs parameter
+// The main Advantage of this approach is that the compiler can prove that the method is typesafe.
+// The main disadvantage is that the client code is a bit more verbose and may be a bit slower
+static <T> List<T> flatten(List<List<? extends T>> lists) {
+  List<T> result = new ArrayList<>();
+  for (List<? extends T> list : lists)
+    result.addAll(list);
+  return result;
+}
+```
+
+**Use @SafeVarargs on every method with a varargs parameter of a generic or parameterized type**
+
+As a reminder, a generic varargs methods is safe if:
+
+- it doesn’t store anything in the varargs parameter array, and
+- it doesn’t make the array (or a clone) visible to untrusted code
+
+**18.** Use enums instead of int constants
+
+The basic idea behind Java’s enum types is simple: they are classes that export one instance for each enumeration constant via a public static final field. enum types let you add arbitrary methods and fields and implement arbitrary interfaces.
+
+Enums are by their nature immutable, so all fields should be final. Fields can be public, but it is better to make them private and provide public accessors.
+
+```java
+// Enum type with constant-specific method implementations
+// If you add a new constant to the second version of Operation, it is unlikely that you’ll forget to provide an apply method
+public enum Operation {
+  PLUS {public double apply(double x, double y){return x + y;}},
+  MINUS {public double apply(double x, double y){return x - y;}},
+  TIMES {public double apply(double x, double y){return x * y;}},
+  DIVIDE{public double apply(double x, double y){return x / y;}};
+  public abstract double apply(double x, double y);
+}
+```
+
+Enum types have an automatically generated valueOf(String) method that translates a constant’s name into the constant itself
+
+All enums have an `ordinal()` method, which returns the numerical position of each enum constant in its type. Never derive a value associated with an enum from its ordinal; store it in an instance field instead:
+
+```java
+public enum Ensemble {
+  SOLO(1), DUET(2);
+  private final int numberOfMusicians;
+  Ensemble(int size) { this.numberOfMusicians = size; }
+  public int numberOfMusicians() { return numberOfMusicians; }
+}
+```
+
+_Use EnumMap instead of ordinal indexing_
+_it is generally good practice to accept the interface type rather than the implementation type_
+
+**19.** Use marker interfaces to define types
+
+Marker interfaces have two advantages over marker annotations. First and foremost, marker interfaces define a type that is implemented by instances of the marked class; marker annotations do not. The existence of a marker interface type allows you to catch errors at compile time that you couldn’t catch until runtime if you used a marker annotation. Another advantage of marker interfaces over marker annotations is that they can be targeted more precisely.
+
+**20.** Prefer lambdas to anonymous classes
+
+In Java 8, the language formalized the notion that interfaces with a single abstract method are special and deserve special treatment. These interfaces are now known as functional interfaces, and the language allows you to create instances of these interfaces using lambda expressions, or lambdas for short.
+
+```java
+// Lambda expression as function object (replaces anonymous class)
+Collections.sort(words, (s1, s2) -> Integer.compare(s1.length(), s2.length()));
+
+// can be made shorter if a comparator construction method is used in place of a lambda
+Collections.sort(words, comparingInt(String::length));
+```
+
+A lambda cannot obtain a reference to itself. In a lambda, the this keyword refers to the enclosing instance, which is typically what you want. In an anonymous class, the this keyword refers to the anonymous class instance. If you need access to the function object from within its body, then you must use an anonymous class.
+
+**21.** Prefer method references to lambdas
+
+Here is a code snippet from a program that maintains a map from arbitrary keys to Integer values
+
+_when lambda can be preferred:_
+
+```java
+service.execute(GoshThisClassNameIsHumongous::action);
+// The lambda equivalent looks like this:
+service.execute(() -> action());
+```
+
+| **Method Ref Type** | **Example**            | **Lambda Equivalent**                              |
+| ------------------- | ---------------------- | -------------------------------------------------- |
+| Static              | Integer::parseInt      | str -> Integer.parseInt(str)                       |
+| Bound               | Instant.now()::isAfter | Instant then = Instant.now(); t -> then.isAfter(t) |
+| Unbound             | String::toLowerCase    | str -> str.toLowerCase()                           |
+| Class Constructor   | TreeMap<K,V>::new      | () -> new TreeMap<K,V>                             |
+| Array Constructor   | int[]::new             | len -> new int[len]                                |
+
+**Always annotate your functional interfaces with the @FunctionalInterface annotation**
+
+**21.** Use streams judiciously
+
+This API provides two key abstractions: the stream, which represents a finite or infinite sequence of data elements, and the stream pipeline, which represents a multistage computation on these elements.
+
+Stream pipelines are evaluated lazily: evaluation doesn’t start until the terminal operation is invoked, and data elements that aren’t required in order to complete the terminal operation are never computed.
+
+The streams API is **fluent**: it is designed to allow all of the calls that comprise a pipeline to be chained into a single expression. In fact, multiple pipelines can be chained together into a single expression.
+
+```java
+// Tasteful use of streams enhances clarity and conciseness
+public class Anagrams {
+  public static void main(String[] args) throws IOException {
+    Path dictionary = Paths.get(args[0]);
+    int minGroupSize = Integer.parseInt(args[1]);
+    try (Stream<String> words = Files.lines(dictionary)) {
+      words.collect(groupingBy(word -> alphabetize(word)))
+      .values().stream()
+      .filter(group -> group.size() >= minGroupSize)
+      .forEach(group -> System.out.println(group.size() + ": " + group));
+    }
+  }
+  private static String alphabetize(String s) {
+    char[] a = s.toCharArray();
+    Arrays.sort(a);
+    return new String(a);
+  }
+}
+```
+
+Refrain from using streams to process char values. For e.g. `"Hello world!".chars().forEach(System.out::print);` prints `721011081081113211911111410810033` since int overloading of print is invoked.
+
+• From a code block, you can read or modify any local variable in scope; from a lambda, you can only read final or effectively final variables [JLS 4.12.4], and you can’t modify any local variables.
+• From a code block, you can return from the enclosing method, break or continue an enclosing loop, or throw any checked exception that this method is declared to throw; from a lambda you can do none of these things.
+
+**22.** Prefer side-effect-free functions in streams
+
+The most important part of the streams paradigm is to structure your computation as a sequence of transformations where the result of each stage is as close as possible to a pure function of the result of the previous stage.
+
+```java
+// Proper use of streams to initialize a frequency table
+Map<String, Long> freq;
+try (Stream<String> words = new Scanner(file).tokens()) {
+  freq = words.collect(groupingBy(String::toLowerCase, counting()));
+}
+
+// Improper use--Don't do this!
+Map<String, Long> freq = new HashMap<>();
+try (Stream<String> words = new Scanner(file).tokens()) {
+  words.forEach(word -> {
+    freq.merge(word.toLowerCase(), 1L, Long::sum);
+  });
+}
+```
+
+The `forEach` operation is among the least powerful of the terminal operations and the least stream-friendly. **The forEach operation should be used only to report the result of a stream computation, not to perform the computation.**
+
+The improved code uses a collector, which is a new concept that you have to learn in order to use streams. The Collectors API is intimidating: it has thirty-nine methods, some of which have as many as five type parameters. In this context, reduction means combining the elements of a stream into a single object. The object produced by a collector is typically a collection (which accounts for the name collector). There are three such collectors: toList(), toSet(), and toCollection(collectionFactory).
+
 ### Keywords
 
 - Covariant Return Typing - A subclass method is declared to return a subtype of the return type declared in the superclass.
@@ -691,6 +923,8 @@ public class Chooser<T> {
   // with method references
   onShutdown(service::stop);
   ```
+
+- `computeIfAbsent()` added in Java 8, looks up a key in the map: If the key is present, the method simply returns the value associated with it. If not, the method computes a value by applying the given function object to the key, associates this value with the key, and returns the computed value.
 
 ## Early and Late Binding
 
