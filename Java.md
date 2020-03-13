@@ -209,6 +209,8 @@ Randomly going over concepts of Java.
   }
   ```
 
+- All zero-length arrays are immutable
+
 ## Effective Java
 
 **1.** Consider static factory methods instead of constructors
@@ -850,6 +852,219 @@ The `forEach` operation is among the least powerful of the terminal operations a
 
 The improved code uses a collector, which is a new concept that you have to learn in order to use streams. The Collectors API is intimidating: it has thirty-nine methods, some of which have as many as five type parameters. In this context, reduction means combining the elements of a stream into a single object. The object produced by a collector is typically a collection (which accounts for the name collector). There are three such collectors: toList(), toSet(), and toCollection(collectionFactory).
 
+**The most important collector factories are toList, toSet, toMap, groupingBy, and joining.**
+
+**23.** Prefer Collection to Stream as a return type
+
+If an API returns only a stream and some users want to iterate over the returned sequence with a for-each loop, those users will be justifiably upset.
+
+```java
+// Adapter from Stream<E> to Iterable<E>
+public static <E> Iterable<E> iterableOf(Stream<E> stream) {
+  return stream::iterator;
+}
+
+// With this adapter, you can iterate over any stream with a for-each statement
+
+for (ProcessHandle p : iterableOf(ProcessHandle.allProcesses())) {
+  // Process the process
+}
+```
+
+_Do not store a large sequence in memory just to return it as a collection_
+
+The power set of {a, b, c} is {{}, {a}, {b}, {c}, {a, b}, {a, c}, {b, c}, {a, b, c}}. If a set has n elements, its power set has 2n. Therefore, you shouldn’t even consider storing the power set in a standard collection implementation. It is, however, easy to implement a custom collection for the job with the help of AbstractList.
+The trick is to use the index of each element in the power set as a bit vector, where the nth bit in the index indicates the presence or absence of the nth element from the source set. In essence, there is a natural mapping between the binary numbers from 0 to 2n − 1 and the power set of an n-element set.
+It is, however, straightforward to implement a stream of all the sublists of an
+input list, though it does require a minor insight. Let’s call a sublist that contains the first element of a list a prefix of the list. For example, the prefixes of (a, b, c) are (a), (a, b), and (a, b, c). Similarly, let’s call a sublist that contains the last element a suffix, so the suffixes of (a, b, c) are (a, b, c), (b, c), and (c). The insight is that the sublists of a list are simply the suffixes of the prefixes (or identically, the prefixes of the suffixes) and the empty list.
+
+```java
+// for loop version
+for (int start = 0; start < src.size(); start++)
+  for (int end = start + 1; end <= src.size(); end++)
+    System.out.println(src.subList(start, end));
+
+// equivalent stream
+// Returns a stream of all the sublists of its input list
+public static <E> Stream<List<E>> of(List<E> list) {
+  return IntStream.range(0, list.size())
+    .mapToObj(start ->
+      IntStream.rangeClosed(start + 1, list.size())
+        .mapToObj(end -> list.subList(start, end)))
+    .flatMap(x -> x);
+}
+```
+
+**24.** Use caution when making streams parallel
+
+**As a rule, performance gains from parallelism are best on streams over ArrayList, HashMap, HashSet, and ConcurrentHashMap instances; arrays; int ranges; and long ranges**
+
+Locality-of-reference turns out to be critically important for parallelizing bulk operations: without it, threads spend much of their time idle, waiting for data to be transferred from memory into the processor’s cache.
+
+If a significant amount of work is done in the terminal operation compared to the overall work of the pipeline and that operation is inherently sequential, then parallelizing the pipeline will have limited effectiveness. The best terminal operations for parallelism are reductions, where all of the elements emerging from the pipeline are combined using one of Stream’s reduce methods, or prepackaged reductions such as `min`, `max`, `count`, and `sum`. The shortcircuiting operations `anyMatch`, `allMatch`, and `noneMatch` are also amenable to parallelism. The operations performed by Stream’s `collect` method, which are known as _mutable reductions_, are not good candidates for parallelism because the overhead of combining collections is costly.
+
+If you _write your own_ Stream, Iterable, or Collection implementation and you want decent parallel performance, you must _override_ the `spliterator` method and test the parallel performance of the resulting streams extensively.
+
+Replace the `forEach` terminal operation with `forEachOrdered`, which is guaranteed to traverse parallel streams in encounter order.
+
+If you are going to parallelize a stream of random numbers, start with a SplittableRandom instance rather than a ThreadLocalRandom (or the essentially obsolete Random)
+
+**25.** Make defensive copies when needed
+
+```java
+// Broken "immutable" time period class
+public final class Period {
+  private final Date start;
+  private final Date end;
+  // ...
+}
+// Attack the internals of a Period instance
+Date start = new Date(); // Date is mutable
+Date end = new Date();
+Period p = new Period(start, end);
+end.setYear(78); // Modifies internals of p!
+```
+
+As of Java 8, the obvious way to fix this problem is to use Instant (or Local-
+DateTime or ZonedDateTime) in place of a Date because Instant (and the other
+java.time classes) are immutable.
+
+To protect the internals of a Period instance from this sort of attack, it is essential to make a defensive copy of each mutable parameter to the constructor and to use the copies as components of the Period instance in place of the originals
+
+```java
+// Repaired constructor - makes defensive copies of parameters
+public Period(Date start, Date end) {
+  this.start = new Date(start.getTime());
+  this.end = new Date(end.getTime());
+  if (this.start.compareTo(this.end) > 0)
+    throw new IllegalArgumentException(
+      this.start + " after " + this.end);
+}
+```
+
+_Note that defensive copies are made before checking the validity of the parameters, and the validity check is performed on the copies rather than on the originals_
+
+_Do not use the clone method to make a defensive copy of a parameter whose type is subclassable by untrusted parties_
+
+**26.** Use overloading judiciously
+
+```java
+// Broken! - What does this program print?
+public class CollectionClassifier {
+  public static String classify(Set<?> s) {
+    return "Set";
+  }
+  public static String classify(List<?> lst) {
+    return "List";
+  }
+  public static String classify(Collection<?> c) {
+    return "Unknown Collection";
+  }
+  public static void main(String[] args) {
+    Collection<?>[] collections = {
+      new HashSet<String>(),
+      new ArrayList<BigInteger>(),
+      new HashMap<String, String>().values()
+      };
+    for (Collection<?> c : collections)
+      System.out.println(classify(c)); // compile-time type of the parameter is the same: Collection<?>
+  }
+}
+```
+
+You might expect this program to print Set, followed by List and Unknown Collection, but it doesn’t. It prints Unknown Collection three times. Why does this happen? Because the classify method is overloaded, and the choice of which overloading to invoke is made at compile time.
+
+**A safe, conservative policy is never to export two overloadings with the same number of parameters.**
+
+**26.** Return optionals judiciously
+
+An Optional-returning method is more flexible and easier to use than one that throws an exception, and it is less error-prone than one that returns null
+
+```java
+// Returns maximum value in collection as an Optional<E>
+public static <E extends Comparable<E>> Optional<E> max(Collection<E> c) {
+  if (c.isEmpty())
+    return Optional.empty();
+  E result = null;
+  for (E e : c)
+    if (result == null || e.compareTo(result) > 0)
+      result = Objects.requireNonNull(e);
+  return Optional.of(result);
+}
+
+// Optional advantage on client
+// Using an optional to provide a chosen default value
+String lastWordInLexicon = max(words).orElse("No words...");
+// Using an optional to throw a chosen exception
+Toy myToy = max(toys).orElseThrow(TemperTantrumException::new);
+```
+
+_Never return a null value from an Optional-returning method. Optionals are similar in spirit to checked exceptions. You should never return an optional of a boxed primitive type. For performance-critical methods, it may be better to return a null or throw an exception_
+
+**27.** Minimize the scope of local variables
+
+The most powerful technique for minimizing the scope of a local variable is to declare it where it is first used.
+
+_prefer for loops to while loops_
+
+```java
+// Idiom for iterating when you need the iterator
+for (Iterator<Element> i = c.iterator(); i.hasNext(); ) {
+  Element e = i.next();
+  ... // Do something with e and i
+}
+// Here is another loop idiom that minimizes the scope of local variables:
+for (int i = 0, n = expensiveComputation(); i < n; i++) {
+  ... // Do something with i;
+}
+```
+
+Where you can’t use for-each:
+
+- Destructive filtering - traversing a collection requires explicit iterator so that you can call its remove method
+- Transforming
+- Parallel iteration - If you need to traverse multiple collections in parallel, then you need explicit control over the iterator or index variable so that all iterators or index variables can be advanced in lockstep
+
+Not only does the for-each loop let you iterate over collections and arrays, it lets you iterate over any object that implements the Iterable interface, which consists of a single method: `Iterator<E> iterator()`
+
+**28.** Know and use the libraries
+
+The random number generator of choice is now ThreadLocalRandom. For fork join pools and parallel streams, use SplittableRandom.
+
+Numerous features are added to the libraries in every major release, and it pays to keep abreast of these additions. Each time there is a major release of the Java platform, a web page is published describing its new features. These pages are well worth reading [Java8-feat, Java9-feat].
+
+**29.** Avoid float and double if exact answers are required
+
+**The float and double types are particularly ill-suited for monetary calculations**
+
+```java
+// Broken - uses floating point for monetary calculation!
+public static void main(String[] args) {
+  double funds = 1.00;
+  int itemsBought = 0;
+  for (double price = 0.10; funds >= price; price += 0.10) {
+    funds -= price;
+    itemsBought++;
+  }
+  System.out.println(itemsBought + " items bought."); // 3 pieces
+  System.out.println("Change: $" + funds); // $0.3999999999999999 left
+}
+// The right way to solve this problem is to use BigDecimal, int, or long for monetary calculations
+// Note that BigDecimal’s String constructor is used rather than its double constructor. This is required in order to avoid introducing inaccurate values into the computation
+
+public static void main(String[] args) {
+  final BigDecimal TEN_CENTS = new BigDecimal(".10");
+  int itemsBought = 0;
+  BigDecimal funds = new BigDecimal("1.00");
+  for (BigDecimal price = TEN_CENTS; funds.compareTo(price) >= 0; price = price.add(TEN_CENTS)) {
+    funds = funds.subtract(price);
+    itemsBought++;
+  }
+  System.out.println(itemsBought + " items bought."); // 4 pieces
+  System.out.println("Money left over: $" + funds); // 0.00$ left over
+}
+```
+
 ### Keywords
 
 - Covariant Return Typing - A subclass method is declared to return a subtype of the return type declared in the superclass.
@@ -857,6 +1072,8 @@ The improved code uses a collector, which is a new concept that you have to lear
 - Adapter: An adapter is an object that delegates to a backing object, providing an alternative interface. Because an adapter has no state beyond that of its backing object, there’s no need to create more than one instance of a given adapter to a given object.
 
 - Obsolete reference: An obsolete reference is simply a reference that will never be dereferenced again.
+
+- Fluent: designed to allow all of the calls that comprise a pipeline to be chained into a single expression
 
 ## Java 8 Additions/Changes
 
@@ -925,6 +1142,8 @@ The improved code uses a collector, which is a new concept that you have to lear
   ```
 
 - `computeIfAbsent()` added in Java 8, looks up a key in the map: If the key is present, the method simply returns the value associated with it. If not, the method computes a value by applying the given function object to the key, associates this value with the key, and returns the computed value.
+
+- In Java 8, streams were added to the platform, substantially complicating the task of choosing the appropriate return type for a sequence-returning method
 
 ## Early and Late Binding
 
