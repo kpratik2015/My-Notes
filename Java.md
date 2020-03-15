@@ -211,9 +211,17 @@ Randomly going over concepts of Java.
 
 - All zero-length arrays are immutable
 
+- If you believe a condition is likely to allow for recovery, use a checked exception; if not, use a runtime exception.
+
+- Commonly used exceptions include IllegalArgumentException, IllegalStateException, NullPointerException, IndexOutOfBoundsException, ConcurrentModificationException and UnsupportedOperationException
+
+- In Java 7, there is multi-catch: `try {...} catch(ExecutionException | InterruptedException ex) {...}`
+
+- For interval timing, always use `System.nanoTime` rather than `System.currentTimeMillis`. System.nanoTime is both more accurate and more precise and is unaffected by adjustments to the system’s real-time clock.
+
 ## Effective Java
 
-**1.** Consider static factory methods instead of constructors
+### 1. Consider static factory methods instead of constructors
 
 ```java
 public static Boolean valueOf(boolean b) {
@@ -231,7 +239,7 @@ public static Boolean valueOf(boolean b) {
 
 _Common Names for static factory methods: from, of, vlaueOf, getInstance, newInstance, getType, newType, and type_
 
-**2.** Consider a builder when faced with many constructor parameters
+### 2. Consider a builder when faced with many constructor parameters
 
 Javabeans pattern of setters in parameterless constructor has serious disadvantages.
 The builder is typically a static member class of the class it builds.
@@ -266,7 +274,7 @@ public class NutritionFacts {
 NutritionFacts cocaCola = new NutritionFacts.Builder(240).calories(100).build();
 ```
 
-**3.** Enforce the singleton property with a private constructor or an enum type
+### 3. Enforce the singleton property with a private constructor or an enum type
 
 - Private Constructor approach
 
@@ -290,7 +298,7 @@ public enum Elvis {
 }
 ```
 
-**4.** Enforce noninstantiability with a private constructor
+### 4. Enforce noninstantiability with a private constructor
 
 Attempting to enforce noninstantiability by making a class abstract does not work. The class can be subclassed and the subclass instantiated.
 
@@ -305,7 +313,7 @@ public class UtilityClass {
 }
 ```
 
-**5.** Prefer dependency injection to hardwiring resources
+### 5. Prefer dependency injection to hardwiring resources
 
 Do not use a singleton or static utility class to implement a class that depends on one or more underlying resources whose behavior affects that of the class, and do not have the class create these resources directly
 
@@ -321,7 +329,7 @@ public class SpellChecker {
 }
 ```
 
-**6.** Avoid creating unnecessary objects
+### 6. Avoid creating unnecessary objects
 
 For e.g., the factory method Boolean.valueOf(String) is preferable to the constructor Boolean(String), which was deprecated in Java 9. Since the constructor must create a new object each time it's called.
 
@@ -339,7 +347,7 @@ public class RomanNumerals {
 
 **Prefer primitives to boxed primitives, and watch out for unintentional autoboxing. E.g. long over Long**
 
-**7.** Eliminate obsolete object references
+### 7. Eliminate obsolete object references
 
 The fix for this sort of problem is simple: null out references once they become obsolete.
 _Nulling out object references should be the exception rather than the norm._
@@ -348,7 +356,7 @@ Common sources of memory leaks are: caches, listeners and other callbacks.
 
 Such memory leaks can be identified by _heap profiler_
 
-**8.** Avoid finalizers and cleaners
+### 8. Avoid finalizers and cleaners
 
 **Use of implements AutoCloseable or [try-with-resources/try-finally](https://www.baeldung.com/java-try-with-resources)**
 
@@ -360,7 +368,7 @@ _To protect nonfinal classes from finalizer attacks, write a final finalize meth
 
 FileInputStream, FileOutputStream, ThreadPoolExecutor, and java.sql.Connection, have finalizers that serve as safety nets -- free the resource if user forgets to
 
-**9.** Prefer try-with-resources to try-finally
+### 9. Prefer try-with-resources to try-finally
 
 ```java
 // try-with-resources on multiple resources - short and sweet
@@ -375,7 +383,7 @@ static void copy(String src, String dst) throws IOException {
 }
 ```
 
-**10.** Consider implementing Comparable
+### 10. Consider implementing Comparable
 
 If you are writing a value class with an obvious natural ordering, such as alphabetical order, numerical order, or chronological order, you should implement the Comparable interface.
 
@@ -388,7 +396,7 @@ public interface Comparable<T> {
 }
 ```
 
-**11.** Minimize mutability
+### 11. Minimize mutability
 
 The Java platform libraries contain many immutable classes, including `String`, the boxed primitive classes, and `BigInteger` and `BigDecimal`.
 
@@ -420,7 +428,7 @@ To summarize, resist the urge to write a setter for every getter. **Classes shou
 
 **The major disadvantage of immutable classes is that they require a separate object for each distinct value.**
 
-**12.** Favor composition over inheritance
+### 12. Favor composition over inheritance
 
 Unlike method invocation, inheritance violates encapsulation.
 
@@ -540,13 +548,13 @@ The InstrumentedSet class is known as a wrapper class because each InstrumentedS
 
 Inheritance propagates any flaws in the superclass’s API, while composition lets you design a new API that hides these flaws.
 
-**13.** Design and document for inheritance or else prohibit it
+### 13. Design and document for inheritance or else prohibit it
 
 A method that invokes overridable methods contains a description of these invocations at the end of its documentation comment. The description is in a special section of the specification, labeled “Implementation Requirements,” which is generated by the Javadoc tag @implSpec.
 
 Constructors must not invoke overridable methods, directly or indirectly. The Cloneable and Serializable interfaces present special difficulties. It is generally not a good idea for a class designed for inheritance to implement either of these interfaces because they place a substantial burden on programmers who extend the class.
 
-**14.** Prefer interfaces to abstract classes
+### 14. Prefer interfaces to abstract classes
 
 If you want to have two classes extend the same abstract class, you have to place it high up in the type hierarchy where it is an ancestor of both classes.
 
@@ -571,7 +579,7 @@ public abstract class AbstractMapEntry<K,V> implements Map.Entry<K,V> {
 
 Good documentation is absolutely essential in a skeletal implementation.
 
-**15.** Favor static member classes over nonstatic
+### 15. Favor static member classes over nonstatic
 
 There are four kinds of nested classes: _static member classes, nonstatic member classes, anonymous classes, and local classes_. All but the first kind are known as inner classes.
 
@@ -600,7 +608,7 @@ _lambdas_ are now preferred over annonymous classes.
 
 Local classes are the least frequently used of the four kinds of nested classes. A local class can be declared practically anywhere a local variable can be declared and obeys the same scoping rules.
 
-**15.** Prefer lists to arrays
+### 16. Prefer lists to arrays
 
 First, arrays are covariant. This scary-sounding word means simply that if Sub is a subtype of Super, then the array type Sub[] is a subtype of the array type Super[]. Generics, by contrast, are invariant: for any two distinct types Type1 and Type2, List<Type1> is neither a subtype nor a supertype of List<Type2>.
 
@@ -620,7 +628,7 @@ public class Chooser<T> {
 }
 ```
 
-**16.** Favor generic types & methods
+### 17. Favor generic types & methods
 
 We can generify a class if it wasn't parameterized to begin with.
 
@@ -656,7 +664,7 @@ for (String s : strings)
   System.out.println(sameString.apply(s));
 ```
 
-**17.** Use bounded wildcards to increase API flexibility
+### 18. Use bounded wildcards to increase API flexibility
 
 Solve such errors: `Iterable<Integer> cannot be converted to Iterable<Number>` or `Collection<Object> is not a subtype of Collection<Number>`
 
@@ -688,7 +696,7 @@ private static <E> void swapHelper(List<E> list, int i, int j) {
 }
 ```
 
-**18.** Combine generics and varargs judiciously
+### 19. Combine generics and varargs judiciously
 
 When you invoke a varargs method, an array is created to hold the varargs parameters
 
@@ -720,7 +728,7 @@ As a reminder, a generic varargs methods is safe if:
 - it doesn’t store anything in the varargs parameter array, and
 - it doesn’t make the array (or a clone) visible to untrusted code
 
-**18.** Use enums instead of int constants
+### 20. Use enums instead of int constants
 
 The basic idea behind Java’s enum types is simple: they are classes that export one instance for each enumeration constant via a public static final field. enum types let you add arbitrary methods and fields and implement arbitrary interfaces.
 
@@ -754,11 +762,11 @@ public enum Ensemble {
 _Use EnumMap instead of ordinal indexing_
 _it is generally good practice to accept the interface type rather than the implementation type_
 
-**19.** Use marker interfaces to define types
+### 21. Use marker interfaces to define types
 
 Marker interfaces have two advantages over marker annotations. First and foremost, marker interfaces define a type that is implemented by instances of the marked class; marker annotations do not. The existence of a marker interface type allows you to catch errors at compile time that you couldn’t catch until runtime if you used a marker annotation. Another advantage of marker interfaces over marker annotations is that they can be targeted more precisely.
 
-**20.** Prefer lambdas to anonymous classes
+### 22. Prefer lambdas to anonymous classes
 
 In Java 8, the language formalized the notion that interfaces with a single abstract method are special and deserve special treatment. These interfaces are now known as functional interfaces, and the language allows you to create instances of these interfaces using lambda expressions, or lambdas for short.
 
@@ -772,7 +780,7 @@ Collections.sort(words, comparingInt(String::length));
 
 A lambda cannot obtain a reference to itself. In a lambda, the this keyword refers to the enclosing instance, which is typically what you want. In an anonymous class, the this keyword refers to the anonymous class instance. If you need access to the function object from within its body, then you must use an anonymous class.
 
-**21.** Prefer method references to lambdas
+### 23. Prefer method references to lambdas
 
 Here is a code snippet from a program that maintains a map from arbitrary keys to Integer values
 
@@ -794,7 +802,7 @@ service.execute(() -> action());
 
 **Always annotate your functional interfaces with the @FunctionalInterface annotation**
 
-**21.** Use streams judiciously
+### 24. Use streams judiciously
 
 This API provides two key abstractions: the stream, which represents a finite or infinite sequence of data elements, and the stream pipeline, which represents a multistage computation on these elements.
 
@@ -828,7 +836,7 @@ Refrain from using streams to process char values. For e.g. `"Hello world!".char
 • From a code block, you can read or modify any local variable in scope; from a lambda, you can only read final or effectively final variables [JLS 4.12.4], and you can’t modify any local variables.
 • From a code block, you can return from the enclosing method, break or continue an enclosing loop, or throw any checked exception that this method is declared to throw; from a lambda you can do none of these things.
 
-**22.** Prefer side-effect-free functions in streams
+### 25. Prefer side-effect-free functions in streams
 
 The most important part of the streams paradigm is to structure your computation as a sequence of transformations where the result of each stage is as close as possible to a pure function of the result of the previous stage.
 
@@ -854,7 +862,7 @@ The improved code uses a collector, which is a new concept that you have to lear
 
 **The most important collector factories are toList, toSet, toMap, groupingBy, and joining.**
 
-**23.** Prefer Collection to Stream as a return type
+### 26. Prefer Collection to Stream as a return type
 
 If an API returns only a stream and some users want to iterate over the returned sequence with a for-each loop, those users will be justifiably upset.
 
@@ -895,7 +903,7 @@ public static <E> Stream<List<E>> of(List<E> list) {
 }
 ```
 
-**24.** Use caution when making streams parallel
+### 27. Use caution when making streams parallel
 
 **As a rule, performance gains from parallelism are best on streams over ArrayList, HashMap, HashSet, and ConcurrentHashMap instances; arrays; int ranges; and long ranges**
 
@@ -909,7 +917,7 @@ Replace the `forEach` terminal operation with `forEachOrdered`, which is guarant
 
 If you are going to parallelize a stream of random numbers, start with a SplittableRandom instance rather than a ThreadLocalRandom (or the essentially obsolete Random)
 
-**25.** Make defensive copies when needed
+### 28. Make defensive copies when needed
 
 ```java
 // Broken "immutable" time period class
@@ -946,7 +954,7 @@ _Note that defensive copies are made before checking the validity of the paramet
 
 _Do not use the clone method to make a defensive copy of a parameter whose type is subclassable by untrusted parties_
 
-**26.** Use overloading judiciously
+### 29. Use overloading judiciously
 
 ```java
 // Broken! - What does this program print?
@@ -976,7 +984,7 @@ You might expect this program to print Set, followed by List and Unknown Collect
 
 **A safe, conservative policy is never to export two overloadings with the same number of parameters.**
 
-**26.** Return optionals judiciously
+### 30. Return optionals judiciously
 
 An Optional-returning method is more flexible and easier to use than one that throws an exception, and it is less error-prone than one that returns null
 
@@ -1001,7 +1009,7 @@ Toy myToy = max(toys).orElseThrow(TemperTantrumException::new);
 
 _Never return a null value from an Optional-returning method. Optionals are similar in spirit to checked exceptions. You should never return an optional of a boxed primitive type. For performance-critical methods, it may be better to return a null or throw an exception_
 
-**27.** Minimize the scope of local variables
+### 31. Minimize the scope of local variables
 
 The most powerful technique for minimizing the scope of a local variable is to declare it where it is first used.
 
@@ -1027,13 +1035,13 @@ Where you can’t use for-each:
 
 Not only does the for-each loop let you iterate over collections and arrays, it lets you iterate over any object that implements the Iterable interface, which consists of a single method: `Iterator<E> iterator()`
 
-**28.** Know and use the libraries
+### 32. Know and use the libraries
 
 The random number generator of choice is now ThreadLocalRandom. For fork join pools and parallel streams, use SplittableRandom.
 
 Numerous features are added to the libraries in every major release, and it pays to keep abreast of these additions. Each time there is a major release of the Java platform, a web page is published describing its new features. These pages are well worth reading [Java8-feat, Java9-feat].
 
-**29.** Avoid float and double if exact answers are required
+### 33. Avoid float and double if exact answers are required
 
 **The float and double types are particularly ill-suited for monetary calculations**
 
@@ -1065,6 +1073,246 @@ public static void main(String[] args) {
 }
 ```
 
+Using BigDecimal has the added advantage that it gives you full control over rounding, letting you select from eight rounding modes whenever an operation that entails rounding is performed.
+
+### 34. Prefer primitive types to boxed primitives
+
+First, primitives have only their values, whereas boxed primitives have identities distinct from their values.
+
+```java
+/*
+Consider the below program. It throws a NullPointerException
+when evaluating the expression i == 42.
+The problem is that i is an Integer, not an int, and
+like all nonconstant object reference fields, its
+initial value is null.
+*/
+public class Unbelievable {
+  static Integer i;
+  public static void main(String[] args) {
+    if (i == 42)
+      System.out.println("Unbelievable");
+  }
+}
+
+// Hideously slow program! Because sum is repeatedly boxed and unboxed
+public static void main(String[] args) {
+  Long sum = 0L;
+  for (long i = 0; i < Integer.MAX_VALUE; i++) {
+    sum += i;
+  }
+  System.out.println(sum);
+}
+```
+
+_when you mix primitives and boxed primitives in an operation, the boxed primitive is auto-unboxed_
+
+When to use boxed primitives?
+
+- keys and values in collections
+- as type parameters in parameterized types and methods e.g. ThreadLocal<Integer>
+- reflective method invocations
+
+### 35. Avoid strings where other types are more appropriate
+
+Strings are poor substitutes for enum types. Strings are poor substitutes for aggregate types. Strings are poor substitutes for capabilities.
+
+```java
+// Inappropriate use of string as aggregate type
+String compoundKey = className + "#" + i.next();
+```
+
+### 36. Beware the performance of string concatenation
+
+Using the string concatenation operator repeatedly to concatenate n strings requires time quadratic in n. This is an unfortunate consequence of the fact that strings are immutable. When two strings are concatenated, the contents of both are copied.
+
+To achieve acceptable performance, use a StringBuilder in place of a String.
+
+### 37. Refer to objects by their interfaces
+
+If appropriate interface types exist, then parameters, return values, variables, and fields should all be declared using interface types.
+
+```java
+// Good - uses interface as type
+Set<Son> sonSet = new LinkedHashSet<>();
+// Bad - uses class as type!
+LinkedHashSet<Son> sonSet = new LinkedHashSet<>();
+```
+
+### 38. Use native methods judiciously
+
+It is rarely advisable to use native methods for improved performance. The use of native methods has serious disadvantages. Because native languages are not safe, applications using native methods are no longer immune to memory corruption errors.
+
+### 39. Adhere to generally accepted naming conventions
+
+The Java platform has a well-established set of naming conventions, many of which are contained in The Java Language Specification.
+
+- Package and module names should be hierarchical with the components separated by periods.
+- Components should consist of lowercase alphabetic characters and, rarely, digits. Components should be short, generally eight or fewer characters.
+- Class and interface names, including enum and annotation type names, should consist of one or more words, with the first letter of each word capitalized, for example, List or FutureTask.
+- Local variable names have similar typographical naming conventions to member names, except that abbreviations are permitted, as are individual characters and short sequences of characters whose meaning depends on the context in which they occur, for example, i, denom, houseNum.
+- Type parameter names usually consist of a single letter. Most commonly it is one of these five: T for an arbitrary type, E for the element type of a collection, K and V for the key and value types of a map, and X for an exception. The return type of a function is usually R. A sequence of arbitrary types can be T, U, V or T1, T2, T3.
+- Interfaces are named like classes, for example, Collection or Comparator, or with an adjective ending in able or ible, for example, Runnable, Iterable, or Accessible.
+
+### 40. Synchronize access to shared mutable data
+
+Synchronization is required for reliable communication between threads as well as for mutual exclusion. Do not use Thread.stop.
+
+A recommended way to stop one thread from another is to have the first thread poll a boolean field that is initially false but can be set to true by the second thread to indicate that the first thread is to stop itself.
+
+```java
+// Synchronization is not guaranteed to work unless both read and write operations are synchronized
+// Properly synchronized cooperative thread termination
+public class StopThread {
+  private static boolean stopRequested;
+  private static synchronized void requestStop() {
+    stopRequested = true;
+  }
+  private static synchronized boolean stopRequested() {
+    return stopRequested;
+  }
+  public static void main(String[] args) throws InterruptedException {
+    Thread backgroundThread = new Thread(() -> {
+      int i = 0;
+      while (!stopRequested())
+        i++;
+    });
+    backgroundThread.start();
+    TimeUnit.SECONDS.sleep(1);
+    requestStop();
+  }
+}
+
+// A better optimized version which avoids synchronization on each iteration of loop
+// Cooperative thread termination with a volatile field
+public class StopThread {
+  private static volatile boolean stopRequested;
+  public static void main(String[] args) throws InterruptedException {
+    Thread backgroundThread = new Thread(() -> {
+      int i = 0;
+      while (!stopRequested)
+        i++;
+    });
+    backgroundThread.start();
+    TimeUnit.SECONDS.sleep(1);
+    stopRequested = true;
+  }
+}
+```
+
+Use the class AtomicLong, which is part of java.util.concurrent.atomic. This package provides primitives for lock-free, thread-safe programming on single variables.
+
+### 41. Avoid excessive synchronization
+
+To avoid liveness and safety failures, never cede control to the client within a synchronized method or block. In other words, inside a synchronized region, do not invoke a method that is designed to be overridden, or one provided by a client in the form of a function object.
+
+The libraries provide a concurrent collection known as CopyOnWriteArrayList that is tailor-made for this purpose. This List implementation is a variant of ArrayList in which all modification operations are implemented by making a fresh copy of the entire underlying array. Because the internal array is never modified, iteration requires no locking and is very fast.
+
+```java
+// Thread-safe observable set with CopyOnWriteArrayList
+private final List<SetObserver<E>> observers = new CopyOnWriteArrayList<>();
+public void addObserver(SetObserver<E> observer) {
+  observers.add(observer);
+}
+public boolean removeObserver(SetObserver<E> observer) {
+  return observers.remove(observer);
+}
+private void notifyElementAdded(E element) {
+  for (SetObserver<E> observer : observers)
+    observer.added(this, element);
+}
+```
+
+As a rule, you should do as little work as possible inside synchronized regions.
+
+In a multicore world, the real cost of excessive synchronization is not the CPU time spent getting locks; it is _contention_: the lost opportunities for parallelism and the delays imposed by the need to ensure that every core has a consistent view of memory. Another hidden cost of oversynchronization is that it can limit the VM’s ability to optimize code execution.
+
+If you are writing a mutable class, you have two options: you can omit all synchronization and allow the client to synchronize externally if concurrent use is desired, or you can synchronize internally, making the class thread-safe. You should choose the latter option only if you can achieve significantly higher concurrency with internal synchronization than you could by having the client lock the entire object externally. The collections in java.util (with the exception of the obsolete Vector and Hashtable) take the former approach, while those in java.util.concurrent take the latter.
+
+If you do synchronize your class internally, you can use various techniques to achieve high concurrency, such as lock splitting, lock striping, and nonblocking concurrency control.
+
+### 42. Prefer executors, tasks, and streams to threads
+
+You can do many more things with an executor service. For example, you can wait for a particular task to complete (with the get method), you can wait for any or all of a collection of tasks to complete (using the invokeAny or invokeAll methods), you can wait for the executor service to terminate (using the awaitTermination method), you can retrieve the results of tasks one by one as they complete (using an ExecutorCompletionService), you can schedule tasks to run at a particular time or to run periodically (using a ScheduledThreadPoolExecutor), and so on.
+
+For a small program, or a lightly loaded server, Executors.newCachedThreadPool is generally a good choice. In this tasks are immediately handed off to a thread for execution and if no threads are avaiable then new one is created. Therefore, in a heavily loaded production server, you are much better off using Executors.newFixedThreadPool, which gives you a pool with a fixed number of threads, or using the ThreadPoolExecutor class directly, for maximum control.
+
+In the executor framework, the unit of work and the execution mechanism are separate. The key abstraction is the unit of work, which is the task. There are two kinds of tasks: _Runnable_ and its close cousin, _Callable_ (which is like Runnable, except that it returns a value and can throw arbitrary exceptions). The general mechanism for executing tasks is the _executor service_.
+
+Parallel streams are written atop fork join pools and allow you to take advantage of their performance benefits (ForkJoinPool not only process tasks but “steal” tasks from one another to ensure that all threads remain busy) with little effort, assuming they are appropriate for the task at hand.
+
+### 43. Prefer concurrency utilities to wait and notify
+
+Given the difficulty of using wait and notify correctly, you should use the higher-level concurrency utilities instead.
+
+The concurrent collections are high-performance concurrent implementations of standard collection interfaces such as List, Queue, and Map. To provide high concurrency, these implementations manage their own synchronization internally.
+
+ConcurrentHashMap is optimized for retrieval operations, such as get. Use ConcurrentHashMap in preference to Collections.synchronizedMap.
+
+As you’d expect, most ExecutorService implementations, including ThreadPoolExecutor, use a BlockingQueue. BlockingQueue extends Queue and adds several methods, including take, which removes and returns the head element from the queue, waiting if the queue is empty.
+
+_Synchronizers_ are objects that enable threads to wait for one another, allowing them to coordinate their activities. The most commonly used synchronizers are CountDownLatch and Semaphore. Less commonly used are CyclicBarrier and Exchanger. The most powerful synchronizer is Phaser.
+
+It is sometimes said that you should always use notifyAll.
+
+### 44. Use lazy initialization judiciously
+
+Lazy initialization is the act of delaying the initialization of a field until its value is needed. This technique is applicable to both static and instance fields.
+
+```java
+// Normal initialization of an instance field
+private final FieldType field = computeFieldValue();
+// If you use lazy initialization to break an initialization circularity, use a synchronized accessor because it is the simplest, clearest alternative:
+
+// Lazy initialization of instance field - synchronized accessor
+private FieldType field;
+private synchronized FieldType getField() {
+  if (field == null)
+    field = computeFieldValue();
+  return field;
+}
+```
+
+If you need to use lazy initialization for performance on a static field, use the lazy initialization holder class idiom.
+
+```java
+// Lazy initialization holder class idiom for static fields
+private static class FieldHolder {
+  static final FieldType field = computeFieldValue();
+}
+private static FieldType getField() { return FieldHolder.field; }
+// When getField is invoked for the first time, it reads FieldHolder.field for the first time, causing the initialization of the FieldHolder class.
+```
+
+If you need to use lazy initialization for performance on an instance field, use the double-check idiom. This idiom avoids the cost of locking when accessing the field after initialization.
+
+```java
+// Double-check idiom for lazy initialization of instance fields
+private volatile FieldType field;
+private FieldType getField() {
+  FieldType result = field;
+  if (result == null) { // First check (no locking)
+    synchronized(this) {
+      if (field == null) // Second check (with locking)
+        field = result = computeFieldValue();
+    }
+  }
+  return result;
+}
+```
+
+While you can apply the double-check idiom to static fields as well, there is no reason to do so: the lazy initialization holder class idiom is a better choice.
+
+### 45. Don’t depend on the thread scheduler
+
+Any program that relies on the thread scheduler for correctness or performance is likely to be nonportable. The best way to write a robust, responsive, portable program is to ensure that the average number of runnable threads is not significantly greater than the number of processors. Note that the number of runnable threads isn’t the same as the total number of threads, which can be much higher.
+
+In terms of the Executor Framework, this means sizing thread pools appropriately and keeping tasks short, but not too short, or dispatching overhead will harm performance.
+
+When faced with a program that barely works because some threads aren’t getting enough CPU time relative to others, resist the temptation to “fix” the program by putting in calls to Thread.yield.
+
+Thread priorities are among the least portable features of Java.
+
 ### Keywords
 
 - Covariant Return Typing - A subclass method is declared to return a subtype of the return type declared in the superclass.
@@ -1074,6 +1322,10 @@ public static void main(String[] args) {
 - Obsolete reference: An obsolete reference is simply a reference that will never be dereferenced again.
 
 - Fluent: designed to allow all of the calls that comprise a pipeline to be chained into a single expression
+
+- Open call: An alien method invoked outside of a synchronized region is known as an open call.
+
+- Spurious wakeup: The waiting thread could (rarely) wake up in the absence of a notify. This is known as a spurious wakeup.
 
 ## Java 8 Additions/Changes
 
