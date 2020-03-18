@@ -1,10 +1,10 @@
-# Cassendra Notes
+# Cassendra
 
 ## Installation
 
 https://academy.datastax.com/planet-cassandra/cassandra
 
-download Download DataStax Community Edition v3.0.9 
+download Download DataStax Community Edition v3.0.9
 
 either 32 bit or 64 bit
 
@@ -16,7 +16,7 @@ Move to bin folder and start the cassandra server
 
 cassandra -f
 
-open another terminal and move to bin folder 
+open another terminal and move to bin folder
 
 and type cqlsh
 
@@ -37,9 +37,10 @@ Cassandra is open source, distributed and decentralized/distributed storage syst
 
 Cassandra Query Language
 
-### Keyspace 
+### Keyspace
 
 Keyspace is the outermost container for data in cassandra. Like database name.
+
 ```
 CREATE KEYSPACE "clsa" with replication = {'class' : 'SimpleStrategy', 'replicationFactor' : 1};
 
@@ -51,10 +52,11 @@ describe table <table_name>
 
 
 ```
-_Note: 
+
+_Note:
 Primary key is partition key
 We can filter on column which is index
-Purpose of a partition key is to identify the partition. 
+Purpose of a partition key is to identify the partition.
 _
 
 ```
@@ -62,11 +64,11 @@ create index on employee(salary);
 select * from employee where salary=30000;
 ```
 
-One row for each partition key. All the data associated with that partition key is stored as columns in the datastore. 
+One row for each partition key. All the data associated with that partition key is stored as columns in the datastore.
 
 The role of clustering key is to group related items together. All the data that is inserted against same clustering key is grouped together.
 
-If clustered together in one node then same token 
+If clustered together in one node then same token
 
 ```
 select token(stuid)
@@ -88,4 +90,3 @@ source 'inputfile.txt'
 ```
 
 We first keep data in memory. Commit log is used to not lose any writes.
-
