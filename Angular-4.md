@@ -1,5 +1,46 @@
 # Angular 4 from Scratch
 
+- [Angular 4 from Scratch](#angular-4-from-scratch)
+  - [Why Angular ?](#why-angular-)
+  - [Architecture of Angular Apps](#architecture-of-angular-apps)
+    - [Front-End](#front-end)
+    - [Back-End](#back-end)
+    - [HTTP Services/APIs](#http-servicesapis)
+  - [Angular CLI](#angular-cli)
+  - [Code Editor](#code-editor)
+  - [Setup](#setup)
+  - [Project Structure](#project-structure)
+    - [e2e](#e2e)
+    - [node_modules](#node_modules)
+    - [src](#src)
+  - [Webpack](#webpack)
+    - [It is called Hot Module Reloading](#it-is-called-hot-module-reloading)
+  - [AngularJS vs Angular 2 vs Angular 4](#angularjs-vs-angular-2-vs-angular-4)
+  - [Components](#components)
+    - [Steps for components](#steps-for-components)
+    - [Naming convetion](#naming-convetion)
+    - [Registering Component](#registering-component)
+    - [Generating a Component](#generating-a-component)
+  - [Template Basics](#template-basics)
+    - [Inline](#inline)
+    - [Interpolation, ngFor and ngIf](#interpolation-ngfor-and-ngif)
+  - [Services](#services)
+    - [Naming convention](#naming-convention)
+    - [Dependency Injection](#dependency-injection)
+      - [Singleton: Imagine we have a lot of components and CoursesService provides data to all these components. In memory we will have single instance of CoursesService and angular will pass same instance to all the components.](#singleton-imagine-we-have-a-lot-of-components-and-coursesservice-provides-data-to-all-these-components-in-memory-we-will-have-single-instance-of-coursesservice-and-angular-will-pass-same-instance-to-all-the-components)
+    - [Generating Services using Angular CLI](#generating-services-using-angular-cli)
+      - [Note: spec files are used for testing.](#note-spec-files-are-used-for-testing)
+  - [Property Binding](#property-binding)
+  - [Adding bootstrap](#adding-bootstrap)
+  - [Class binding](#class-binding)
+  - [Style binding](#style-binding)
+  - [Event binding](#event-binding)
+  - [Event filtering and template variables](#event-filtering-and-template-variables)
+  - [Two way binding](#two-way-binding)
+  - [Pipes](#pipes)
+  - [Custom Pipes](#custom-pipes)
+  - [Shadow DOM](#shadow-dom)
+
 ## Why Angular ?
 
 - Gives our applications clean structure
@@ -34,17 +75,18 @@ It is a library that helps create new angular project with some boiler plate cod
 
 Visual Studio Code Editor
 
-## Setup 
+## Setup
 
 Download [Nodejs](https://nodejs.org/en/download/) which has npm package.
 
-After installing check in cmd with command: node -v 
+After installing check in cmd with command: node -v
 
 As of today states: v8.11.3
 
 Then run some commands: (Before running check if you have installed by running: ng -v)
 
 _Note: -g is for global. That is, you have to only run it once and not everytime you start a project_
+
 ```
 cd to code folder.
 
@@ -122,13 +164,14 @@ Whenever you modify a file, webpack recompiles the bundle and displays the outpu
 
 ### It is called Hot Module Reloading
 
-## AngularJS vs Angular 2 vs  Angular 4
+## AngularJS vs Angular 2 vs Angular 4
 
-AngularJS was introduced in 2010. The framework was not designed keeping the current frameworks in mind. So they redesigned it to Angular 2 in 2016. 
+AngularJS was introduced in 2010. The framework was not designed keeping the current frameworks in mind. So they redesigned it to Angular 2 in 2016.
 
 Angular 4 came out after Angular 2.3. Angular 4 was not a new framework, it wasn't a major upgrade.
 
 Angular libraries:
+
 - core
 - compiler
 - http
@@ -154,13 +197,16 @@ We can't communicate with the code defined in component class.
 - Register it in a module
 - Add an element in an HTML markup
 
-### Naming convetion 
+### Naming convetion
 
-For suppose a course form named component: 
+For suppose a course form named component:
+
 ```
 course-form.component.ts
 ```
+
 Inside a courses.component.ts, the class name would be like:
+
 ```
 import { Component } from '@angular/core';
 
@@ -193,13 +239,15 @@ import { CoursesComponent } from './courses.component';
 Opening: \components101\src\app\app.component.ts
 
 You'll find 3 sections:
+
 - import statement is input. You can import services
 - component decorator @component. We're using component from above class. There is app-root in index.html.
-- AppComponent defines events that occur in the template through data binding. 
+- AppComponent defines events that occur in the template through data binding.
 
 ```
 ng g component my-new-component
 ```
+
 Above command generates 4 files.
 _g is shorthand for generate. spec.ts file is used for unit testing_
 Other area affected is app.module.ts.
@@ -212,7 +260,7 @@ Copy selector and go to app.component.html to add following:
 <app-my-new-component></app-my-new-component>
 ```
 
-Go back to console and type 
+Go back to console and type
 
 ```
 ng serve
@@ -235,7 +283,6 @@ ng g c component-name
 - ngFor
 - ngIf, Else and Then
 
-
 ### Inline
 
 ```
@@ -257,11 +304,11 @@ import { Component } from '@angular/core';
   selector: 'app-root',
   template: `
   <h1>Hey {{ myObject.location }}</h1>
-  
+
   <ul>
-    <li *ngFor = "let arr of myArr"> {{ arr }} </li>  
+    <li *ngFor = "let arr of myArr"> {{ arr }} </li>
   </ul>
-  
+
   <ol>
     <li *ngIf="myArr"> Yeah I exist </li>
     <li *ngIf="!myArr"> Yeah I don't exist </li>
@@ -271,7 +318,7 @@ import { Component } from '@angular/core';
     <ng-template #otherTmpl> No, I do. </ng-template>
 
     <div *ngIf="myArr; then templ1 else templ2">Will not get shown here so don't insert anything </div>
-    
+
     <ng-template #templ1> <p>Template 1</p> </ng-template>
     <ng-template #templ2> <p>Template 2</p> </ng-template>
 
@@ -310,17 +357,18 @@ export class CoursesService {
 }
 ```
 
-So the service provides data to component. We can decouple logic. 
+So the service provides data to component. We can decouple logic.
 
 _Using service_
 
-courses.component.ts 
+courses.component.ts
+
 ```
 // ...
 export class CoursesComponent {
   title = "List of courses";
   courses;
-  
+
   constructor(service: CoursesService) { // angular will now create the service depending on constructor of service
     // let service = new CoursesService(); // this will tightly couple courses component to courses service
     this.courses = service.getCourses();
@@ -342,17 +390,18 @@ providers: [CoursesService]
 ```
 
 #### Singleton: Imagine we have a lot of components and CoursesService provides data to all these components. In memory we will have single instance of CoursesService and angular will pass same instance to all the components.
-  
+
 ### Generating Services using Angular CLI
 
 ```
 ng g s service-name
 ```
 
-#### Note: spec files are used for testing. 
+#### Note: spec files are used for testing.
 
 @Injectable is only used when you have dependencies in your constructor
 E.g.
+
 ```
 @Injectable()
 export class EmailService {
@@ -365,6 +414,7 @@ export class EmailService {
 We bind a dom element like src with the property in our class..
 
 courses.component.ts
+
 ```
 // ...
 template: `
@@ -372,8 +422,10 @@ template: `
 `
 // ...
 ```
+
 Note: most of the time Dom property and html tag has one to one mapping. But in some cases the name different
 e.g. colspan in html is attr.colspan for dom (to write in square bracket)
+
 ```
 <table>
   <tr>
@@ -385,20 +437,25 @@ e.g. colspan in html is attr.colspan for dom (to write in square bracket)
 ## Adding bootstrap
 
 ```
-npm install bootstrap --save 
+npm install bootstrap --save
 ```
+
 --save adds it to package.json
 
 Benefit of adding in package.json is that all the dependencies are listed. This will allow someone checking source folder to execute below command and download the dependencies:
+
 ```
 npm install
 ```
+
 This allows us to ignore node_modules folder for version control.
 
 In styles.css
+
 ```
 @import "~bootstrap/dist/css/bootstrap.css";
 ```
+
 Now we can use bootstrap in templates.
 
 ## Class binding
@@ -406,6 +463,7 @@ Now we can use bootstrap in templates.
 If the field evaluates to be true then the class will be added.
 
 courses.component.ts
+
 ```
 // ...
 template:  `
@@ -427,7 +485,7 @@ export class CoursesComponent {
 
 ## Event binding
 
-$event is known to angular. It represents a standard dom event that is seen in JS. 
+\$event is known to angular. It represents a standard dom event that is seen in JS.
 
 ```
 // ...
@@ -440,7 +498,8 @@ export class CoursesComponent {
     }
 }
 ```
-_Note: To stop 'event bubbling', we add $event.stopPropagation()_
+
+_Note: To stop 'event bubbling', we add \$event.stopPropagation()_
 
 ## Event filtering and template variables
 
@@ -454,7 +513,7 @@ export class CoursesComponent {
   onKeyUp(email) {
     console.log(email);
   }
-} 
+}
 ```
 
 ## Two way binding
@@ -470,16 +529,17 @@ export class CoursesComponent {
   onKeyUp() {
     console.log(this.email);
   }
-} 
+}
 ```
 
 app.module.ts
+
 ```
 import { FormsModule } from '@angular/forms';
 // ...
-imports: [ 
+imports: [
   BrowserModule,
-  FormsModule 
+  FormsModule
 ]
 // ...
 ```
@@ -487,6 +547,7 @@ imports: [
 ## Pipes
 
 Built-in:
+
 - Uppercase
 - Lowercase
 - Decimal
@@ -501,11 +562,13 @@ Built-in:
 {{ course.releaseDate | date:'shortDate' }}
 // ...
 ```
+
 [All date formats](https://angular.io/api/common/DatePipe)
 
 ## Custom Pipes
 
 summary.pipe.ts
+
 ```
 import { Pipe, PipeTransform } from '@angular/core';
 
@@ -516,12 +579,14 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class SumarryPipe implements PipeTransform {
   transform(value: string, args?: any) {
     if(!value) return null;
-    
+
     return value.substr(0, 50) + '...';
   }
 }
 ```
+
 app.module.ts
+
 ```
 delcarations: [ SummaryPipe ]
 ```
@@ -531,6 +596,7 @@ delcarations: [ SummaryPipe ]
 Allows us to apply scoped styles to elements without bleeding out to outer world.
 
 Only new browsers support this.
+
 ```
 var el = document.querySelector('favorite')
 var root = el.createShadowRoot(); // this will restrict styling in block of code
@@ -539,4 +605,3 @@ root.innerHTML = `
   <h1> Hello </h1>
 `
 ```
-

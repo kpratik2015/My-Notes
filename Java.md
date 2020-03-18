@@ -2,6 +2,64 @@
 
 Randomly going over concepts of Java.
 
+- [Java Pointers](#java-pointers)
+  - [Take Note of](#take-note-of)
+  - [Effective Java](#effective-java)
+    - [1. Consider static factory methods instead of constructors](#1-consider-static-factory-methods-instead-of-constructors)
+    - [2. Consider a builder when faced with many constructor parameters](#2-consider-a-builder-when-faced-with-many-constructor-parameters)
+    - [3. Enforce the singleton property with a private constructor or an enum type](#3-enforce-the-singleton-property-with-a-private-constructor-or-an-enum-type)
+    - [4. Enforce noninstantiability with a private constructor](#4-enforce-noninstantiability-with-a-private-constructor)
+    - [5. Prefer dependency injection to hardwiring resources](#5-prefer-dependency-injection-to-hardwiring-resources)
+    - [6. Avoid creating unnecessary objects](#6-avoid-creating-unnecessary-objects)
+    - [7. Eliminate obsolete object references](#7-eliminate-obsolete-object-references)
+    - [8. Avoid finalizers and cleaners](#8-avoid-finalizers-and-cleaners)
+    - [9. Prefer try-with-resources to try-finally](#9-prefer-try-with-resources-to-try-finally)
+    - [10. Consider implementing Comparable](#10-consider-implementing-comparable)
+    - [11. Minimize mutability](#11-minimize-mutability)
+    - [12. Favor composition over inheritance](#12-favor-composition-over-inheritance)
+    - [13. Design and document for inheritance or else prohibit it](#13-design-and-document-for-inheritance-or-else-prohibit-it)
+    - [14. Prefer interfaces to abstract classes](#14-prefer-interfaces-to-abstract-classes)
+    - [15. Favor static member classes over nonstatic](#15-favor-static-member-classes-over-nonstatic)
+    - [16. Prefer lists to arrays](#16-prefer-lists-to-arrays)
+    - [17. Favor generic types & methods](#17-favor-generic-types--methods)
+    - [18. Use bounded wildcards to increase API flexibility](#18-use-bounded-wildcards-to-increase-api-flexibility)
+    - [19. Combine generics and varargs judiciously](#19-combine-generics-and-varargs-judiciously)
+    - [20. Use enums instead of int constants](#20-use-enums-instead-of-int-constants)
+    - [21. Use marker interfaces to define types](#21-use-marker-interfaces-to-define-types)
+    - [22. Prefer lambdas to anonymous classes](#22-prefer-lambdas-to-anonymous-classes)
+    - [23. Prefer method references to lambdas](#23-prefer-method-references-to-lambdas)
+    - [24. Use streams judiciously](#24-use-streams-judiciously)
+    - [25. Prefer side-effect-free functions in streams](#25-prefer-side-effect-free-functions-in-streams)
+    - [26. Prefer Collection to Stream as a return type](#26-prefer-collection-to-stream-as-a-return-type)
+    - [27. Use caution when making streams parallel](#27-use-caution-when-making-streams-parallel)
+    - [28. Make defensive copies when needed](#28-make-defensive-copies-when-needed)
+    - [29. Use overloading judiciously](#29-use-overloading-judiciously)
+    - [30. Return optionals judiciously](#30-return-optionals-judiciously)
+    - [31. Minimize the scope of local variables](#31-minimize-the-scope-of-local-variables)
+    - [32. Know and use the libraries](#32-know-and-use-the-libraries)
+    - [33. Avoid float and double if exact answers are required](#33-avoid-float-and-double-if-exact-answers-are-required)
+    - [34. Prefer primitive types to boxed primitives](#34-prefer-primitive-types-to-boxed-primitives)
+    - [35. Avoid strings where other types are more appropriate](#35-avoid-strings-where-other-types-are-more-appropriate)
+    - [36. Beware the performance of string concatenation](#36-beware-the-performance-of-string-concatenation)
+    - [37. Refer to objects by their interfaces](#37-refer-to-objects-by-their-interfaces)
+    - [38. Use native methods judiciously](#38-use-native-methods-judiciously)
+    - [39. Adhere to generally accepted naming conventions](#39-adhere-to-generally-accepted-naming-conventions)
+    - [40. Synchronize access to shared mutable data](#40-synchronize-access-to-shared-mutable-data)
+    - [41. Avoid excessive synchronization](#41-avoid-excessive-synchronization)
+    - [42. Prefer executors, tasks, and streams to threads](#42-prefer-executors-tasks-and-streams-to-threads)
+    - [43. Prefer concurrency utilities to wait and notify](#43-prefer-concurrency-utilities-to-wait-and-notify)
+    - [44. Use lazy initialization judiciously](#44-use-lazy-initialization-judiciously)
+    - [45. Don’t depend on the thread scheduler](#45-dont-depend-on-the-thread-scheduler)
+    - [Keywords](#keywords)
+  - [Java 8 Additions/Changes](#java-8-additionschanges)
+  - [Early and Late Binding](#early-and-late-binding)
+  - [Map](#map)
+    - [HashMap v/s WeakHashMap](#hashmap-vs-weakhashmap)
+    - [LinkedHashMap](#linkedhashmap)
+    - [ConcurrentMap](#concurrentmap)
+    - [EnumMap](#enummap)
+  - [References/Useful Links](#referencesuseful-links)
+
 ## Take Note of
 
 - Heap is where all objects are kept
@@ -445,102 +503,52 @@ Note that the implementation is broken into two pieces, the class itself and a r
 // Wrapper class - uses composition in place of inheritance
 public class InstrumentedSet<E> extends ForwardingSet<E> {
   private int addCount = 0;
-
-  public InstrumentedSet(Set<E> s) {
-    super(s);
-  }
-
+  public InstrumentedSet(Set<E> s) { super(s); }
   @Override
-  public boolean add(E e) {
-    addCount++;
-    return super.add(e);
-  }
-
+  public boolean add(E e) { addCount++; return super.add(e); }
   @Override
-  public boolean addAll(Collection<? extends E> c) {
-    addCount += c.size();
-    return super.addAll(c);
-  }
-
-  public int getAddCount() {
-    return addCount;
-  }
+  public boolean addAll(Collection<? extends E> c) { addCount += c.size(); return super.addAll(c); }
+  public int getAddCount() { return addCount; }
 }
-
 // Reusable forwarding class
 public class ForwardingSet<E> implements Set<E> {
   private final Set<E> s;
+  public ForwardingSet(Set<E> s) { this.s = s; }
 
-  public ForwardingSet(Set<E> s) {
-    this.s = s;
-  }
+  public void clear() { s.clear(); }
 
-  public void clear() {
-    s.clear();
-  }
+  public boolean contains(Object o) { return s.contains(o); }
 
-  public boolean contains(Object o) {
-    return s.contains(o);
-  }
+  public boolean isEmpty() { return s.isEmpty(); }
 
-  public boolean isEmpty() {
-    return s.isEmpty();
-  }
+  public int size() { return s.size(); }
 
-  public int size() {
-    return s.size();
-  }
+  public Iterator<E> iterator() { return s.iterator(); }
 
-  public Iterator<E> iterator() {
-    return s.iterator();
-  }
+  public boolean add(E e) { return s.add(e); }
 
-  public boolean add(E e) {
-    return s.add(e);
-  }
+  public boolean remove(Object o) { return s.remove(o); }
 
-  public boolean remove(Object o) {
-    return s.remove(o);
-  }
+  public boolean containsAll(Collection<?> c) { return s.containsAll(c); }
 
-  public boolean containsAll(Collection<?> c) {
-    return s.containsAll(c);
-  }
+  public boolean addAll(Collection<? extends E> c) { return s.addAll(c); }
 
-  public boolean addAll(Collection<? extends E> c) {
-    return s.addAll(c);
-  }
+  public boolean removeAll(Collection<?> c) { return s.removeAll(c); }
 
-  public boolean removeAll(Collection<?> c) {
-    return s.removeAll(c);
-  }
+  public boolean retainAll(Collection<?> c) { return s.retainAll(c); }
 
-  public boolean retainAll(Collection<?> c) {
-    return s.retainAll(c);
-  }
+  public Object[] toArray() { return s.toArray(); }
 
-  public Object[] toArray() {
-    return s.toArray();
-  }
-
-  public <T> T[] toArray(T[] a) {
-    return s.toArray(a);
-  }
+  public <T> T[] toArray(T[] a) { return s.toArray(a); }
 
   @Override
-  public boolean equals(Object o) {
-    return s.equals(o);
-  }
+  public boolean equals(Object o) { return s.equals(o); }
 
   @Override
-  public int hashCode() {
-    return s.hashCode();
-  }
+  public int hashCode() { return s.hashCode(); }
 
   @Override
-  public String toString() {
-    return s.toString();
-  }
+  public String toString() { return s.toString(); }
 }
 ```
 

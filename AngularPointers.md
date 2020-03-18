@@ -1,5 +1,11 @@
 # Angular Pointers
 
+- [Angular Pointers](#angular-pointers)
+  - [Version Feature Breakdown](#version-feature-breakdown)
+  - [Takeaways](#takeaways)
+  - [Q&A](#qa)
+    - [More Q&As at https://github.com/sudheerj/angular-interview-questions](#more-qas-at-httpsgithubcomsudheerjangular-interview-questions)
+
 ## Version Feature Breakdown
 
 **Angular 2**

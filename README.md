@@ -1,1 +1,3 @@
-## Notes for future reference
+# My Notes
+
+Notes for future reference

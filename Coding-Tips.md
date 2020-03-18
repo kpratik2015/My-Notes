@@ -2,6 +2,17 @@
 
 [Python Programming site](https://checkio.org/)
 
+- [Useful Links](#useful-links)
+- [Things to Know of Python in CC](#things-to-know-of-python-in-cc)
+- [Dynamic Programming](#dynamic-programming)
+- [3 Sum Problem](#3-sum-problem)
+- [Pointer Method to solve problem](#pointer-method-to-solve-problem)
+- [Backtracking](#backtracking)
+- [Python N-Sum one code](#python-n-sum-one-code)
+- [Pattern searching, first index - KMP (Knuth Morris Pratt) algorithm](#pattern-searching-first-index---kmp-knuth-morris-pratt-algorithm)
+- [Permutations of a string](#permutations-of-a-string)
+- [Next Permutation Trick](#next-permutation-trick)
+
 # Things to Know of Python in CC
 
 - [::-1] for reversal of string in python
