@@ -15,6 +15,12 @@
   - [Null](#null)
   - [Undefined](#undefined)
   - [Math Function](#math-function)
+  - [Asynchrony](#asynchrony)
+    - [Concurrency](#concurrency)
+  - [Callbacks](#callbacks)
+  - [Promises](#promises)
+    - [Promise Patterns](#promise-patterns)
+  - [Generators](#generators)
 
 ## Objects
 
@@ -573,3 +579,539 @@ _Methods (e.g., Math.random();)_:
 - sin()
 - sort()
 - tan()
+
+## Asynchrony
+
+The simplest (but definitely not only, or necessarily even best!) way of "waiting" from now until later is to use a function, commonly called a callback function.
+
+```js
+ajax("http://some.url.1", function myCallbackFunction(data) {
+  console.log(data); // Yay, I gots me some `data`!
+});
+```
+
+Any time you wrap a portion of code into a function and specify that it should be executed in response to some event (timer, mouse click, Ajax response, etc.), you are creating a later chunk of your code, and thus introducing asynchrony to your program.
+
+**Async Console** - There is no specification or set of requirements around how the console.\* methods work -- they are not officially part of JavaScript
+
+It's a moving target under what conditions exactly console I/O will be deferred, or even whether it will be observable.
+
+_Note_: If you run into this rare scenario, the best option is to use breakpoints in your JS debugger instead of relying on console output. The next best option would be to force a "snapshot" of the object in question by serializing it to a string, like with `JSON.stringify(..)`
+
+Despite your clearly being able to write asynchronous JS code (like the timeout), up until recently (ES6), JavaScript itself has actually never had any direct notion of asynchrony built into it. It's the surrounding environment (like web browser) that has always scheduled "events" (JS code executions).
+
+It's important to note that setTimeout(..) doesn't put your callback on the event loop queue. What it does is set up a timer; when the timer expires, the environment places your callback into the event loop, such that some future tick will pick it up and execute it.
+
+What if there are already 20 items in the event loop at that moment? Your callback waits. It gets in line behind the others -- there's not normally a path for preempting the queue and skipping ahead in line. This explains why setTimeout(..) timers may not fire with perfect temporal accuracy. You're guaranteed (roughly speaking) that your callback won't fire before the time interval you specify, but it can happen at or after that time, depending on the state of the event queue.
+
+ES6 now specifies how the event loop works, which means technically it's within the purview of the JS engine, rather than just the hosting environment. One main reason for this change is the introduction of
+ES6 Promises.
+
+### Concurrency
+
+Concurrency is when two or more "processes" are executing simultaneously over the same period, regardless of whether their individual constituent operations happen in parallel (at the same instant on separate processors or cores) or not.
+
+**Cooperation**
+
+Another expression of concurrency coordination is called "cooperative concurrency." The goal is to take a long-running "process" and break it up into steps or batches so that other concurrent "processes" have a chance to interleave their operations into the event loop queue.
+
+For example, consider an Ajax response handler that needs to run through a long list of results to transform the values.
+
+```js
+var res = [];
+// `response(..)` receives array of results from the Ajax call
+function response(data) {
+  // add onto existing `res` array
+  res = res.concat(
+    // make a new transformed array with all `data` values doubled
+    data.map(function (val) {
+      return val * 2;
+    })
+  );
+}
+// ajax(..) is some arbitrary Ajax function given by a library
+ajax("http://some.url.1", response);
+ajax("http://some.url.2", response);
+```
+
+If entire list is say 10 million records, that can take a while to run (several seconds on a powerful laptop, much longer on a mobile device, etc.).
+
+_While such a "process" is running, nothing else in the page can happen, including no other response(..) calls, no UI updates, not even user events like scrolling, typing, button clicking, and the like. That's pretty painful._
+
+So, to make a more cooperatively concurrent system, one that's friendlier and doesn't hog the event loop queue, you can process these results in asynchronous batches, after each one "yielding" back to the event loop to let other waiting events happen.
+
+Simple approach:
+
+```js
+var res = [];
+// `response(..)` receives array of results from the Ajax call
+function response(data) {
+  // let's just do 1000 at a time
+  var chunk = data.splice(0, 1000);
+  // add onto existing `res` array
+  res = res.concat(
+    // make a new transformed array with all `chunk` values doubled
+    chunk.map(function (val) {
+      return val * 2;
+    })
+  );
+  // anything left to process?
+  if (data.length > 0) {
+    // async schedule next batch
+    setTimeout(function () {
+      response(data);
+    }, 0);
+  }
+}
+// ajax(..) is some arbitrary Ajax function given by a library
+ajax("http://some.url.1", response);
+ajax("http://some.url.2", response);
+```
+
+Of course, we're not interaction-coordinating the ordering of any of these "processes," so the order of results in res won't be predictable. We use the `setTimeout(..0)` (hack) for async scheduling, which basically just means "stick this function at the end of the current event loop queue."
+
+_Note: `setTimeout(..0)` is not technically inserting an item directly onto the event loop queue. The timer will insert the event at its next opportunity. For example, two subsequent `setTimeout(..0)` calls would not be strictly guaranteed to be processed in call order, so it is possible to see various conditions like timer drift where the ordering of such events isn't predictable. In Node.js, a similar approach is `process.nextTick(..)` .Despite how convenient (and usually more performant) it would be, there's not a single direct way (at least yet) across all environments to ensure async event ordering._
+
+**Jobs**
+
+As of ES6, there's a new concept layered on top of the event loop queue, called the "Job queue." The best way to think about this that I've found is that the "Job queue" is a queue hanging off the end of every tick in the event loop queue. Jobs are kind of like the spirit of the `setTimeout(..0)` hack, but implemented in such a way as to have a much more well defined and guaranteed ordering: later, but as soon as possible.
+
+Let's imagine an API for scheduling Jobs (directly, without hacks), and call it `schedule(..)`. Consider:
+
+```js
+console.log("A");
+setTimeout(function () {
+  console.log("B");
+}, 0);
+// theoretical "Job API"
+schedule(function () {
+  console.log("C");
+  schedule(function () {
+    console.log("D");
+  });
+});
+```
+
+You might expect this to print out `A B C D` , but instead it would print out `A C D B` , because the Jobs happen at the end of the current event loop tick, and the timer fires to schedule for the next event loop tick (if available!). We'll see that the asynchronous behavior of Promises is based on Jobs
+
+**Statement Ordering**
+
+The order in which we express statements in our code is not necessarily the same order as the JS engine will execute them.
+
+## Callbacks
+
+The callback is the most fundamental async pattern in the language.
+
+In real async JS programs, there's often a lot more noise cluttering things up, noise that we have to deftly maneuver past in our brains as we jump from one function to the next.
+
+```js
+doA(function () {
+  doB();
+  doC(function () {
+    doD();
+  });
+  doE();
+});
+doF();
+```
+
+The operations will happen in this order:
+
+- doA()
+- doF()
+- doB()
+- doC()
+- doE()
+- doD()
+
+What if doA(..) or doD(..) aren't actually async, the way we obviously assumed them to be? Uh oh, now the order is different. `A -> C -> D -> F -> E -> B`
+
+## Promises
+
+What if we could uninvert that inversion of control? What if instead of handing the continuation of our program to another party, we could expect it to return us a capability to know when its task finishes, and then our code could decide what to do next?
+This paradigm is called Promises.
+
+Promises encapsulate the time-dependent state -- waiting on the fulfillment or rejection of the underlying value -- from the outside, the Promise itself is time-independent, and thus Promises can be composed (combined) in predictable ways regardless of the timing or outcome underneath. Moreover, once a Promise is resolved, it stays that way forever -- it becomes an immutable value at that point -- and can then be observed as many times as necessary.
+
+Because a Promise is externally immutable once resolved, it's now safe to pass that value around to any party and know that it cannot be modified accidentally or maliciously. This is especially true in relation to multiple parties observing the resolution of a Promise. It is not possible for one party to affect another party's ability to observe Promise resolution.
+
+Given that Promises are constructed by the new Promise(..) syntax, you might think that p instanceof Promise would be an acceptable check. But unfortunately, there are a number of reasons that's not totally sufficient.
+The general term for "type checks" that make assumptions about a value's "type" based on its shape (what properties are present) is called "duck typing" -- "If it looks like a duck, and quacks like a duck, it must be a duck". So the duck typing check for a thenable would roughly be:
+
+```js
+if (
+  p !== null &&
+  (typeof p === "object" || typeof p === "function") &&
+  typeof p.then === "function"
+) {
+  // assume it's a thenable!
+} else {
+  // not a thenable
+}
+```
+
+But what if the Promise itself never gets resolved either way? Even that is a condition that Promises provide an answer for, using a higher level abstraction called a "race":
+
+```js
+// a utility for timing out a Promise
+function timeoutPromise(delay) {
+  return new Promise(function (resolve, reject) {
+    setTimeout(function () {
+      reject("Timeout!");
+    }, delay);
+  });
+}
+// setup a timeout for `foo()`
+Promise.race([
+  foo(), // attempt `foo()`
+  timeoutPromise(3000), // give it 3 seconds
+]).then(
+  function () {
+    // `foo(..)` fulfilled in time!
+  },
+  function (err) {
+    // either `foo()` rejected, or it just
+    // didn't finish in time, so inspect
+    // `err` to know which
+  }
+);
+```
+
+### Promise Patterns
+
+**Promise.all([ .. ])**
+
+In an async sequence (Promise chain), only one async task is being coordinated at any given moment -- step 2 strictly follows step 1, and step 3 strictly follows step 2. But what about doing two or more steps concurrently (aka "in parallel")?
+In classic programming terminology, a "gate" is a mechanism that waits on two or more parallel/concurrent tasks to complete before continuing. It doesn't matter what order they finish in, just that all of them have to complete for the gate to open and let the flow control through.
+In the Promise API, we call this pattern `all([ .. ])`
+
+`Promise.all([ .. ])` expects a single argument, an array , consisting generally of Promise instances. The promise returned from the `Promise.all([ .. ])` call will receive a fulfillment message ( msgs in this snippet) that is an array of all the fulfillment messages from the passed in promises, in the same order as specified (regardless of fulfillment order).
+
+_Note: Technically, the array of values passed into Promise.all([ .. ]) can include Promises, thenables, or even immediate values. Each value in the list is essentially passed through Promise.resolve(..) to make sure it's a genuine_
+
+The main promise returned from Promise.all([ .. ]) will only be fulfilled if and when all its constituent promises are fulfilled. If any one of those promises instead is rejected, the main Promise.all([ .. ]) promise is immediately rejected, discarding all results from any other promises.
+
+**Promise.race([ .. ])**
+
+While `Promise.all([ .. ])` coordinates multiple Promises concurrently and assumes all are needed for fulfillment, sometimes you only want to respond to the "first Promise to cross the finish line," letting the other Promises fall away.
+This pattern is classically called a "latch," but in Promises it's called a "race."
+
+_Don't confuse Promise.race([..]) with "race condition._
+
+`Promise.race([ .. ])` also expects a single array argument, containing one or more Promises, thenables, or immediate values. It doesn't make much practical sense to have a race with immediate values, because the first one listed will obviously win -- like a foot race where one runner starts at the finish line!
+
+Similar to `Promise.all([ .. ])` , `Promise.race([ .. ])` will fulfill if and when any Promise resolution is a fulfillment, and it will reject if and when any Promise resolution is a rejection.
+
+```js
+Promise.race([p1, p2])
+  .then(function (msg) {
+    // either `p1` or `p2` will win the race
+    return request("http://some.url.3/?v=" + msg);
+  })
+  .then(function (msg) {
+    console.log(msg);
+  });
+/** Because only one promise wins, the fulfillment value is a single message, not an array as it was for Promise.all([ .. ]) */
+```
+
+_Note: Promises cannot be canceled_
+
+**Variations on all([ .. ]) and race([ .. ])**
+
+While native ES6 Promises come with built-in `Promise.all([ .. ])` and `Promise.race([ .. ])` , there are several other commonly used patterns with variations on those semantics:
+
+- `none([ .. ])` is like `all([ .. ])`, but fulfillments and rejections are transposed. All Promises need to be rejected -- rejections become the fulfillment values and vice versa.
+- `any([ .. ])` is like `all([ .. ])`, but it ignores any rejections, so only one needs to fulfill instead of all of them.
+- `first([ .. ])` is a like a race with `any([ .. ])`, which is that it ignores any rejections and fulfills as soon as the first Promise fulfills.
+- `last([ .. ])` is like `first([ .. ])`, but only the latest fulfillment wins.
+
+**Concurrent Iterations**
+
+Sometimes you want to iterate over a list of Promises and perform some task against all of them, much like you can do with synchronous arrays
+
+```js
+var p1 = Promise.resolve(21);
+var p2 = Promise.resolve(42);
+var p3 = Promise.reject("Oops");
+// double values in list even if they're in
+// Promises
+Promise.map([p1, p2, p3], function (pr, done) {
+  // make sure the item itself is a Promise
+  Promise.resolve(pr).then(
+    // extract value as `v`
+    function (v) {
+      // map fulfillment `v` to new value
+      done(v * 2);
+    },
+    // or, map to promise rejection message
+    done
+  );
+}).then(function (vals) {
+  console.log(vals); // [42,84,"Oops"]
+});
+```
+
+## Generators
+
+Now we turn our attention to expressing async flow control in a sequential, synchronous-looking fashion. The "magic" that makes it possible is ES6 generators.
+
+ES6 introduces a new type of function that does not behave with the _run-to-completion (once a function starts executing, it runs until it completes, and no other code can interrupt and run in between)_ behavior. This new type of function is called a "generator."
+
+In preemptive multithreaded languages, it would essentially be possible for bar() to "interrupt" and run at exactly the right moment between those two statements. But JS is not preemptive, nor is it (currently) multithreaded. And yet, a cooperative form of this "interruption" (concurrency) is possible, if foo() itself could somehow indicate a "pause" at that part in the code.
+
+Here's the ES6 code to accomplish such cooperative concurrency:
+
+```js
+var x = 1;
+function* foo() {
+  // also valid: function *foo()
+  x++;
+  yield; // pause!
+  console.log("x:", x);
+}
+function bar() {
+  x++;
+}
+
+/** Now, how can we run the code in that previous snippet such that bar() executes at the point of the yield inside of *foo() ? */
+
+// construct an iterator `it` to control the generator
+var it = foo();
+// start `foo()` here!
+it.next();
+x; // 2
+bar();
+x; // 3
+it.next(); // x: 3
+```
+
+1. The `it = foo()` operation does not execute the `*foo()` generator yet, but it merely constructs an iterator that will control its execution.
+2. The first `it.next()` starts the `*foo()` generator, and runs the `x++` on the first line of `*foo()`.
+3. `*foo()` pauses at the yield statement, at which point that first `it.next()` call finishes. At the moment, `*foo()` is still running and active, but it's in a paused state.
+4. We inspect the value of `x` , and it's now 2.
+5. We call bar() , which increments `x` again with x++.
+6. We inspect the value of `x` again, and it's now 3.
+7. The final `it.next()` call resumes the `*foo()` generator from where it was paused, and runs the `console.log(..)` statement, which uses the current value of `x` of 3.
+
+Clearly, `foo()` started, but did not run-to-completion -- it paused at the `yield` . We resumed `foo()` later, and let it finish, but that wasn't even required.
+
+So, a generator is a special kind of function that can start and stop one or more times, and doesn't necessarily ever have to finish.
+
+**Input and Output**
+
+```js
+function* foo(x, y) {
+  return x * y;
+}
+var it = foo(6, 7);
+var res = it.next();
+res.value; // 42
+```
+
+**Iteration Messaging**
+
+```js
+function* foo(x) {
+  var y = x * (yield);
+  return y;
+}
+var it = foo(6);
+// start `foo(..)`
+it.next();
+var res = it.next(7);
+res.value; // 42
+```
+
+Inside `*foo(..)` , the `var y = x ..` statement starts to be processed, but then it runs across a `yield` expression. At that point, it pauses `*foo(..)` (in the middle of the assignment statement!), and essentially requests the calling code to provide a result value for the `yield` expression. Next, we call `it.next( 7 )` , which is passing the `7` value back in to be that result of the paused `yield` expression.
+
+_In general, you're going to have one more `next(..)` call than you have yield statements -- the preceding snippet has one `yield` and two `next(..)` calls._
+
+`yield ..` as an expression can send out messages in response to`next(..)` calls, and `next(..)` can send values to a paused yield expression.
+
+```js
+function* foo(x) {
+  var y = x * (yield "Hello"); // <-- yield a value!
+  return y;
+}
+var it = foo(6);
+var res = it.next(); // first `next()`, don't pass anything
+res.value; // "Hello"
+res = it.next(7); // pass `7` to waiting `yield`
+res.value; // 42
+```
+
+**Note:** We don't pass a value to the first `next()` call, and that's on purpose. Only a paused yield could accept such a value passed by a `next(..)` , and at the beginning of the generator when we call the first `next()` , there is no paused yield to accept such a value. The specification and all compliant browsers just silently discard anything passed to the first `next()` . It's still a bad idea to pass a value, as you're just creating silently "failing" code that's confusing. So, always start a generator with an argument-free `next()`.
+
+**Interleaving**
+
+```js
+var a = 1;
+var b = 2;
+function* foo() {
+  a++;
+  yield;
+  b = b * a;
+  a = (yield b) + 3;
+}
+function* bar() {
+  b--;
+  yield;
+  a = (yield 8) + b;
+  b = a * (yield 2);
+}
+
+// helper function to control an iterator
+function step(gen) {
+  var it = gen();
+  var last;
+  return function () {
+    // whatever is `yield`ed out, just
+    // send it right back in the next time!
+    last = it.next(last).value;
+  };
+}
+
+// make sure to reset `a` and `b`
+a = 1;
+b = 2;
+var s1 = step(foo);
+var s2 = step(bar);
+// run `*foo()` completely first
+s1();
+s1();
+s1();
+// now run `*bar()`
+s2();
+s2();
+s2();
+s2();
+console.log(a, b); // 11 22
+```
+
+**Producers and Iterators**
+
+An _iterator_ is a well-defined interface for stepping through a series of values from a producer. The JS interface for iterators, as it is in most languages, is to call `next()` each time you want the next value from the producer.
+
+```js
+// standard iterator interface for number series producer
+var something = (function () {
+  var nextVal;
+  return {
+    // needed for `for..of` loops
+    [Symbol.iterator]: function () {
+      return this;
+    },
+    // standard iterator interface method
+    next: function () {
+      if (nextVal === undefined) {
+        nextVal = 1;
+      } else {
+        nextVal = 3 * nextVal + 6;
+      }
+      return { done: false, value: nextVal };
+    },
+  };
+})();
+something.next().value; // 1
+something.next().value; // 9
+something.next().value; // 33
+```
+
+The `[ .. ]` syntax is called a **computed property name**. It's a way in an object literal definition to specify an expression and use the result of that expression as the name for the property. `Symbol.iterator` is one of ES6's predefined special `Symbol` values.
+
+ES6 also adds the for..of loop, which means that a standard iterator can automatically be consumed with native loop syntax:
+
+```js
+for (var v of something) {
+  console.log(v);
+  // don't let the loop run forever!
+  if (v > 500) {
+    break;
+  }
+}
+// 1 9 33 105 321 969
+```
+
+As of ES6, the way to retrieve an _iterator_ from an _iterable_ is that the iterable must have a function on it, with the name being the special ES6 symbol value `Symbol.iterator`. When this function is called, it returns an _iterator_. Though not required, generally each call should return a fresh new _iterator_.
+
+```js
+var a = [1, 3, 5, 7, 9];
+var it = a[Symbol.iterator]();
+it.next().value; // 1
+it.next().value; // 3
+it.next().value; // 5
+// ..
+```
+
+**Generator Iterator**
+
+We can implement the something infinite number series producer from earlier with a generator, like this:
+
+```js
+function* something() {
+  var nextVal;
+  while (true) {
+    if (nextVal === undefined) {
+      nextVal = 1;
+    } else {
+      nextVal = 3 * nextVal + 6;
+    }
+    yield nextVal;
+  }
+}
+```
+
+**Note:** In a generator, `while..true` loop is generally totally OK if it has a yield in it, as the generator will pause at each iteration, yielding back to the main program and/or to the event loop queue. To put it glibly, "generators put the while..true back in JS programming!"
+
+And now we can use our shiny new `*something()` generator with a `for..of` loop, and you'll see it works basically identically:
+
+```js
+for (var v of something()) {
+  console.log(v);
+  // don't let the loop run forever!
+  if (v > 500) {
+    break;
+  }
+}
+// 1 9 33 105 321 969
+```
+
+We didn't just reference something as a value like in earlier examples, but instead called the `*something()` generator to get its iterator for the `for..of` loop to use.
+
+**Stopping the Generator**
+
+```js
+function* something() {
+  try {
+    var nextVal;
+    while (true) {
+      if (nextVal === undefined) {
+        nextVal = 1;
+      } else {
+        nextVal = 3 * nextVal + 6;
+      }
+      yield nextVal;
+    }
+  } finally {
+    // cleanup clause
+    console.log("cleaning up!");
+  }
+}
+var it = something();
+for (var v of it) {
+  console.log(v);
+  // don't let the loop run forever!
+  if (v > 500) {
+    console.log(
+      // complete the generator's iterator
+      it.return("Hello World").value
+    );
+    // no `break` needed here
+  }
+}
+// 1 9 33 105 321 969
+// cleaning up!
+// Hello World
+```
+
+When we call `it.return(..)` , it immediately terminates the generator, which of course runs the finally clause.
