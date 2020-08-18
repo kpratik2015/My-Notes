@@ -21,6 +21,14 @@
   - [Promises](#promises)
     - [Promise Patterns](#promise-patterns)
   - [Generators](#generators)
+    - [Generator Delegation](#generator-delegation)
+    - [Thunks](#thunks)
+  - [Program Performance](#program-performance)
+    - [Worker Environment](#worker-environment)
+    - [Data Transfer](#data-transfer)
+    - [Shared Workers](#shared-workers)
+  - [Benchmarking](#benchmarking)
+  - [Credits/Reference](#creditsreference)
 
 ## Objects
 
@@ -152,9 +160,12 @@ A function can be stored in a variable, array, or object. Also, a function can b
 
 Inside the scope/body of all functions, the this and arguments values are available.
 
-The arguments object is an array-like object containing all of the parameters being passed to the function.
+**The arguments object is an array-like object containing all of the parameters being passed to the function.**
 
 ```js
+// You can convert the arguments object to a real array by slicing it, like so
+[].slice.call(arguments, 0);
+
 var add = function () {
   return arguments[0] + arguments[1];
 };
@@ -1115,3 +1126,394 @@ for (var v of it) {
 ```
 
 When we call `it.return(..)` , it immediately terminates the generator, which of course runs the finally clause.
+
+**Iterating Generators Asynchronously**
+
+```js
+function foo(x, y) {
+  ajax("http://some.url.1/?x=" + x + "&y=" + y, function (err, data) {
+    if (err) {
+      // throw an error into `*main()`
+      it.throw(err);
+    } else {
+      // resume `*main()` with received `data`
+      it.next(data);
+    }
+  });
+}
+function* main() {
+  try {
+    var text = yield foo(11, 31); // we're apparently able to get back the text from the Ajax call, even though it's asynchronous
+    console.log(text);
+  } catch (err) {
+    console.error(err);
+  }
+}
+var it = main();
+// start it all up!
+it.next();
+```
+
+`yield` is what allows us to have what appears to be blocking, synchronous code, but it doesn't actually block the whole program; it only pauses/blocks the code in the generator itself.
+
+First the `foo(11,31)` call is made, which returns nothing (aka `undefined` ), so we're making a call to request data, but we're actually then doing yield `undefined`. Look at `foo(..)`. If the Ajax request is successful, we call: `it.next( data )`
+
+In essence, we are abstracting the asynchrony away as an implementation detail, so that we can reason synchronously/sequentially about our flow control: "Make an Ajax request, and when it finishes print out the response." And of course, we just expressed two steps in the flow control, but this same capabililty extends without bounds, to let us express however many steps we need to.
+
+**Synchronous Error Handling**
+
+```js
+function* main() {
+  var x = yield "Hello World";
+  yield x.toLowerCase(); // cause an exception!
+}
+var it = main();
+it.next().value; // Hello World
+try {
+  it.next(42);
+} catch (err) {
+  console.error(err); // TypeError
+}
+```
+
+**Generators + Promises**
+
+The natural way to get the most out of Promises and generators is to yield a Promise, and wire that Promise to control the generator's iterator.
+
+```js
+function foo(x, y) {
+  return request("http://some.url.1/?x=" + x + "&y=" + y);
+}
+function* main() {
+  try {
+    var text = yield foo(11, 31);
+    console.log(text);
+  } catch (err) {
+    console.error(err);
+  }
+}
+var it = main();
+var p = it.next().value;
+// wait for the `p` promise to resolve
+p.then(
+  function (text) {
+    it.next(text);
+  },
+  function (err) {
+    it.throw(err);
+  }
+);
+```
+
+**ES7: `async` and `await`**
+
+Imagine a scenario where you need to fetch data from two different sources, then combine those responses to make a third request, and finally print out the last response.
+
+```js
+function* foo() {
+  // make both requests "in parallel"
+  var p1 = request("http://some.url.1");
+  var p2 = request("http://some.url.2");
+  // wait until both promises resolve
+  var r1 = yield p1;
+  var r2 = yield p2;
+  var r3 = yield request("http://some.url.3/?v=" + r1 + "," + r2);
+  console.log(r3);
+}
+// utility to yield until completion
+run(foo);
+```
+
+`p1` and `p2` are promises for Ajax requests made concurrently (aka "in parallel"). It doesn't matter which one finishes first, because promises will hold onto their resolved state for as long as necessary.
+
+Generator + Promise
+
+```js
+function* foo() {
+  // make both requests "in parallel," and
+  // wait until both promises resolve
+  var results = yield Promise.all([
+    request("http://some.url.1"),
+    request("http://some.url.2"),
+  ]);
+  var r1 = results[0];
+  var r2 = results[1];
+  var r3 = yield request("http://some.url.3/?v=" + r1 + "," + r2);
+  console.log(r3);
+}
+// utility to yield until completion
+run(foo);
+```
+
+### Generator Delegation
+
+The special syntax for yield -delegation is: `yield * __` (notice the extra `*`)
+
+```js
+function* foo() {
+  console.log("`*foo()` starting");
+  yield 3;
+  yield 4;
+  console.log("`*foo()` finished");
+}
+function* bar() {
+  yield 1;
+  yield 2;
+  yield* foo(); // `yield`-delegation!
+  yield 5;
+}
+var it = bar();
+it.next().value; // 1
+it.next().value; // 2
+it.next().value; // `*foo()` starting
+// 3
+it.next().value; // 4
+it.next().value; // `*foo()` finished
+// 5
+```
+
+How does the `yield *foo()` delegation work?
+
+First, calling `foo()` creates an iterator exactly as we've already seen. Then, `yield *` delegates/transfers the iterator instance control (of the present `*bar()` generator) over to this other `*foo()` iterator.
+
+So, the first two `it.next()` calls are controlling `*bar()` , but when we make the third `it.next()` call, now `*foo()` starts up, and now we're controlling `*foo()` instead of `*bar()`. That's why it's called delegation -- `*bar()` delegated its iteration control to `*foo()`.
+
+_**Note:** `yield *` yields iteration control, not generator control; when you invoke the `*foo()` generator, you're now yield - delegating to its iterator. But you can actually yield -delegate to any iterable; `yield *[1,2,3]` would consume the default iterator for the `[1,2,3]` array value._
+
+### Thunks
+
+Thunk - a narrow expression of a thunk in JS is a function that -- without any parameters -- is wired to call another function. You wrap a function definition around function call -- with any parameters it needs -- to defer the execution of that call, and that wrapping function is a thunk.
+
+Async Thunk
+
+```js
+function foo(x, y, cb) {
+  setTimeout(function () {
+    cb(x + y);
+  }, 1000);
+}
+function fooThunk(cb) {
+  foo(3, 4, cb);
+}
+// later
+fooThunk(function (sum) {
+  console.log(sum); // 7
+});
+
+/** You don't want to make thunks manually, though. So, let's invent a utility that does this wrapping for us. */
+
+function thunkify(fn) {
+  var args = [].slice.call(arguments, 1);
+  return function (cb) {
+    args.push(cb);
+    return fn.apply(null, args);
+  };
+}
+var fooThunk = thunkify(foo, 3, 4);
+// later
+fooThunk(function (sum) {
+  console.log(sum); // 7
+});
+```
+
+The preceding formulation of `thunkify(..)` takes both the `foo(..)` function reference, and any parameters it needs, and returns back the thunk itself (`fooThunk(..)`).
+
+Instead of thunkify(..) making the thunk itself, typically -- if not perplexingly -- the thunkify(..) utility would produce a function that produces thunks
+
+```js
+function thunkify(fn) {
+  return function () {
+    var args = [].slice.call(arguments);
+    return function (cb) {
+      args.push(cb);
+      return fn.apply(null, args);
+    };
+  };
+}
+
+// USAGE
+
+var whatIsThis = thunkify(foo);
+var fooThunk = whatIsThis(3, 4);
+// later
+fooThunk(function (sum) {
+  console.log(sum); // 7
+});
+```
+
+**s/promise/thunk/**
+
+Comparing thunks to promises generally: they're not directly interchangable as they're not equivalent in behavior. Promises are vastly more capable and trustable than bare thunks.
+
+But in another sense, they both can be seen as a request for a value, which may be async in its answering.
+
+## Program Performance
+
+If you have processing-intensive tasks but you don't want them to run on the main thread (which may slow down the browser/UI), you might have wished that JavaScript could operate in a multithreaded manner.
+
+Web Workers - feature of the browser (aka host environment) and actually has almost nothing to do with the JS language itself. That is, JavaScript does not currently have any features that support threaded execution. But an environment like your browser can easily provide multiple instances of the JavaScript engine, each on its own thread, and let you run a different program in each thread. Each of those separate threaded pieces of your program is called a "(Web) Worker." This type of parallelism is called "task parallelism," as the emphasis is on splitting up chunks of your program to run in parallel.
+
+From your main JS program (or another Worker), you instantiate a Worker like so:
+
+```js
+var w1 = new Worker("http://some.url.1/mycoolworker.js");
+```
+
+The URL should point to the location of a JS file (not an HTML page!) which is intended to be loaded into a Worker. The browser will then spin up a separate thread and let that file run as an independent program in that thread.
+
+Note: The kind of Worker created with such a URL is called a "Dedicated Worker." But instead of providing a URL to an external file, you can also create an "Inline Worker" by providing a Blob URL (another HTML5 feature); essentially it's an inline file stored in a single (binary) value.
+
+Workers do not share any scope or resources with each other or the main program but instead have a basic event messaging mechanism connecting them.
+
+The `w1` Worker object is an event listener and trigger, which lets you subscribe to events sent by the Worker as well as send events to the Worker.
+
+Here's how to listen for events (actually, the fixed "message" event):
+
+```js
+w1.addEventListener("message", function (evt) {
+  // evt.data
+});
+```
+
+And you can send the "message" event to the Worker:
+
+```js
+w1.postMessage("something cool to say");
+```
+
+Inside the Worker, the messaging is totally symmetrical:
+
+```js
+addEventListener("message", function (evt) {
+  // evt.data
+});
+postMessage("a really cool reply");
+```
+
+Notice that a dedicated Worker is in a one-to-one relationship with the program that created it. That is, the "message" event doesn't need any disambiguation here, because we're sure that it could only have come from this one-to-one relationship -- either it came from the Worker or the main page.
+
+Usually the main page application creates the Workers, but a Worker can instantiate its own child Worker(s) -- known as subworkers -- as necessary. Sometimes this is useful to delegate such details to a sort of "master" Worker that spawns other Workers to process parts of a task.
+
+To kill a Worker immediately from the program that created it, call `terminate()` on the Worker object. Abruptly terminating a Worker thread does not give it any chance to finish up its work or clean up any resources. It's akin to you closing a browser tab to kill a page.
+
+If you have two or more pages (or multiple tabs with the same page!) in the browser that try to create a Worker from the same file URL, those will actually end up as completely separate Workers.
+
+### Worker Environment
+
+Inside the Worker, you do not have access to any of the main program's resources. That means you cannot access any of its global variables, nor can you access the page's DOM or other resources. Remember: it's a totally separate thread.
+
+You can, however, perform network operations (Ajax, WebSockets) and set timers. Also, the Worker has access to its own copy of several important global variables/features, including navigator , location , JSON , and applicationCache .
+
+You can also load extra JS scripts into your Worker, using `importScripts(..)`: `importScripts( "foo.js", "bar.js" );`
+
+These scripts are loaded synchronously, which means the importScripts(..) call will block the rest of the Worker's execution until the file(s) are finished loading and executing.
+
+**What are some common uses for Web Workers?**
+
+- Processing intensive math calculations
+- Sorting large data sets
+- Data operations (compression, audio analysis, image pixel manipulations, etc.)
+- High-traffic network communications
+
+### Data Transfer
+
+If you pass an object, a so-called ["Structured Cloning Algorithm"](https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm) is used to copy/duplicate the object on the other side.
+
+An even better option, especially for larger data sets, is ["Transferable Objects"](http://updates.html5rocks.com/2011/12/Transferable-Objects-Lightning-Fast). What happens is that the object's "ownership" is transferred, but the data itself is not moved. Once you transfer away an object to a Worker, it's empty or inaccessible in the the originating location.
+
+Any data structure that implements the [Transferable interface](https://developer.mozilla.org/en-US/docs/Web/API/Transferable) will automatically be transferred this way (support Firefox & Chrome).
+
+For example, typed arrays like Uint8Array are "Transferables."
+
+```js
+// `foo` is a `Uint8Array` for instance
+postMessage(foo.buffer, [foo.buffer]);
+```
+
+Browsers that don't support Transferable Objects simply degrade to structured cloning, which means performance reduction rather than outright feature breakage.
+
+### Shared Workers
+
+If your site or app allows for loading multiple tabs of the same page (a common feature), you may very well want to reduce the resource usage of their system by preventing duplicate dedicated Workers
+
+```js
+var w1 = new SharedWorker("http://some.url.1/mycoolworker.js");
+```
+
+Because a shared Worker can be connected to or from more than one program instance or page on your site, the Worker needs a way to know which program a message comes from. This unique identification is called a "port" -- think network socket ports. So the calling program must use the port object of the Worker for communication:
+
+```js
+w1.port.addEventListener("message", handleMessages);
+// ..
+w1.port.postMessage("something cool");
+```
+
+Also, the port connection must be initialized, as:
+
+```js
+w1.port.start();
+```
+
+Inside the shared Worker, an extra event must be handled: "connect".
+
+```js
+// inside the shared Worker
+addEventListener("connect", function (evt) {
+  // the assigned port for this connection
+  var port = evt.ports[0];
+  port.addEventListener("message", function (evt) {
+    // ..
+    port.postMessage();
+    // ..
+  });
+  // initialize the port connection
+  port.start();
+});
+```
+
+**Note:** Shared Workers survive the termination of a port connection if other port connections are still alive, whereas dedicated Workers are terminated whenever the connection to their initiating program is terminated.
+
+## Benchmarking
+
+Just use [Benchmark.js](http://benchmarkjs.com/)
+
+```js
+// Quick illustration
+function foo() {
+  // operation(s) to test
+}
+var bench = new Benchmark(
+  "foo test", // test name
+  foo, // function to test (just contents)
+  {
+    // .. // optional extra options (see docs)
+  }
+);
+bench.hz; // number of operations per second
+bench.stats.moe; // margin of error
+bench.stats.variance; // variance across samples
+```
+
+(jsPerf)[http://jsperf.com/] - run statistically accurate and reliable tests, and makes the test on an openly available URL that you can pass around to others.
+
+```js
+// Case 1
+var x = ["John", "Albert", "Sue", "Frank", "Bob"];
+x.sort();
+// Case 2
+var x = ["John", "Albert", "Sue", "Frank", "Bob"];
+x.sort(function mySort(a, b) {
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+});
+```
+
+The second case is not only testing a custom user JS function, but it's also testing creating a new function expression for each iteration. The inline function expression creation can be from 2% to 20% slower.
+
+_Note: a different outcome between two test cases almost certainly invalidates the entire test!_
+
+## Credits/Reference
+
+1. Cody Lindley - JavaScript Enlightenment
+2. Kyle Simpson - You Dont Know JS
