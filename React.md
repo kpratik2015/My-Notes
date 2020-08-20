@@ -13,6 +13,8 @@ A JavaScript library for building user interfaces.
   - [React Component Life Cycle](#react-component-life-cycle)
   - [Code Splitting Using Lazy Components and Suspense](#code-splitting-using-lazy-components-and-suspense)
   - [Server-Side React Components](#server-side-react-components)
+  - [Handling Application State](#handling-application-state)
+  - [Apollo](#apollo)
 
 ## Why React?
 
@@ -619,3 +621,285 @@ hydrate(<App />, document.getElementById("root"));
 In this case, you're using the hydrate() function instead of the render() function. The two functions have the same end result—rendered JSX content in the browser window. The hydrate() function is different because it expects rendered component content to already be in place. This means that it will perform less work because it will assume that the markup is correct and doesn't need to be updated on the initial render.
 
 Only in development mode will React examine the entire DOM tree of the server-rendered content to make sure that the correct content is displayed. If there's a mismatch between the existing content and the output of the React components, you'll see warnings that show you where these mismatches happened so that you can go and fix them.
+
+## Handling Application State
+
+**Information architecture and Flux**
+
+Flux is a set of patterns created by Facebook that helps developers think about their information architecture in a way that fits in naturally with their apps.
+
+**Unidirectionality**
+
+Whenever the container state changes, the child components are re-rendered with new property values. This is unidirectional data flow.
+Flux takes this idea and applies it to something called a store. A store is an abstract concept that holds application state.
+
+When changes can only come from one direction, you can eliminate a number of other possibilities, thus making the architecture as a whole more predictable.
+
+**Synchronous update rounds**
+
+When you change the state of a React container, it will re-render its children, who re-render their children, and so on. In Flux terminology, this is called an **update round**. From the time state changes to the time that the UI elements reflect this change, this is the boundary of the round. It's nice to be able to group the dynamic parts of application behavior into larger chunks like this because it's easier to reason about cause and effect.
+
+A potential problem with React container components is that they can interweave with one another and render in a non-deterministic order. JavaScript is a single-threaded, run-to-completion environment that should be embraced by working with it rather than against it. Update the whole UI, and then update the whole UI again. It turns out that React is a really good tool for this job.
+
+**Predictable state transformations**
+
+You're keeping all your application state in a store, which is great, but you can still break things by mutating data in other places.
+The problem with performing these state transformations outside the store is that you don't necessarily know that they're happening. Think of mutating data as a butterfly effect: one small change has far-reaching consequences that aren't obvious at first. _The solution is to only mutate state in the store, without exception._
+
+**Implementing Redux**
+
+Redux doesn't strictly follow the patterns set out by Flux. Instead, it borrows key ideas from Flux and implements a small API to make it easy to implement Flux.
+
+In Redux, the entire state of the application is represented by a single store. Here's what it looks like:
+
+```jsx
+export default {
+  App: {
+    title: "Neckbeard News",
+    links: [
+      { name: "All", url: "/" },
+      { name: "Local", url: "/local" },
+      { name: "Global", url: "/global" },
+      { name: "Tech", url: "/tech" },
+      { name: "Sports", url: "/sports" },
+    ],
+  },
+  Home: {
+    articles: [],
+  },
+  Article: {
+    full: "",
+  },
+};
+```
+
+In Redux, you divide up the application state into slices. In this case, it's a simple application, so the store only has three slices of state. Each slice of the state is mapped to a major application feature.
+For example, the Home key represents a state that's used by the Home component of your app. It's important to initialize any state, even if it's an empty object or array, so that your components have initial properties.
+
+**Creating the store**
+
+In Redux, you assign a reducer function to each slice of state in your store.
+
+The key concept of a reducer in Redux is that it's pure and side-effect free. This is where having Immutable.js structures as state comes in handy.
+
+```jsx
+import { createStore, combineReducers } from "redux";
+import initialState from "./initialState";
+import App from "./App";
+import Home from "./Home";
+import Article from "./Article";
+export default createStore(
+  combineReducers({
+    App,
+    Home,
+    Article,
+  }),
+  initialState
+);
+```
+
+The `App`, `Home`, and `Article` functions are named in exactly the same way as the slice of state that they manipulate.
+
+**Store provider and routes**
+
+Redux has a Provider component (technically, it's the `react-redux` package that provides it), which is used to wrap the top-level components of your application. This will ensure that Redux store data is available to every component in your application.
+
+```jsx
+import React from "react";
+import { Provider } from "react-redux";
+import store from "../store";
+import App from "./App";
+export default function Root() {
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+}
+```
+
+**The App component**
+
+```jsx
+import React from "react";
+import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
+import { connect } from "react-redux";
+import Home from "./Home";
+import Article from "./Article";
+function articleList(filter) {
+  return (props) => <Home {...props} filter={filter} />;
+}
+const categoryListStyle = {
+  listStyle: "none",
+  margin: 0,
+  padding: 0,
+  display: "flex",
+};
+const categoryItemStyle = {
+  padding: "5px",
+};
+const Local = articleList("local");
+const Global = articleList("global");
+const Tech = articleList("tech");
+const Sports = articleList("sports");
+export default connect((state) => state.App)(({ title, links }) => (
+  <Router>
+    <main>
+      <h1>{title}</h1>
+      <ul style={categoryListStyle}>
+        {/* Renders a link for each article category.
+The key thing to note is that the "links"
+value comes from a Redux store. */}
+        {links.map((l) => (
+          <li key={l.url} style={categoryItemStyle}>
+            <NavLink exact to={l.url} activeStyle={{ fontWeight: "bold" }}>
+              {l.name}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+      <section>
+        <Route exact path="/" component={Home} />
+        <Route exact path="/local" component={Local} />
+        <Route exact path="/global" component={Global} />
+        <Route exact path="/tech" component={Tech} />
+        <Route exact path="/sports" component={Sports} />
+        <Route exact path="/articles/:id" component={Article} />
+      </section>
+    </main>
+  </Router>
+));
+```
+
+`reducer` function of the App component
+
+```jsx
+import initialState from "./initialState";
+const title = initialState.App.title;
+const articleLinks = [
+  {
+    name: "Home",
+    url: "/",
+  },
+];
+const homeLinks = initialState.App.links;
+const typeMap = {
+  FETCHING_ARTICLE: (state) => ({ ...state, title: "...", articleLinks }),
+  FETCH_ARTICLE: (state, payload) => ({ ...state, title: payload.title }),
+  FETCHING_ARTICLES: (state) => ({ ...state, title, links: homeLinks }),
+  FETCH_ARTICLES: (state) => ({ ...state, title }),
+};
+export default function App(state = initialState, { type, payload }) {
+  const reducer = typeMap[type];
+  return reducer ? reducer(state, payload) : state;
+}
+```
+
+Take the `FETCHING_ARTICLE` and `FETCHING_ARTICLES` actions, for example. You want to change the UI before actually issuing a network request.
+
+**The Home Component**
+
+```jsx
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+
+class Home extends Component {
+  static propTypes = {
+    articles: PropTypes.arrayOf(PropTypes.object).isRequired,
+    fetchingArticles: PropTypes.func.isRequired,
+    fetchArticles: PropTypes.func.isRequired,
+    toggleArticle: PropTypes.func.isRequired,
+    filter: PropTypes.string.isRequired,
+  };
+  static defaultProps = {
+    filter: "",
+  };
+  componentDidMount() {
+    this.props.fetchingArticles();
+    this.props.fetchArticles(this.props.filter);
+  }
+  onTitleClick = (id) => () => this.props.toggleArticle(id);
+  render() {
+    const { onTitleClick } = this;
+    const { articles } = this.props;
+    return (
+      <ul style={listStyle}>
+        {articles.length === 0 ? <li style={listItemStyle}>...</li> : null}
+        {articles.map((a) => (
+          <li key={a.id} style={listItemStyle}>
+            <button onClick={onTitleClick(a.id)} style={titleStyle}>
+              {a.title}
+            </button>
+            <p style={{ display: a.display }}>
+              <small>
+                <span>{a.summary} </span>
+                <Link to={`articles/${a.id}`}>More...</Link>
+              </small>
+            </p>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+}
+export default connect(
+  (state, ownProps) => ({ ...state.Home, ...ownProps }),
+  (dispatch) => ({
+    fetchingArticles: () =>
+      dispatch({
+        type: "FETCHING_ARTICLES",
+      }),
+    fetchArticles: (filter) => {
+      const headers = new Headers();
+      headers.append("Accept", "application/json");
+      fetch(`/api/articles/${filter}`, { headers })
+        .then((resp) => resp.json())
+        .then((json) =>
+          dispatch({
+            type: "FETCH_ARTICLES",
+            payload: json,
+          })
+        );
+    },
+    toggleArticle: (payload) =>
+      dispatch({
+        type: "TOGGLE_ARTICLE",
+        payload,
+      }),
+  })
+)(Home);
+```
+
+Let's focus on the `connect()` function, which is used to connect the Home component to the store. The first argument is a function that takes relevant state from the store and returns it as props for this component. It's using `ownProps` so that you can pass props directly to the component and override anything from the store. The second argument is a function that returns action creator functions as `props`. The `dispatch()` function is how these action creator functions are able to deliver payloads to the store.
+
+`reducer` function used with the _Home_ component:
+
+```jsx
+import initialState from "./initialState";
+const typeMap = {
+  FETCHING_ARTICLES: (state) => ({ ...state, articles: [] }),
+  FETCH_ARTICLES: (state, payload) => ({
+    ...state,
+    articles: payload.map((a) => ({ ...a, display: "none" })),
+  }),
+  TOGGLE_ARTICLE: (state, id) => {
+    const articles = [...state.articles];
+    const index = articles.findIndex((a) => a.id === id);
+    articles[index] = {
+      ...articles[index],
+      display: articles[index].display === "none" ? "block" : "none",
+    };
+    return { ...state, articles };
+  },
+};
+export default function Home(state = initialState, { type, payload }) {
+  const reducer = typeMap[type];
+  return reducer ? reducer(state, payload) : state;
+}
+```
+
+## Apollo
+
+At a high level, you can think of Apollo as an implementation of Flux architecture patterns and you can think of GraphQL as the interface that describes how the Flux stores within Apollo Client work.
