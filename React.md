@@ -9,6 +9,10 @@ A JavaScript library for building user interfaces.
   - [Component Properties, State, and Context](#component-properties-state-and-context)
   - [Hooks](#hooks)
   - [Event Handling](#event-handling)
+  - [Crafting Reusable Components](#crafting-reusable-components)
+  - [React Component Life Cycle](#react-component-life-cycle)
+  - [Code Splitting Using Lazy Components and Suspense](#code-splitting-using-lazy-components-and-suspense)
+  - [Server-Side React Components](#server-side-react-components)
 
 ## Why React?
 
@@ -314,3 +318,304 @@ The goal is to keep related state operations close to one another since they're 
 The differentiating factor with event handling in React components is that it's declarative. Contrast this with something like jQuery, where you have to write imperative code that selects the relevant DOM elements and attaches event handler functions to them.
 
 The advantage of the declarative approach to event handlers in JSX markup is that they're part of the UI structure. Not having to track down code that assigns event handlers is mentally liberating.
+
+**Importing generic handlers**
+
+```jsx
+import React, { Component } from "react";
+import reverse from "./reverse";
+export default class MyList extends Component {
+  state = {
+    items: ["Angular", "Ember", "React"],
+  };
+  onReverseClick = reverse.bind(this);
+  render() {
+    const {
+      state: { items },
+      onReverseClick,
+    } = this;
+    return (
+      <section>
+        <button onClick={onReverseClick}>Reverse</button>
+        <ul>
+          {items.map((v, i) => (
+            <li key={i}>{v}</li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+}
+```
+
+The onReverseClick method actually calls the generic reverse() function. It is created using bind() to bind the context of the generic function to this component instance.
+
+Note: If you have a class-based component, you can bind your function context to the component class so that you have direct access to the component state and properties.
+
+**Binding handlers to elements**
+
+When you assign an event handler function to an element in JSX, React doesn't actually attach an event listener to the underlying DOM element. Instead, it adds the function to an internal mapping of functions. There's a single event listener on the document for the page. When the React component is removed, the handler is simply removed from the list of handlers.
+
+**Using synthetic event objects**
+
+Synthetic events serve two purposes in React:
+
+- They provide a consistent event interface, normalizing browser inconsistencies.
+- Synthetic events contain information that's necessary for propagation to work.
+
+**Understanding event pooling**
+
+Every synthetic event wrapper that's created will also need to be garbage collected at some point, which can be expensive in terms of CPU time. When the garbage collector is running, none of your JavaScript code is able to run.
+
+React deals with this problem by allocating a synthetic instance pool. Whenever an event is triggered, it takes an instance from the pool and populates its properties. The pool keeps a reference to the synthetic event instances, so they're never eligible for garbage collection. React never has to allocate new instances either.
+
+However, there is one gotcha that you need to be aware of. It involves accessing the synthetic event instances from asynchronous code in your event handlers. This is an issue because, as soon as the handler has finished running, the instance goes back into the pool. When it goes back into the pool, all of its properties are cleared.
+
+## Crafting Reusable Components
+
+The general rule is that the further your components move from stateful data, the more utility they have, because their property values could be passed in from anywhere in the application.
+
+## React Component Life Cycle
+
+![](images/React/4.jpg)
+
+- getDerivedStateFromProps(): This method allows you to update the state of the component based on the property values of the component. This method is called when the component is initially rendered and when it receives new property values.
+- render(): Returns the content to be rendered by the component. This is called when the component is first mounted to the DOM, when it receives new property values, and when setState() is called.
+- componentDidMount(): This is called after the component is mounted to the DOM. This is where you can perform component initialization work, such as fetching data.
+- shouldComponentUpdate(): You can use this method to compare new states or props with current states or props. Then, you can return false if there's no need to re-render the component. This method is used to make your components more efficient.
+- getSnapshotBeforeUpdate(): This method lets you perform operations directly on the DOM elements of your component before they're actually committed to the DOM. The difference between this method and render() is that getSnapshotBeforeUpdate() isn't asynchronous. With render(), there's a good chance that the DOM structure could change between when it's called and when the changes are actually made in the DOM.
+- componentDidUpdate(): This is called when the component is updated. It's rare that you'll have to use this method.
+
+**To render or not to render**
+
+The shouldComponentUpdate() life cycle method is used to determine whether or not the component will render when asked to.
+
+```jsx
+import React, { Component } from "react";
+function referenceEquality(arr1, arr2) {
+  return arr1 === arr2;
+}
+function valueEquality(arr1, arr2) {
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+export default class MyList extends Component {
+  state = {
+    items: new Array(5000).fill(null).map((v, i) => i),
+  };
+  shouldComponentUpdate(props, state) {
+    if (!referenceEquality(this.state.items, state.items)) {
+      return !valueEquality(this.state.items, state.items);
+    }
+    return false;
+  }
+  render() {
+    return (
+      <ul>
+        {this.state.items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    );
+  }
+}
+```
+
+The items state is initialized to an array with 5000 items in it. This is a fairly large collection, so you don't want the virtual DOM inside React to constantly diff this list. The virtual DOM is efficient at what it does, but not nearly as efficient as code, which can perform a simple should or shouldn't render check. The shouldComponentRender() method that you've implemented here does exactly that.
+
+Here's what the performance profile looks like for this component:
+
+![](images/React/5.jpg)
+
+The initial render takes the longest—a few hundred milliseconds. But then you have all of these tiny time slices that are completely imperceptible to the user experience. These are the result of shouldComponentUpdate() returning false. Let's comment out this method now and see how this profile changes:
+
+![](images/React/6.jpg)
+
+**Rendering jQuery UI widgets**
+
+```jsx
+import React, { Component } from "react";
+import $ from "jquery";
+import "jquery-ui/ui/widgets/button";
+import "jquery-ui/themes/base/all.css";
+export default class MyButton extends Component {
+  componentDidMount() {
+    $(this.button).button(this.props);
+  }
+  componentDidUpdate() {
+    $(this.button).button("option", this.props);
+  }
+  render() {
+    return (
+      <button
+        onClick={this.props.onClick}
+        ref={(button) => {
+          this.button = button;
+        }}
+      />
+    );
+  }
+}
+```
+
+The jQuery UI button widget expects a `<button>` element, so this is what's rendered by the component.
+
+## Code Splitting Using Lazy Components and Suspense
+
+There are two pieces involved with using the new lazy() API in React. First, there's bundling components into their own separate files so that they can be downloaded by the browser separately from other parts of the application. Secondly, once you have created the bundles, you can build React components that are lazy—they don't download anything until the first time they're rendered.
+
+Let's take a look at a simple component that we might want to bundle separately from the rest of the application:
+
+```jsx
+import React from "react";
+export default function MyComponent() {
+  return <p>My Component</p>;
+}
+```
+
+Now let's take a look at how we would import this module dynamically using the import() function, resulting in a separate bundle:
+
+```jsx
+import React, { useState, useEffect } from "react";
+export default function App() {
+  const [MyComponent, setMyComponent] = useState(() => () => null);
+  useEffect(() => {
+    import("./MyComponent").then((module) => {
+      setMyComponent(() => module.default);
+    });
+  }, []);
+  return <MyComponent />;
+}
+```
+
+Making components lazy:
+
+```jsx
+import React, { Suspense, lazy } from "react";
+const MyComponent = lazy(() => import("./MyComponent"));
+export default function App() {
+  return (
+    <Suspense fallback={"loading..."}>
+      <MyComponent />
+    </Suspense>
+  );
+}
+```
+
+If you have too many lazy components, your app is going to end up making several HTTP requests to fetch them – at the same time. There's no benefit to having separate bundles for components that are used on the same part of the app.
+
+## Server-Side React Components
+
+**Another term for server-side rendering is isomorphic JavaScript.** This is a fancy way of saying JavaScript code that can run in the browser and in Node.js without modification.
+
+In the case of rendering on the server, components are rendered to strings. The server can't actually display rendered HTML; all it can do is send the rendered markup to the browser.
+
+The main motivation behind server-side rendering, for me personally, is improved performance. In particular, the initial rendering just feels faster for the user and this translates to an overall better user experience.
+
+**Rendering to strings**
+
+Component to render:
+
+```jsx
+import React from "react";
+import PropTypes from "prop-types";
+export default function App({ items }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  );
+}
+App.propTypes = {
+  items: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+```
+
+The server that will render this component when the
+browser asks for it:
+
+```jsx
+import React from "react";
+import { renderToString } from "react-dom/server";
+import express from "express";
+import App from "./App";
+const doc = (content) =>
+  `
+<!doctype html>
+<html>
+<head>
+<title>Rendering to strings</title>
+</head>
+<body>
+<div id="app">${content}</div>
+</body>
+</html>
+`;
+const app = express();
+app.get("/", (req, res) => {
+  const props = { items: ["One", "Two", "Three"] };
+  const rendered = renderToString(<App {...props} />);
+  res.send(doc(rendered)); // doc() - this creates the basic HTML document template with a placeholder for rendered React
+content.
+});
+app.listen(8080, () => {
+  console.log("Listening on 127.0.0.1:8080");
+});
+```
+
+**Backend routing**
+
+```jsx
+import React from "react";
+import { renderToString } from "react-dom/server";
+import { StaticRouter } from "react-router";
+import express from "express";
+import App from "./App";
+const app = express();
+app.get("/*", (req, res) => {
+  const context = {};
+  const html = renderToString(
+    <StaticRouter location={req.url} context={context}>
+      <App />
+    </StaticRouter>
+  );
+  if (context.url) {
+    res.writeHead(301, {
+      Location: context.url,
+    });
+    res.end();
+  } else {
+    res.write(`
+<!doctype html>
+<div id="app">${html}</div>
+`);
+    res.end();
+  }
+});
+app.listen(8080, () => {
+  console.log("Listening on 127.0.0.1:8080");
+});
+```
+
+**Frontend reconciliation**
+
+The user wants to use the application and the server needs to deliver the client's code bundle.
+
+index.js
+
+```jsx
+import React from "react";
+import { hydrate } from "react-dom";
+import App from "./App";
+hydrate(<App />, document.getElementById("root"));
+```
+
+In this case, you're using the hydrate() function instead of the render() function. The two functions have the same end result—rendered JSX content in the browser window. The hydrate() function is different because it expects rendered component content to already be in place. This means that it will perform less work because it will assume that the markup is correct and doesn't need to be updated on the initial render.
+
+Only in development mode will React examine the entire DOM tree of the server-rendered content to make sure that the correct content is displayed. If there's a mismatch between the existing content and the output of the React components, you'll see warnings that show you where these mismatches happened so that you can go and fix them.
