@@ -9,6 +9,9 @@
   - [CSS Selectors, Typography, Color Modes, and More](#css-selectors-typography-color-modes-and-more)
   - [Stunning Aesthetics with CSS](#stunning-aesthetics-with-css)
   - [Using SVGs for Resolution Independence](#using-svgs-for-resolution-independence)
+  - [Transitions, Transformations, and Animations](#transitions-transformations-and-animations)
+  - [Forms](#forms)
+  - [Extras](#extras)
 
 ## Essentials
 
@@ -1001,3 +1004,367 @@ Tool: (iconizr)[http://iconizr.com/]. It gives you complete control over how you
 (Data URIs or Image Sprites?)[http://benfrain.com/image-sprites-data-uris-icon-fonts-v-svgs/]
 
 If you want to animate SVG dynamically, or inject values into them via JavaScript, then it will be best to opt for inserting SVG data "inline" into the HTML.
+
+**Reusing graphical objects from symbols**
+
+We are only using this SVG to house symbols of the graphical objects we want to use elsewhere. So, our markup starts like this:
+
+```xml
+<svg display="none" width="0" height="0" version="1.1"
+xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.
+w3.org/1999/xlink">
+  <defs>
+    <symbol id="icon-drag-left-right" viewBox="0 0 1344 1024">
+    <title>drag-left-right</title>
+    <path class="path1" d="M256 192v-160l-224 224 224
+    224v-160h256v-128z"></path>
+  </defs>
+</svg>
+```
+
+Notice the symbol element inside the defs element? This is the element to use when we want to define a shape for later reuse.
+
+_You can create symbols for use inside the defs tag by taking an existing SVG, changing the svg tag to symbol, removing the namespace attribute, and then nesting it inside the defs tag._
+
+After the SVG has defined all necessary symbols for our work, we have all our "normal" HTML markup. Then, when we want to make use of one of those symbols, we can do this:
+
+```xml
+<svg class="icon-drag-left-right">
+  <use xlink:href="#icon-drag-left-right"></use>
+</svg>
+```
+
+The mechanism for choosing what to reference is the xlink attribute, which, in this case, is referencing the symbol ID of the "drag left and right" icon (`#icon-drag-left-right`) we have inline at the beginning of the markup.
+
+The use element can be used to reuse all sorts of SVG content: gradients, shapes, symbols, and more.
+
+Inside the SVG symbol, set the fill of the path you want to be one color as `currentColor`. Then, use the color value in your CSS to color the element. For the paths in the SVG symbol without the fill, set them as `currentColor`; they will receive the `fill` value.
+
+**Reusing graphical objects from external sources**
+
+Rather than paste in an enormous set of SVG symbols in each page, while still using the use element, it's possible to link out to external SVG files and grab the portion of the document you want to use.
+
+```xml
+<svg class="icon-drag-left-right">
+  <use xlink:href="defs.svg#icon-drag-left-right"></use>
+</svg>
+```
+
+The important part to understand is `href`. We are linking to an external SVG file (the `defs.svg` part) and then specifying the ID of the symbol within that file we want to use (the `#icon-drag-left-right part`).
+
+The benefits of this approach are that the asset is cached by the browser (just like any other external image would/could be) and it saves littering our markup with an SVG full of symbol definitions. The downside is that, unlike when `defs` are placed inline, any dynamic changes made to `defs.svg`
+
+Note: Internet Explorer does not allow referencing symbols from external assets. However, there's a polyfill script for IE 9-11, called (SVG For Everybody)[https://github.com/jonathantneal/], that allows us to use this technique regardless.
+When using that piece of JavaScript, you can happily reference external assets and the polyfill will insert the SVG data directly into the body of the document for Internet Explorer.
+
+![](images/Responsive-Web-Design/5.jpg)
+
+**SMIL animation**
+
+(SMIL animations)[http://www.w3.org/TR/smil-animation/] are a way to define animations for an SVG within the SVG document itself.
+
+```xml
+<g class="star_Wrapper" fill="none" fill-rule="evenodd">
+  <animate
+    xlink:href="#star_Path"
+    attributeName="fill"
+    attributeType="XML"
+    begin="0s"
+    dur="2s"
+    fill="freeze"
+    from="#F8E81C"
+    to="#14805e"
+  />
+  <path
+    id="star_Path"
+    stroke="#979797"
+    stroke-width="3"
+    fill="#F8E81C"
+    d="M99 154l-58.78 30.902 11.227-65.45L3.894 73.097l65.717-
+    9.55L99 4l29.39 59.55 65.716 9.548-47.553 46.353 11.226 65.452z"
+  />
+</g>
+```
+
+Simple animation tweens the fill color of the star from yellow to green in 2 seconds.
+
+**"tweening" as a term is simply a shortening of "inbetweening" as it merely indicates all the in-between stages from one animation point to another.**
+
+No support for SMIL in Internet Explorer. It can be termed as "use as a last resort" technique.
+
+**Styling an SVG with an external style sheet**
+
+You need to add this above the opening SVG element in your file.
+
+```xml
+<?xml-stylesheet href="styles.css" type="text/css"?>
+<svg
+width="198"
+height="188"
+viewBox="0 0 198 188"
+xmlns="http://www.w3.org/2000/svg"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+></svg>
+```
+
+**Styling an SVG with internal styles**
+
+As SVG is XML-based, it's safest to include the Character Data marker (CDATA). The Character Data marker simply tells the browser that the information within the Character Data delimited section could possibly be interpreted as XML markup but should not be.
+
+```xml
+<defs>
+  <style type="text/css">
+    <![CDATA[
+      #star_Path {
+        stroke: red;
+      }
+    ]]>
+  </style>
+</defs>
+```
+
+**Animating an SVG with CSS**
+
+```html
+<div class="wrapper">
+  <svg
+    width="198"
+    height="188"
+    viewBox="0 0 220 200"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+  >
+    <title>Star 1</title>
+    <defs>
+      <style type="text/css">
+        <![CDATA[
+        @keyframes spin {
+        0% {
+        transform: rotate(0deg);
+        }
+        100% {
+        transform: rotate(360deg);
+        }
+        }
+        .star_Wrapper {
+        animation: spin 2s 1s;
+        transform-origin: 50% 50%;
+        }
+        .wrapper {
+        padding: 2rem;
+        margin: 2rem;
+        }
+        ]]>
+      </style>
+      <g id="shape">
+        <path fill="#14805e" d="M50 50h50v50H50z" />
+        <circle fill="#ebebeb" cx="50" cy="50" r="50" />
+      </g>
+    </defs>
+    <g class="star_Wrapper" fill="none" fill-rule="evenodd">
+      <path
+        id="star_Path"
+        stroke="#333"
+        stroke-width="3"
+        fill="#F8E81C"
+        d="M99 154l-58.78 30.902 11.227-65.45L3.894 73.097l65.717-
+9.55L99 4l29.39 59.55 65.716 9.548-47.553 46.353 11.226 65.453z"
+      />
+    </g>
+  </svg>
+</div>
+```
+
+Notice how a transform-origin of 50% 50% has been set on the SVG? This is because, unlike CSS, the default transform-origin of an SVG is not 50% 50% (center in both axis); it's actually 0 0 (top left). Without that property set, the star would rotate around the top left point.
+
+**Animating SVG with JavaScript**
+
+With an SVG inserted into the page via an object tag or inline, it's possible to manipulate the SVG directly or indirectly with JavaScript.
+
+Tool: (GreenSock)[http://greensock.com/], (Velocity.js)[http://julian.com/research/velocity/] or (Snap.svg)[http://snapsvg.io/]
+
+**Optimizing SVGs**
+
+Tool: (SVGO)[https://github.com/svg/svgo] for advance and (SVGOMG)[https://jakearchibald.github.io/svgomg/] for beginner.
+
+**Using SVGs as filters**
+
+SVG with a filter defined in the defs elements:
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <defs>
+    <filter id="myfilter" x="0" y="0">
+      <feColorMatrix
+      in="SourceGraphic"
+      type="hueRotate"
+      values="90"
+      result="A"
+      />
+      <feGaussianBlur in="A" stdDeviation="6" />
+    </filter>
+  </defs>
+</svg>
+```
+
+Now, rather than add that SVG markup to the HTML, we can leave it where it is and reference it using the same CSS filter syntax
+
+```css
+.HRH {
+  filter: url("filter.svg#myfilter");
+}
+```
+
+For supporting IE 10 or IE 11:
+
+```xml
+<svg
+  height="747px"
+  width="1024px"
+  viewBox="0 0 1024 747"
+  xmlns="http://www.w3.org/2000/svg"
+  version="1.1"
+>
+  <defs>
+    <filter id="myfilter" x="0" y="0">
+      <feColorMatrix
+        in="SourceGraphic"
+        type="hueRotate"
+        values="90"
+        result="A"
+      />
+      <feGaussianBlur in="A" stdDeviation="6" />
+    </filter>
+  </defs>
+  <image
+    x="0"
+    y="0"
+    height="747px"
+    width="1024px"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xlink:href="queen@2x-1024x747.png"
+    filter="url(#myfilter)"
+  ></image>
+</svg>
+```
+
+Height, width, and viewBox attributes have been added. In addition, the image we want to apply the filter to is the only content in the SVG outside of the defs element. To link to the filter, we are using the filter attribute and passing the ID of the filter we want to use
+
+_Note: To make media query work inside SVG CSS, use `@media (min-device-width: 800px) {`_
+
+## Transitions, Transformations, and Animations
+
+One important point to note when writing the shorthand version is that the first time-related value provided is always parsed to be the `transition-duration`. The second time-related value is parsed to be the `transition-delay`.
+
+We use the `perspective` property - this takes a length value, attempting to simulate the distance from the viewer's screen to the edge of the elements 3D space. We set this on the outer-most element to provide the 3D context for our nested elements to move within.
+
+The value you assign to perspective is arguably counter-intuitive—if you set a low number like 20px for the perspective value, the 3D space of the element will extend right out to only 20px from your screen; the result being a more pronounced 3D effect.
+
+Setting a high number, on the other hand, will mean the edge of that imaginary 3D space will be further away, and therefore produce a less pronounced 3D effect.
+
+`transform-style: preserve-3d` - declaration tells the browser that when we transform this element, we want any child elements to preserve any 3D effect.
+
+**Animating with CSS**
+
+Let's see a pulsing animation effect.
+
+```css
+@keyframes pulse {
+  100% {
+    text-shadow: 0 0 5px #bbb;
+    box-shadow: 0 0 3px 4px #bbb;
+  }
+}
+```
+
+WebKit browsers (iOS, Safari) don't always play happily with from and to values (preferring 0% and 100%), so I'd recommend sticking with percentage keyframe selectors.
+
+## Forms
+
+**Component parts**
+
+The three sections of the form are each wrapped in a fieldset, which semantically groups the related sets of form fields, and a legend, which provides the textual explanation of what that fieldset is:
+
+```html
+<fieldset>
+  <legend>About the offending film (part 1 of 3)</legend>
+  <div>
+    <label for="film">The film in question?</label>
+    <input
+      id="film"
+      name="film"
+      type="text"
+      placeholder="e.g. King Kong"
+      required
+      aria-required="true"
+    />
+  </div>
+</fieldset>
+```
+
+Style placeholder text with `input:placeholder-shown { .. }`
+
+The `caret-color` property is a fairly recent addition to CSS. It allows us to change the color of the input insertion point cursor; the caret.
+
+**Indicating required fields**
+
+We can indicate required input fields to a user using CSS alone. For example:
+
+```css
+input:required {
+  /* styles */
+}
+input:focus:required {
+  /* styles */
+}
+```
+
+Have you remembered that both Flexbox and Grid give us the ability to visually reverse the order of elements with ease?
+
+```html
+<div class="form-Input_Wrapper">
+  <input
+    id="film"
+    name="film"
+    type="text"
+    placeholder="e.g. King Kong"
+    required
+  />
+  <label for="film">The film in question?</label>
+</div>
+```
+
+then simply apply `flex-direction: row-reverse` or `flex-direction: column-reverse` to the parent. These declarations reverse the visual order of their child elements, allowing the desired aesthetic of the label above (smaller viewports) or to the left (larger viewports) of the input.
+
+Now, we can get on with actually providing some indication of required fields and when they have received input.
+
+This selector is now possible:
+
+```css
+input:required + label:after {
+  content: "*";
+  font-size: 2.1em;
+  position: relative;
+  top: 6px;
+  display: inline-flex;
+  margin-left: 0.2ch;
+  transition: color 1s;
+}
+input:required:invalid + label:after {
+  color: red;
+}
+input:required:valid + label:after {
+  color: green;
+}
+```
+
+## Extras
+
+```css
+/* Hide scrollbar in Firefox */
+scrollbar-width: none;
+```
+
+**CSS Scroll Snap**
+
+CSS Scroll Snap snaps the scrolling of content to predefined points in the container. Again, it is a user interface pattern that is commonplace in the interfaces of native applications, app stores, and things like carousels, but historically required JavaScript to implement.
