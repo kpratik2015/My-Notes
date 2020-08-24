@@ -4,6 +4,7 @@ Randomly going over concepts of Java.
 
 - [Java Pointers](#java-pointers)
   - [Take Note of](#take-note-of)
+  - [Things to Remember & Gotchas](#things-to-remember--gotchas)
   - [Effective Java](#effective-java)
     - [1. Consider static factory methods instead of constructors](#1-consider-static-factory-methods-instead-of-constructors)
     - [2. Consider a builder when faced with many constructor parameters](#2-consider-a-builder-when-faced-with-many-constructor-parameters)
@@ -276,6 +277,52 @@ Randomly going over concepts of Java.
 - In Java 7, there is multi-catch: `try {...} catch(ExecutionException | InterruptedException ex) {...}`
 
 - For interval timing, always use `System.nanoTime` rather than `System.currentTimeMillis`. System.nanoTime is both more accurate and more precise and is unaffected by adjustments to the system’s real-time clock.
+
+<!-- END OF TAKE NOTE OF -->
+
+## Things to Remember & Gotchas
+
+- If JVM or thread exists then `finally` block may not execute.
+- Java is pass by value.
+- A `java.util.Date` represents date and time of day, a `java.sql.Date` only represents a date.
+- **Marker interfaces** - provides run time type information of objects. It provides a means to associate metadata with a class where the language does not have explicit support for such metadata. A major problem with marker interfaces is that an interface defines a contract for implementing classes, and that contract is inherited by all subclasses. This means that you cannot “un-implement” a marker.
+- `main()` method is public so that it can be accessible everywhere and to every object which may desire to use it for launching the application. _Why void?_ Then there is no use of returning any value to JVM, who actually invokes this method.
+- `String` is not reserved keyword. strings are immutable to increases performance and reduce security risk. String class provides simple regex usage -> `new String("abc").matches("<regex>")`
+- `char` arrays are mutable, their content can be overwritten after use. Good usecase for password.
+- In below code snippet, 2 objects will be created. 1st object in string pool by statement 1, 2nd statement will point to first object and 3rd will create new string object in heap memory
+
+```java
+String s1 = "a";
+String s2 = "a";
+String s3 = new String("a");
+```
+
+- Hash code for null is always 0.
+- In HashMap, if two unequal objects have same hash code value, they'll be stored in chain like LinkedList as inner class `Entry` has a next property
+- Abstract class are slightly faster than interface because interface involves a search before calling any overridden method in Java.
+- `hashCode()` method is used to get a unique integer for given object. This integer is used for determining the bucket location, when this object needs to be stored in some _HashTable_ like data structure. By default, Object’s `hashCode()` method returns an integer representation of memory address where object is stored.
+- `equals()` method, as name suggest, is used to simply verify the equality of two objects. Default implementation simply check the object references of two objects to verify their equality.
+- Whenever `a.equals(b)` then `a.hashCode()` must be same as `b.hashCode()`.
+- **Abstraction** captures only those details about an object that are relevant to the current perspective.
+- Wrapping data and methods within classes in combination with implementation hiding (through access control) is often called encapsulation. The result is a data type with characteristics and behaviors. **Encapsulation** essentially has both i.e. information hiding and implementation hiding. _“Whatever changes, encapsulate it“_
+- `StringBuffer` can save memory as it's dynamically - growable array inside JVM, which means that any change operation can occur on the existing memory location, with new memory allocated only as-needed.
+- In java, a deadlock is a situation where minimum two threads are holding lock on some different resource, and both are waiting for other resource to complete its task. And, none is able to leave the lock on resource it is holding.
+- “The transient keyword in Java is used to indicate that a field should not be serialized.” According to language specification: Variables may be marked transient to indicate that they are not part of the persistent state of an object.
+- `volatile` modifier tells the JVM that a thread accessing the variable must always reconcile its own private copy of the variable with the master copy in memory. You mark the variable holding shared data as volatile when you are not using locking to access that variable and you want changes made by one thread to be visible in another, or you want to create a “happens-after” relation to ensure that computation is not re-ordered, again, to ensure changes become visible at the appropriate time.
+- We can use Iterator to traverse a Set or a List or a Map. But ListIterator can only be used to traverse a List only
+- By default, java cloning is shallow copy or ‘field by field copy’ i.e. as the Object class does not have idea about the structure of class on which clone() method will be invoked.
+  - If the class has only primitive data type members then a completely new copy of the object will be created and the reference to the new object copy will be returned.
+  - If the class contains members of any class type then only the object references to those members are copied and hence the member references in both the original object as well as the cloned object refer to the same object.
+- Deep cloning requires:
+  - No need to separately copy primitives
+  - All the member classes in original class should support cloning and in clone method of original class in context should call super.clone() on all member classes.
+  - If any member class does not support cloning then in clone method, one must create a new instance of that member class and copy all its attributes one by one to new member class object.
+- You can use `synchronized` keyword in your class on defined methods or blocks.
+  - **Object level locking** is mechanism when you want to synchronize a non-static method or non-static code block such that only one thread will be able to execute the code block on given instance of the class.
+  - **Class level locking** prevents multiple threads to enter in synchronized block in any of all available instances on runtime.
+- `sleep()` is a method which is used to hold the process for few seconds or the time you wanted but in case of `wait()` method thread goes in waiting state and it won’t come back automatically until we call the `notify()` or `notifyAll()`. The major difference is that `wait()` releases the lock or monitor while `sleep()` doesn’t releases any lock or monitor while waiting. `wait()` is used for inter-thread communication while `sleep()` is used to introduce pause on execution, generally.
+- **Polymorphism** is the ability by which, we can create functions or reference variables which behaves differently in different programmatic context.
+- With **ThreadPoolExecutor**, you only have to implement the `Runnable` objects and send them to the executor. It is responsible for their execution, instantiation, and running with necessary threads.
 
 ## Effective Java
 
