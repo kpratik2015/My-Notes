@@ -2,6 +2,20 @@
 
 Perks of selective memory. Better note it down.
 
+## Summary
+
+First job, CLSA. Got it out of campus placement in college and joined on 8 July 2018. First 3 months were spent as classroom training where-in each day we would have instructor teach us concepts/code. The trainings included Angular, shell, Finance, Core Java, Spring Framework, MongoDB, Oracle SQL and soft skills. In between training we had an option to work with a team on some task they would need help with. So I approached TechOps people for some problem I could help solve.
+
+My first task was to get a prototype ready where I could deploy a python code on a dev server that can give stats about the server and then allow to retreive stats of other servers mentioned in a config file. I then tried to extend flask monitoring dashboard github repo code to work with our servers. I had a problem wherein the code I did was in python 3 and other servers by default had python 2. So we had to setup SSH handshake with few other servers and I wrote code to SSH into them and get stats.
+
+Another task I got from server techops team where they were seeking an ML solution to get a predictive date for a FileSystem to reach its threshold. I used Regression Model to work up a date based off of archived data of filesystem stats. We had an outlier you can say where we observed that the FileSystem stats dropped at certain days in a week and we found out that it was every friday a cleanup is scheduled.
+
+After 3-4 months, rotation started which was another 3-4 months. We got to help out teams directly in whatever help they could require from us. I got tasks in Java and Angular material. Java was to improve on a threading code already written. I re-wrote it using Executor framework. We also did cron scheduling in that program. For Angular, I had to do some feature additions in existing code base.
+
+In the team I got selected, I wrote python script to get data off excel sheet, clean it and persist in postgres DB. I also got work in Java and angular - where in front-end I had to implement upload functionality of file and in backend get the file, read it and store the values of file in pojo.
+
+Then in Research team I started work in React for upcoming new CLSA website and currently I work for forums website that is already live.
+
 ## Java SpringBoot project for ETL between MySQL DB and Postgres DB
 
 Main repo is divided into following packages:
