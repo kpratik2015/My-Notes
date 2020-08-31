@@ -59,6 +59,7 @@ Randomly going over concepts of Java.
     - [LinkedHashMap](#linkedhashmap)
     - [ConcurrentMap](#concurrentmap)
     - [EnumMap](#enummap)
+  - [Basics](#basics)
   - [References/Useful Links](#referencesuseful-links)
 
 ## Take Note of
@@ -1540,6 +1541,59 @@ It can handle concurrent access and has useful methods like `putIfAbsent`, `remo
 ### EnumMap
 
 Allows setting value to Enums and provides useful methods. [Ref](https://www.geeksforgeeks.org/enummap-class-java-example/)
+
+## Basics
+
+- A single source file can contain any number of Class declarations but only one of the class can be declared as public.
+- `java.lang package` is imported by default even without a package declaration.
+- The protected access modifier cannot be applied to class and interfaces. Methods, fields can be declared protected.
+- A method declared as final can't be overridden. A sub-class can't have the same method signature with a different implementation.
+- `java.lang.String`, `java.lang.Math` are final classes.
+- We cannot declare top level class as static, but only inner class can be declared static.
+- When a method needs to be accessed even before the creation of the object of the class then we should declare the method as static.
+- static variables are class level variables where all objects of the class refer to the same variable. If one object changes the value then the change gets reflected in all the objects.
+- Static variables are class level variables and they can't be declared inside a method.
+- A Class which doesn't provide complete implementation is defined as an `abstract` class. Abstract classes enforce abstraction.
+- An `abstract` class cannot be declared `final`. An `abstract` class without being inherited is of no use and hence will result in compile time error.
+- `public` and `abstract` are the only applicable modifiers for method declaration in an `interface`.
+- Interfaces doesn't provide implementation hence a interface cannot implement another interface. However they can be extended.
+- A Class can extend only one class but can implement any number of Interfaces. Basically Java doesn't allow multiple inheritance.
+- A class can be defined inside an interface and vice versa.
+- Using overloading and overriding results in polymorphism.
+- Only public and abstract modifiers are allowed for methods in interfaces.
+- An abstract method is a method whose implementation is deferred to a subclass.
+- A lock can be acquired on a class using synchronized static method
+- Java uses call by reference for object and call by value for primitives.
+- Unicode requires 16 bits and ASCII require 7 bits. Although the ASCII character set uses only 7 bits, it is usually represented as 8 bits. UTF-8 represents characters using 8, 16, and 18 bit patterns. UTF-16 uses 16-bit and larger bit patterns.
+- JVM is platform dependent. JVM is responsible for loading, verifying and executing the Bytecode on a platform.
+- Any method has to first specify the modifiers and then the return value.
+- By default, the value of String array of arguments is empty in Java. It is not null.
+- By default, Java provides a default constructor for every object. If we overload a constructor then we have to implement default constructor.
+- If a class holds the instance of another class, then it is called composition (has-a).
+- In Aggregation, the relationship is weaker than Composition. E.g. A Library has students. If a Library is destroyed, Students still exist. So Library and Student are related by Aggregation. A Library has Books. If Library is destroyed, the Books are also destroyed.
+- JVM uses pointers but programmers only see object references. In case an object reference points to null object, and we try to access a method or member variable on it, then we get `NullPointerException`.
+- As per Java specification, `super()` or `this()` must be the first statement in a constructor.
+- Defining static variables is not a good practice because they go against the principles of Object Oriented Programming.
+- A static method can access and modify static data members.
+- At times, there is a class that has static member variables. These variables need some complicated initialization. At this time static block helps as a tool to initialize complex static member variable initialization.
+- `main()` without static will compile but on runtime give `NoSuchMethodError`.
+- Method Overloading is also known as Static Polymorphism.
+- Method Overloading can be achieved by:
+  - Different number of parameters
+  - Different data type of parameters
+  - Different sequence of data type of parameters
+- All instance methods in Java are virtual functions by default. Only class methods and private instance methods are not virtual methods in Java. Virtual method is a function or method whose behaviour can be overridden within an inheriting class by a function with the same signature to provide the polymorphic behavior.
+- A **covariant return type** of a method is one that can be replaced by a "narrower" type when the method is overridden in a subclass.
+- Abstraction happens at class level design. It results in hiding the implementation details. Encapsulation is also known as “Information Hiding”. An example of encapsulation is marking the member variables private and providing getter and setter for these member variables.
+- Java specification says that if there is at least one abstract method in a class, the class has to be marked abstract.
+- Annotations can be used instead of Marker interface (There are interfaces that do not have any data member or methods.)
+- Once a class is marked final, it cannot be extended.
+- When we declare a final variable without giving any initial value, then it is called blank final variable.
+- In Java, `java.lang package` contains the classes that are fundamental to the design of Java programming language. The most important class in this package is Object class.
+- **Serialization** is a process converting an object into a byte array. This byte array represents the class, version and internal state of the object. JVM can use this byte array to transmit/read the object over a network.
+- The `transient` keyword is valid only for member variables.
+- Serializable is a marker interface but Externalizable is not a marker interface.
+- We can use Reflection to create an Object dynamically at Runtime in Java.
 
 ## References/Useful Links
 

@@ -402,7 +402,7 @@ The scope chain is decided based on the location of a function during definition
 
 The scope chain is created before you invoke a function. Because of this, we can create closures.
 
-Below, we define a parentFunction that returns an anonymous function, and we call the returned function from the global scope. Because our anonymous function was defined as being contained inside of parentFunction, it still has access to parentFunc tion’s scope when it is invoked. This is called a closure.
+Below, we define a parentFunction that returns an anonymous function, and we call the returned function from the global scope. Because our anonymous function was defined as being contained inside of parentFunction, it still has access to parentFunc tion’s scope when it is invoked. This is called a closure. In other words, a closure gives you access to an outer function's scope from an inner function.
 
 ```js
 var parentFunction = function () {
