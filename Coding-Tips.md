@@ -105,7 +105,7 @@ lists = ['a']
 print(lists[0] if amount > 0 else lists)
 ```
 
-- List of int to int -> `int(''.join(map(str,numList)))`
+- List of string number to int -> `int(''.join(map(str,numList)))` e.g. ['2','3'] to 23
 
 - Reversing in pythonic way
 
