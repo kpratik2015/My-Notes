@@ -121,6 +121,10 @@ while l < r:
 - `mid = (low + high) // 2` change to `mid = (low + high) >> 1` will be faster
 
 - XOR i.e. Rule 1 : If both bits are 1 then XOR'ed bit will be 0. Rule 2 : If both bits are 0 then XOR'ed bit will be 0. Rule 3 : If one bit is 0 and one bit is 1 XOR'ed bit will be 1. in python: `a ^ b` with ^ operator
+- Constructing a tuple in python is faster than constructing a list
+- Instead of `set(['a','b'])` do `{'a','b'}` i.e. create set directly.
+- `n & 1` same as: `n % 2` and `n >> 1` same as: `n //= 2`
+- `[].extend([1,2,3])` same as `[] + [1,2,3]`
 
 # Dynamic Programming
 
