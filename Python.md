@@ -1,6 +1,7 @@
 # Python Notes
 
 - [Python Notes](#python-notes)
+  - [Q&A](#qa)
   - [Unpacking elements](#unpacking-elements)
     - [Arbitrary length](#arbitrary-length)
   - [Keeping last N Items](#keeping-last-n-items)
@@ -29,6 +30,214 @@
     - [Searching and Replacing Text](#searching-and-replacing-text)
     - [Searching and Replacing Case-Insensitive Text](#searching-and-replacing-case-insensitive-text)
     - [Specifying a Regular Expression for the Shortest Match](#specifying-a-regular-expression-for-the-shortest-match)
+
+## Q&A
+
+- What is the dierence between list and tuples in Python?
+
+```
+Lists are mutable i.e they can be edited.         Tuples are immutable (tuples are lists which can’t be edited).
+Lists are slower than tuples.                     Tuples are faster than list.
+Syntax: list_1 = [10, ‘Chelsea’, 20]              Syntax: tup_1 = (10, ‘Chelsea’ , 20)
+```
+
+- What are the key features of Python?
+
+  Python is an interpreted language. That means that, unlike languages like C and its variants, Python does not need to be
+  compiled before it is run. Other interpreted languages include PHP and Ruby.
+  Python is dynamically typed, this means that you don’t need to state the types of variables when you declare them or
+  anything like that. You can do things like x=111 and then x="I'm a string" without error
+  Python is well suited to object orientated programming in that it allows the denition of classes along with composition
+  and inheritance. Python does not have access speciers (like C++’s public, private).
+  In Python, functions are rst-class objects. This means that they can be assigned to variables, returned from other
+  functions and passed into functions. Classes are also rst class objects
+  Writing Python code is quick but running it is often slower than compiled languages. Fortunately，Python allows the
+  inclusion of C based extensions so bottlenecks can be optimized away and often are. The numpy package is a good
+  example of this, it’s really quite quick because a lot of the number crunching it does isn’t actually done by Python
+  Python nds use in many spheres – web applications, automation, scientic modeling, big data applications and many
+  more. It’s also often used as “glue” code to get other languages and components to play nice.
+
+- What is pep 8?
+
+  PEP stands for Python Enhancement Proposal. It is a set of rules that specify how to format Python code for maximum
+  readability.
+
+- How is memory managed in Python?
+
+1. Memory management in python is managed by Python private heap space. All Python objects and data structures are
+   located in a private heap. The programmer does not have access to this private heap. The python interpreter takes care of
+   this instead.
+2. The allocation of heap space for Python objects is done by Python’s memory manager. The core API gives access to some
+   tools for the programmer to code.
+3. Python also has an inbuilt garbage collector, which recycles all the unused memory and so that it can be made available to
+   the heap space.
+
+- What is PYTHONPATH?
+
+  It is an environment variable which is used when a module is imported. Whenever a module is imported, PYTHONPATH is
+  also looked up to check for the presence of the imported modules in various directories. The interpreter uses it to determine
+  which module to load.
+
+- Is python case sensitive?
+
+  Yes. Python is a case sensitive language.
+
+- What is type conversion in Python?
+
+  Type conversion refers to the conversion of one data type iinto another.
+
+```
+int() – converts any data type into integer type
+oat() – converts any data type into oat type
+ord() – converts characters into integer
+hex() – converts integers to hexadecimal
+oct() – converts integer to octal
+tuple() – This function is used to convert to a tuple.
+set() – This function returns the type after converting to set.
+list() – This function is used to convert any data type to a list type.
+dict() – This function is used to convert a tuple of order (key,value) into a dictionary.
+str() – Used to convert integer into a string.
+```
+
+- What is the dierence between Python Arrays and lists?
+
+  Arrays and lists, in Python, have the same way of storing data. But, arrays can hold only a single data type elements whereas
+  lists can hold any data type elements.
+
+```py
+import array as arr
+My_Array=arr.array('i',[1,2,3,4])
+My_list=[1,'abc',1.20]
+```
+
+- What is `__init__`?
+
+  ` __init__` is a method or constructor in Python. This method is automatically called to allocate memory when a new object/
+  instance of a class is created. All classes have the `__init__` method.
+
+- What is a lambda function?
+
+  An anonymous function is known as a lambda function. This function can have any number of parameters but, can have
+  just one statement.
+
+```py
+a = lambda x,y : x+y
+print(a(5, 6))
+```
+
+- What is self in Python?
+
+  Self is an instance or an object of a class. In Python, this is explicitly included as the rst parameter. However, this is not the
+  case in Java where it’s optional. It helps to dierentiate between the methods and attributes of a class with local variables.
+  The self variable in the init method refers to the newly created object while in other methods, it refers to the object whose
+  method was called.
+
+- How can you randomize the items of a list in place in Python?
+
+```py
+from random import shuffle
+x = ['Keep', 'The', 'Blue', 'Flag', 'Flying', 'High']
+shuffle(x)
+```
+
+- What is pickling and unpickling?
+
+  Pickle module accepts any Python object and converts it into a string representation and dumps it into a file by using dump
+  function, this process is called pickling. While the process of retrieving original Python objects from the stored string
+  representation is called unpickling.
+
+- What are the generators in python?
+  Functions that return an iterable set of items are called generators.
+- Whenever Python exits, why isn’t all the memory de-allocated?
+
+1. Whenever Python exits, especially those Python modules which are having circular references to other objects or the objects that are referenced from the global namespaces are not always de-allocated or freed.
+2. It is impossible to de-allocate those portions of memory that are reserved by the C library.
+3. On exit, because of having its own ecient clean up mechanism, Python would try to de-allocate/destroy every other
+   object.
+
+- What does this mean: \*args, \*\*kwargs? And why would we use it?
+
+  We use \*args when we aren’t sure how many arguments are going to be passed to a function, or if we want to pass a stored
+  list or tuple of arguments to a function. **kwargs is used when we don’t know how many keyword arguments will be passed to a
+  function, or it can be used to pass the values of a dictionary as keyword arguments. The identiers args and kwargs are a
+  convention, you could also use \*bob and **billy but that would not be wise.
+
+- What are Python packages?
+
+  Python packages are namespaces containing multiple modules.
+
+- What are the built-in types of python?
+
+  Integers, Floating-point, Complex numbers, Strings, Boolean, Built-in functions
+
+- What advantages do NumPy arrays oer over (nested) Python lists?
+
+1. Python’s lists are ecient general-purpose containers. They support (fairly) ecient insertion, deletion, appending, and
+   concatenation, and Python’s list comprehensions make them easy to construct and manipulate.
+2. They have certain limitations: they don’t support “vectorized” operations like elementwise addition and multiplication, and
+   the fact that they can contain objects of diering types mean that Python must store type information for every element,
+   and must execute type dispatching code when operating on each element.
+3. NumPy is not just more ecient; it is also more convenient. You get a lot of vector and matrix operations for free, which
+   sometimes allow one to avoid unnecessary work. And they are also eciently implemented.
+4. NumPy array is faster and You get a lot built in with NumPy, FFTs, convolutions, fast searching, basic statistics, linear
+   algebra, histograms, etc.
+
+- How is Multithreading achieved in Python?
+
+1. Python has a multi-threading package but if you want to multi-thread to speed your code up, then it’s usually not a good
+   idea to use it.
+2. Python has a construct called the Global Interpreter Lock (GIL). The GIL makes sure that only one of your ‘threads’ can
+   execute at any one time. A thread acquires the GIL, does a little work, then passes the GIL onto the next thread.
+3. This happens very quickly so to the human eye it may seem like your threads are executing in parallel, but they are really
+   just taking turns using the same CPU core.
+4. All this GIL passing adds overhead to execution. This means that if you want to make your code run faster then using the
+   threading package often isn’t a good idea.
+
+- What is monkey patching in Python?
+
+  In Python, the term monkey patch only refers to dynamic modications of a class or module at run-time.
+
+- Does python support multiple inheritance?
+
+  Multiple inheritance means that a class can be derived from more than one parent classes. Python does support multiple
+  inheritance, unlike Java.
+
+- What is Polymorphism in Python?
+
+  Polymorphism means the ability to take multiple forms. So, for instance, if the parent class has a method named ABC then
+  the child class also can have a method with the same name ABC having its own parameters and variables. Python allows
+  polymorphism.
+
+- Define encapsulation in Python?
+
+  Encapsulation means binding the code and the data together. A Python class in an example of encapsulation.
+
+- Does python make use of access speciers?
+
+  Python does not deprive access to an instance variable or function. Python lays down the concept of prexing the name of
+  the variable, function or method with a single or double underscore to imitate the behavior of protected and private access
+  speciers.
+
+- Explain what Flask is and its benets?
+
+  Flask is a web microframework for Python based on “Werkzeug, Jinja2 and good intentions” BSD license. Werkzeug and
+  Jinja2 are two of its dependencies. This means it will have little to no dependencies on external libraries. It makes the framework light while there is a little dependency to update and fewer security bugs.
+  A session basically allows you to remember information from one request to another. In a ask, a session uses a signed cookie
+  so the user can look at the session contents and modify. The user can modify the session if only it has the secret key
+  Flask.secret_key
+
+- Is Django better than Flask?
+
+  Django and Flask map the URL’s or addresses typed in the web browsers to functions in Python.
+  Flask is much simpler compared to Django but, Flask does not do a lot for you meaning you will need to specify the details,
+  whereas Django does a lot for you wherein you would not need to do much work. Django consists of prewritten code, which the
+  user will need to analyze whereas Flask gives the users to create their own code, therefore, making it simpler to understand the code. Technically both are equally good and both contain their own pros and cons.
+
+- Mention the differences between Django, Pyramid and Flask.
+  - Flask is a “microframework” primarily build for a small application with simpler requirements. In ask, you have to use external libraries. Flask is ready to use.
+  - Pyramid is built for larger applications. It provides exibility and lets the developer use the right tools for their project. The developer can choose the database, URL structure, templating style and more. Pyramid is heavy congurable.
+  - Django can also be used for larger applications just like Pyramid. It includes an ORM.
+-
 
 ## Unpacking elements
 

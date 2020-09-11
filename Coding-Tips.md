@@ -12,6 +12,11 @@
 - [Pattern searching, first index - KMP (Knuth Morris Pratt) algorithm](#pattern-searching-first-index---kmp-knuth-morris-pratt-algorithm)
 - [Permutations of a string](#permutations-of-a-string)
 - [Next Permutation Trick](#next-permutation-trick)
+- [Python Code to Java](#python-code-to-java)
+  - [For loop](#for-loop)
+  - [String reversal](#string-reversal)
+  - [Dictionary](#dictionary)
+  - [Min, Max, Sort](#min-max-sort)
 
 # Things to Know of Python in CC
 
@@ -125,6 +130,8 @@ while l < r:
 - Instead of `set(['a','b'])` do `{'a','b'}` i.e. create set directly.
 - `n & 1` same as: `n % 2` and `n >> 1` same as: `n //= 2`
 - `[].extend([1,2,3])` same as `[] + [1,2,3]`
+- `collections.Counter(t)` - hash table to store char frequency
+- `[1].pop(0)` is slower than `collections.deque([1]).popleft()`
 
 # Dynamic Programming
 
@@ -516,3 +523,100 @@ Implement next permutation, which rearranges numbers into the lexicographically 
 ```
 
 ![Trick](https://leetcode.com/media/original_images/31_Next_Permutation.gif)
+
+# Python Code to Java
+
+## For loop
+
+```py
+cars = ["Volvo", "BMW", "Ford", "Mazda"]
+for i in range(len(cars)):
+  print(cars[i], end=" ")
+
+for car in cars:
+  print(car)
+```
+
+```java
+String[] cars = {"Volvo", "BMW", "Ford", "Mazda"};
+for (int i = 0; i < cars.length; i++) {
+  System.out.print(cars[i] + " ");
+}
+for (String car: cars) {
+  System.out.println(car);
+}
+```
+
+## String reversal
+
+```py
+x = "reverse"
+print(x[::-1])
+```
+
+```java
+String x = "reverse"
+System.out.println(new StringBufferr(x).reverse().toString());
+```
+
+## Dictionary
+
+```py
+s = {0: '0'}
+print(s)
+# keys
+print(s.keys())
+# values
+print(s.values())
+# get
+print(s.get(0))
+print(s[0])
+# remove
+del s[0]
+```
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+Map<Integer, String> map = new HashMap<Integer, String>();
+map.put(0,"0");
+System.out.println(map);
+// keys
+System.out.println(map.keySet());
+// values
+System.out.println(map.values());
+// get
+System.out.println(map.get(0));
+// remove
+System.out.println(map.remove(0));
+```
+
+## Min, Max, Sort
+
+```py
+lst = [3,2,3]
+min(lst)
+max(lst)
+max(1,2)
+lst.sort()
+lst.sort(reverse=True)
+```
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
+
+List lst = new ArrayList<Integer>() {{
+    add(3);
+    add(2);
+    add(3);
+}};
+
+System.out.println(Collections.max(lst));
+System.out.println(Collections.min(lst));
+System.out.println(Math.max(1,2));
+Collections.sort(lst);
+Collections.sort(lst, Collections.reverseOrder());
+System.out.println(lst);
+```
