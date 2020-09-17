@@ -70,6 +70,23 @@ When you start it with two hashes, you get what’s called a global temporary ta
 Similar idea, but now it can be seen by other sessions so it’s globally available and that way, we can pass values between different procedures, different queries as long as they’re running at the same time.
 (Typically not a good idea)
 
+```sql
+SELECT
+    product_name,
+    list_price
+INTO #trek_products --- temporary table
+FROM
+    production.products
+WHERE
+    brand_id = 9;
+
+-- Creating global temporary table.
+CREATE TABLE ##heller_products (
+    product_name VARCHAR(MAX),
+    list_price DEC(10,2)
+);
+```
+
 ### Computed Columns
 
 These are derived from other columns or from functions.
@@ -77,6 +94,7 @@ They're often used to provide easier access to data without denormalizing it
 
 Example:
 
+```sql
 CREATE TABLE PetStore.Pet
 (
 PetID int IDENTITY(1,1) PRIMARY KEY,
@@ -84,15 +102,16 @@ PetName nvarchar(30) NOT NULL,
 DateOfBirth date NOT NULL,
 YearOfBirth AS DATEPART(year, DateOfBirth)
 );
+```
 
-We use a function of datepart that extracts the year from the date of birth.
+We use a function of `datepart` that extracts the year from the date of birth.
 
 I can just call that column that would automatically then run the function and it would give you that information from there.
 But it is not storing any data.
 All that is stored in the schema of the table is that definition.
 
 If you put PERSISTED after 'DATEPART(year, DateOfBirth)', the value, when you create a record or when you update a record, the value is stored in that table.
-But, because we have got a calculation in there, it would be automatically maintained.
+But, **because we have got a calculation in there, it would be automatically maintained**.
 
 Updating the date of birth, it would automatically update the year of birth for your data.
 You don't have to do anything to do maintenance of it.
@@ -100,21 +119,21 @@ Strictly we are breaking normalization rules, I have got year of birth which has
 
 ### More on Tables
 
-nvarchar means it uses unicode which is a character set for international character.
+`nvarchar` means it uses unicode which is a character set for international character.
 
 For Composite key, you put Primary key syntax at the end.
 E.g.
 PRIMARY KEY (CourierID, CourierCode)
 
-varchar(max) is specified so that the quantity of comments is not limited. The text data type is deprecated and has been replaced by varchar(max).
+`varchar(max)` is specified so that the quantity of comments is not limited (Up to 8,000 characters). The text data type is deprecated and has been replaced by varchar(max).
 
 ## Types of Data Integrity
 
-1. Domain integrity: Talking about contents of an individual column. We do this by specifying correct data type.
+1. Domain integrity (Data type): Talking about contents of an individual column. We do this by specifying correct data type.
 
-2. Entity integrity: Talking about a whole row and how it works. Unique by primary key.
+2. Entity integrity (Primary key): Talking about a whole row and how it works. Unique by primary key.
 
-3. Referential integrity: Talking about relationships between tables.
+3. Referential integrity (Joins): Talking about relationships between tables.
 
 Above are theoretical constructs of integrity.
 
@@ -142,12 +161,12 @@ getdate() puts in today's date if no date is given (NULL)
 
 ### Primary and Foreign key constraints
 
-Candidate keys are the columns that are unique and either of them can be primary keys.
+**Candidate keys** are the columns that are unique and either of them can be primary keys.
 
 Foreign key constraint: It checks the existance of parent when you create a child. E.g. If an employee makes a sale, that should be valid employee ID
 This also helps to decide what to do with children when we delete parent. The children can be set to a default value, or deleted.
 
-So primary keys uniquely identify each row in a table and then a foreign key which looks to make sure that that parent record exists in that other table.
+So primary keys uniquely identify each row in a table and then a _foreign key which looks to make sure that that parent record exists in that other table_.
 
 ### Cascading Referential Integrity
 
@@ -226,7 +245,7 @@ Above method is not optimum which is why we create index.
 Let's look at clustered index:
 Now the clustered index at the lowest level or the leaf level, it has all of the data. It creates pages of primary key id which reference to actual data on disk. On the top might be a page (Layer 3) containing range of employee ID for each index page.
 
-We might want to have lots of indexes but the downside is that the indexes need to be maintained. The index is brilliant for queries but they would slow down in updates and delete operations for our data. Since on the same transaction of update or delete, the index needs to be updated too.
+We might want to have lots of indexes but the downside is that the indexes need to be maintained. **The index is brilliant for queries but they would slow down in updates and delete operations for our data**. Since on the same transaction of update or delete, the index needs to be updated too.
 
 Let's talk about non-clustered index:
 In these ones, the leaf level is only going to have the columns I am interested in indexing.
@@ -287,7 +306,7 @@ We can combine data from multiple different columns, we can do calculations so w
 We could create it in the view so the view at runtime when it outputs the data, then it runs the calculation and then it presents the data as we want.
 
 So a view is stored.
-The definition of it is stored in a table called syscomments.
+**The definition of it is stored in a table called `syscomments`.**
 There is a system table that contains our view definition.
 
 So personally, I often create a view for every single table even if they are not required.
@@ -449,7 +468,7 @@ WHERE SALARY BETWEEN 1000 AND 10000;
 
 SELECT HIRE_DATE DT FROM EMPLOYEES ORDER BY DT DESC;
 
-SELECT FIRST_NAME FN FROM EMPLOYEES WHERE FIRST_NAME LIKE 'A%' AND FIRST_NAME LIKE '%a'; /_ You can't give alias for like _/
+SELECT FIRST\*NAME FN FROM EMPLOYEES WHERE FIRST_NAME LIKE 'A%' AND FIRST_NAME LIKE '%a'; /\* You can't give alias for like \_/
 
 SELECT \* FROM EMP;
 

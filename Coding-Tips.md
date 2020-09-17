@@ -17,6 +17,7 @@
   - [String reversal](#string-reversal)
   - [Dictionary](#dictionary)
   - [Min, Max, Sort](#min-max-sort)
+  - [zip](#zip)
 
 # Things to Know of Python in CC
 
@@ -619,4 +620,20 @@ System.out.println(Math.max(1,2));
 Collections.sort(lst);
 Collections.sort(lst, Collections.reverseOrder());
 System.out.println(lst);
+```
+
+## zip
+
+```py
+lst1 = [1,2,3]
+lst2 = ['a','b','c']
+print(*zip(lst1,lst2))
+```
+
+```java
+import java.util.*;
+import java.util.stream.IntStream;
+List<String> names = new ArrayList<>(Arrays.asList("John", "Jane", "Jack", "Dennis"));
+List<Integer> ages = new ArrayList<>(Arrays.asList(24, 25, 27));
+IntStream.range(0, Math.min(names.size(), ages.size())).mapToObj(i -> names.get(i) + ":" + ages.get(i)).forEach(System.out::println);
 ```

@@ -60,6 +60,25 @@ Randomly going over concepts of Java.
     - [ConcurrentMap](#concurrentmap)
     - [EnumMap](#enummap)
   - [Basics](#basics)
+  - [Advance](#advance)
+  - [Java Design Pattern in Short](#java-design-pattern-in-short)
+    - [Strategy Design Pattern](#strategy-design-pattern)
+    - [Observer Design Pattern](#observer-design-pattern)
+    - [State Design Pattern](#state-design-pattern)
+    - [Decorator Design Pattern](#decorator-design-pattern)
+    - [Composite Design Pattern](#composite-design-pattern)
+    - [Singleton Design Pattern](#singleton-design-pattern)
+    - [Template Method Design Pattern](#template-method-design-pattern)
+    - [Factory Method Design Pattern](#factory-method-design-pattern)
+    - [Builder Design Pattern](#builder-design-pattern)
+    - [Proxy Design Pattern](#proxy-design-pattern)
+    - [Mediator Design Pattern](#mediator-design-pattern)
+    - [Adapter Design Pattern](#adapter-design-pattern)
+    - [SOLID Design Principle](#solid-design-principle)
+    - [Architectural Design Patterns](#architectural-design-patterns)
+    - [Memento Design Pattern](#memento-design-pattern)
+    - [Façade Design Pattern](#façade-design-pattern)
+    - [AntiPattern](#antipattern)
   - [References/Useful Links](#referencesuseful-links)
 
 ## Take Note of
@@ -1594,6 +1613,343 @@ Allows setting value to Enums and provides useful methods. [Ref](https://www.gee
 - The `transient` keyword is valid only for member variables.
 - Serializable is a marker interface but Externalizable is not a marker interface.
 - We can use Reflection to create an Object dynamically at Runtime in Java.
+- `String s = new String("HelloWorld");` creates two object. One object in String constant pool and other on heap in non-pool area.
+- `String s1 = "H"; String s2 = "H";` creates only one object as re-use from pool occurs. `s1 == s2 // true`
+- `StringBuilder` is the most efficient class. It does not have the overhead of Synchronization. `StringBuffer` is a Synchronized class. It has better performance than `String` but it is slower than `StringBuilder`. `String` is the slowest for any string processing operations, since it is leads to creation of new `String` literal with each modification.
+- Checked Exceptions extend `Throwable` class, but they do not extend `RuntimeException` or `Error` classes. UncheckedException extend `RuntimeException` class. Checked Exceptions are checked at compile time in Java. Unchecked Exceptions happen at Runtime, so they are not checked at compile time. `IOException`, `SQLException` etc. are examples of Checked Exceptions. `NullPointerException`, `ArithmeticException` etc. are examples of Unchecked Exceptions.
+- Java does not enforce the rule to put a catch block after try block. We can write catch block or finally block after a try block.
+- Java provides throw keyword to throw an exception from a method or a static block. Java provides throws keyword to mention the probable exception thrown by a method in its declaration.
+- The root interface of Collection hierarchy in Java is Collection interface. But the Collection interface extends Iterable interface. Iterable interface is present in `java.lang` package but Collection interface is present in `java.util` package.
+- Thread-safe classes in Java Collections: Stack, Properties, Vector, Hashtable, BlockingQueue, ConcurrentMap, and ConcurrentNavigableMap
+- Removing elements from collection while iterating:
+  ```java
+  ListIterator<Integer> iter = myList.iterator();
+  while(iter.hasNext()) {
+    itr.remove();
+  }
+  ```
+- Convert a List into an array of integers (like int[]) and vice versa:
+  ```java
+  // List to int[]
+  int[] intArray = ArrayUtils.toPrimitive(myList.toArray(new Integer[0]));
+  // int[] to List
+  List intList = Arrays.asList(ArrayUtils.toObject(intArray));
+  ```
+- Filter a List: `List<Person> beerDrinkers = persons.stream().filter(p -> p.getAge() > 16).collect(Collectors.toList());`
+- List to Set: `Set<Integer> mySet = new HashSet<Integer>(myList);` Internally `hashCode()` method is used to identify duplicate elements.
+- Remove duplicate elements from an `ArrayList`
+  ```java
+  // Use Set if ordering is not important
+  Set<Integer> mySet = new HashSet<Integer>(myList);
+  myList.clear();
+  myList.addAll(mySet);
+  // Use LinkedHashSet if order is important
+  Set<Integer> mySet = new LinkedHashSet<Integer>(myList);
+  myList.clear();
+  myList.addAll(mySet);
+  ```
+- When an `ArrayList` is almost full it increases its size by 50% of the array size.
+- `LinkedList` is better in the scenario when we do not need random access to elements or there are a lot of insertion, deletion of elements.
+- In a `HashSet` elements are stored in a random order. In a `TreeSet`, elements are stored according to natural ordering. We can store null value object in a `HashSet` but not in `TreeSet`. A `HashMap` in Java internally backs a `HashSet`. A `NavigableMap` backs a `TreeSet` internally. Most operations perform better in `HashSet`. A `HashSet` uses `equals()` method for comparison. A `TreeSet` uses `compareTo()` method.
+- A Properties file in Java is a list of key-value pairs that can be parsed by `java.util.Properties` class. Generally a Properties file has extension .properties e.g. myapp.properties.
+- `Collections.emptyList()` works like Singleton pattern. It does not create a new instance of `List`. It reuses an existing empty list instance.
+- `ListIterator` can be used to traverse only a `List` and can traverse the elements in forward or reverse direction with methods like `nextIndex()` and `previousIndex()`.
+- An `ArrayList` is an indexed based dynamic array. A `LinkedList` is a Doubly Linked List data structure. Insertion in `ArrayList` is O(n). `LinkedList` uses more memory than `ArrayList`, since it has to maintain links for next and previous nodes as well.
+- A `Set` allows inserting maximum one null value. In a `Map` we can have single null key at most and any number of null values.
+- `HashMap` has default load factor of 0.75 i.e. after 75% use of initial capity of 16, its capacity is doubled.
+- Generally in `HashMap` implementation, if we want to use an object as key, then we override `equals()` method.
+- In `Queue`, `poll()` returns null for empty queue and `remove()` throws exception while both remove the head object. `peek()` retrieves the head of Queue but does not remove it.
+- `Array` can contain both primitive data types as well as objects. But `ArrayList` cannot contain primitive data types. It contains only objects. An `Array` can be multi-dimensional. An `ArrayList` is always of single dimension.
+- Performance from best to worst: HashMap > ConcurrentHashMap > Collections.SynchronizedMap > Hashtable
+- `BlockingQueue` supports operations that wait for the queue to become non-empty when retrieving an element. Also it supports the operations that wait for space to become available in the queue while storing an element.
+- Concurrent collection classes have better performance than synchronized collection classes because they lock only a portion of the class to achieve concurrency and thread-safety.
+- A `PriorityQueue` maintains the natural order of its elements or it uses a Comparator provided at initialization. It is an unbounded queue based on a priority heap. PriorityQueue in Java is not thread-safe. It gives O(log n) time for enqueing and dequeing operations.
+- A `HashMap` in Java stores both key and value objects, in a bucket. It is stored as an `Entry` object that implements `Map.Entry` interface. The key object used in a HashMap has to provide implementation for `hashCode()` and `equals()` methods.
+- When we create a `HashSet` object, a corresponding `HashMap` object is also created.
+- **Pass by value**: a copy of object is passed. Even if changes are made to that object, it doesn't affect the original value.
+- **Pass by reference**: actual object is not passed, rather a reference of the object is passed. Any changes made will reflect on the actual object and its reference.
+- In **method overload**, method name remains same but method signature can vary in number or datatype of arguments or in order of arguments. In **overriding method**, method name, arguments and return type remains the same.
+- An abstract class can extend another abstract class. It does not need to define the methods of parent abstract class. Only the last non-abstract class has to define the abstract methods of a parent abstract class.
+- When we want to cast a Sub class to Super class, we use **Upcasting**. It is also known as **widening**. Upcasting is always allowed in Java. When we want to cast a Super class to Sub class, we use **Downcasting**. It is also known as **narrowing**. At times, Downcasting can throw the ClassCastException if it fails the type check.
+
+## Advance
+
+- `NavigableMap` provides the capability to navigate the keys of a Map in Java. A `NavigableMap` extends SortedMap interface. Some of the interesting methods of a NavigableMap are:
+  - `descendingKeySet()` - returns a `NavigableSet` in which the elements are stored in reversed order as compared to the original key set.
+  - `descendingMap()` - returns a `NavigableMap` which is an inverse view of the original Map.
+  - `headMap()` - returns a view of the original `NavigableMap` that contains the elements that are less than a given element.
+  - `tailMap()` - returns all elements that are higher than the given input element.
+  - `subMap()` - accepts two parameters demarcating the boundaries of the view map to return.
+- Map from a stream: `items.stream().map( item -> item.toLowerCase() )` we are creating a map with each item object mapped to its LowerCase equivalent.
+- In Java, every Thread has a priority. This priority is specified as a number between 1 to 10. Scheduler in Java schedules different threads based on the priority of a thread. It is also known as pre-emptive scheduling.Default priority of a thread is 5.
+- In Java, Thread Scheduler controls thread scheduling. But we can use `join()` method on a thread to make current thread to wait for another thread to finish. E.g. `importantThread.start(); importantThread.join(); currentThread.start();` currentThread can't start until importantThread finishes.
+- A waiting thread can be woken up by another thread by calling `notify()` on the monitor which is being waited on. But a sleeping thread cannot be woken up. With `sleep()`, thread sleeps for some pre-defined time period.
+- `run()` method of thread can be called instead of `start()` but it does not works as separate thread. It will work as normal object in main thread and there will be no context switching between threads.
+- In Java, a thread is a lightweight process that runs within another process or thread. _It is an independent path of execution in an application_. Each thread runs in a separate stack frame.
+- We can use synchronized block to lock an object. The locked object is inaccessible to any other thread. Only the thread that has locked it can access it.
+- A daemon thread in Java is a low priority thread that does not prevent the JVM from exiting when the program finishes. The thread keeps running. Garbage Collection is an example of daemon thread.
+- We can call `setDaemon(boolean)` method to change a thread to daemon thread before the thread starts.
+- In Java, a process refers to the running of Java Virtual Machine (JVM). But a thread lives within a JVM and it can be created or stopped by the Java application at runtime.
+- A scheduler is a program that is the implementation of a scheduling algorithm to manage access of processes and threads to limited resource like CPU or an I/O channel. It also ensures load-balancing.
+- 2 ways to create thread in Java: 1. Extend Thread class, 2. Implement Runnable interface.
+- We can use a volatile variable as an indicator to stop the thread.
+- Accessing the current thread: `long id = Thread.currentThread().getId();` or `Thread.currentThread().getName();`.
+- Busy waiting is also known as busy-looping or spinning. It is a multi-threading technique in which a process repeatedly checks if a condition is true. It's considered Anti-pattern that wastes processor time so it should be avoided.
+- Java does not guarantee that `Thread.sleep()` will cause the thread to sleep for exactly N number of milliseconds.
+- We can use `interrupt()` method of `java.lang.Thread` class to interrupt a thread that is in sleep state.
+- An atomic operation is an operation that completes in a single step relative to other threads. An Atomic operation is either executed completely or not at all. E.g. The statement i++ is not an Atomic operation as current thread can be interrupted.
+- **Thread starvation** - If a lower priority thread performs a long running computation, it may happen that this thread does not get enough time to finish its computations just in time. In such a scenario, the tread with lower priority would starve.
+- A race condition is an unwanted situation in which a program attempts to perform two or more operations at the same time, but because of the logic of the program, the operations have to be performed in proper sequence to run the program correctly.
+- In Java there is a class `ReentrantLock` that is used for implementing Fair lock. This class accepts an optional parameter fairness. When fairness is set to true, the `RenentrantLock` will give access to the longest waiting thread.
+- The `yield()` method of Thread class is used to give a hint to scheduler that the current thread wants to free the processor.
+- For creating immutable objects - do not provide setter methods, make all fields final and private, do not all subclasses to override and do not share references to the mutable objects.
+- `Executor` interface has only `execute(Runnable)` method. `ExecutorService` interface extends `Executor` interface. It provides additional methods like - `invokeAny()`, `invokeAll()`, `shutdown()`, `awaitTermination()`.
+- `ScheduledExecutorService` interface extends the interface `ExecutorService`. It provides various `schedule()` methods that can be used to submit new tasks to be executed at a given point of time. e.g. `scheduleAtFixedRate()` and `scheduleWithFixedDelay()`
+- `Runnable` interface defines `run()` method that does not return any value. `Callable` interface allows `call()` method to return a value to its caller.
+- We can use `Future` interface to represent the result of an asynchronous computation. These are the operations whose result is not immediately available.Therefore Future interface provides `isDone()` method to check if the asynchronous computation has finished or not.
+- A Semaphore maintains a set of permits that should be acquired by competing threads. Once a thread has finished its work, we can use `release()` method to release the permits.
+- `CountDownLatch` class helps in implementing synchronization in Java. It is used to implement the scenarios in which one or more threads have to wait until other threads have reached the same state such that all thread can start.
+- `CyclicBarrier` takes an optional Runnable task that is run once the common barrier condition is achieved. CyclicBarrier resets the internal value to the initial value once the value reaches zero.
+- In Java 8, Collections provide `parallelStream()` method to create a stream that can be processed by a Thread pool.
+- We use –Xss parameter to control the stack size of a thread in Java.
+- Lambda expression: `Arrays.asList( "a", "b", "d" ).forEach( e -> System.out.println( e ) );` A Lambda expression fulfills the purpose of passing code as data. The data type of a Lambda expression is a Functional interface. In most of the cases this is `java.lang.Runnable` interface.
+- A Functional interface in Java is an interface that has exactly one abstract method. It can have default methods with implementation. A default method is not abstract. In Java 8, `java.lang.Runnable` and `java.util.concurrent.Callable` are two very popular Functional interfaces. A Functional interface is also known as Single Abstract Method Interface, since it has exactly one abstract method.
+- Functional Interfaces are mainly used in Lambda expressions, Method reference and constructor references. In functional programming, code can be treated as data. For this purpose Lambda expressions are introduced. They can be used to pass a block of code to another method or object.
+- `Collection` API constructs objects in an eager manner. `Stream` API creates objects in a lazy manner.
+- A `Spliterator` is a special type of Iterator to traverse and partition the elements of a source in Java. A source can be a collection, an IO channel or a generator function.
+- By Type Inference, Java can determine the types of the arguments as well as the type of the result being returned.
+- Java 8 has introduced the flexibility of providing implementation of a method in an interface. 2 options: Default Method and Static Method.
+- Purpose of a Static method in an Interface is as a utility or helper method.
+- Java 8 Date and Time API offers: concurrency i.e. thread-safety via immutability, better design like month values are from 1 to 12 and no requirement of 3rd party libraries
+- Java 8 has enhanced Arrays class with methods like `Arrays.parallelSetAll()`, `Arrays.parallelSort()`, etc.
+- It is not allowed to create a class that implements interfaces with same name default methods.
+- Multiple Inheritance from Java 8: In Java 8, we can have method implementation within an interface. So an interface behaves like an Abstract class. Now if we implement more than one interface with method implementation in a class, it means we are inheriting behavior from multiple abstract classes. That is how we get Multiple Inheritance in Java 8.
+- Optional in Java 8: It's a container object that may have a null or non-null value. We can call `get()` method to get the value or else we'll get nothing. This helps in avoid `NullPointerException`
+- Java 8 comes with a new command line tool `jdeps` that can help in analyzing the package-level and class-level dependencies.
+- JVM arguments in Java 8: -XX:MetaSpaceSize and -XX:MaxMetaspaceSize
+- `StringJoiner` in Java 8 can construct sequence of characters separated by a delimiter with optional prefix and suffix. e.g. To get `[One:Two]` we do `new StringJoiner(":", "[", "]").add("One").add("Two").toString()`
+- If in our program we always acquire resources in a particular order and release resources in the reverse order, then we can prevent the deadlock.
+- We cannot access a non-static variable from the static context in Java.
+- We can reuse CyclicBarrier even if it is broken, but we cannot reuse CountDownLatch in Java.
+- Cloneable is a marker interface that doesn't contain any method. `clone()` method is defined in `Object` class.
+- The range of `double` is more than that of `long`. So we need to type cast.
+- Heap memory usage can be found by: `Runtime.freeMemory()`, `Runtime.totalMemory()` and `Runtime.maxMemory()` from `java.lang.Runtime` class.
+- A compile time constant is `public static final` variable. At compile time, they are replaced with actual values because compiler knows their value up-front and it also knows that it cannot be changed during run-time.
+- Fail-safe iterators allow modification of collection in an iteration task. But fail-fast iterators do not allow any modification to collection during iteration.
+- The `volatile` keyword guarantees global ordering on reads and writes to a variable. This implies that every thread accessing a volatile field will read the variable’s current value instead of using a cached value. By marking the variable volatile, the value of a variable is never cached thread-locally. All reads and writes will go straight to main memory of Java.
+- We can catch an exception throw by another thread in Java using `Thread.UncaughtExceptionHandler`.
+- Every instance of an inner class retains and requires a reference to its enclosing class which is costly. When instances of the nested class outlive instances of the enclosing class, the nested class should be static to prevent memory leaks.
+- 3 types of Classloaders: (1) Bootstrap Classloader, (2) Extension Classloader and (2) System/Application Classloader
+- `TreeSet` is useful when you wish to maintain order over the inserted elements or query for a range of elements within the set. Or when there are enough read operations to offset the increased cost of write operations.
+- Enums are more powerful than integer constants because: (1) Enums can implement interfaces but cannot extend another class, (2) can attach meta-data, (3) values are type-safe and (4) custom behaviour can be defined.
+- In Java, a static initializer can run code during the initial loading of a class and it guarantees that this code will only run once. Also the static code will finish running before a class can be accessed in any way.
+- In general, it is a good practice to use constructor injection for mandatory dependencies and use setter injection for optional dependencies.
+- `Enumeration` interface is a read-only interface. It has better performance and uses less memory than Iterator. It does not have `remove()` method. However, Iterator interface is safer in case a collection is modified iteration then it throws `ConcurrentModificationException`
+- Cloning and serialization come into picture while doing concrete implementation. Therefore, the concrete implementations of collections should decide how they can be cloned or serialized.
+- JVM instructs the Garbage Collector to call the finalize method, just before releasing an object from the memory. A programmer can implement finalize() method to explicitly release the resources held by the object. This will help in better memory management and avoid any memory leaks.
+- `PreparedStatements` are precompiled statements for database queries. Due to this their performance is much better. Also prevents SQLInjection.
+- `Throws` keyword tells us the Exception that can be thrown by this method. Any caller of this method should be prepared to expect this Exception.
+- A Session always works irrespective of any setting at the client side. Also a Session can store any Java object.
+- The masking of other protocol requests as HTTP requests is known as HTTP Tunneling.
+- If you want to make a class Serializable, but find that this class contains members that are not Serializable, then you have to mark those members as transient. This will ensure that this member is not persisted to a stream of bytes during Serialization.
+- To change heap size of JVM: specify the values in –Xms and –Xmx parameters. These parameters stand for initial and maximum heap size of JVM.
+- Whenver an object is used as key in `HashMap` it should be immutable so that `hashCode()` always return same value for that object. Because if not immutable then on change of member variables, Hashcode changes.
+- We can detect deadlock via JConsole using the "detect deadlock" button.
+- Wrapper classes allow primitive types to be accessed as objects e.g. Boolean, Integer, Double, Float, etc.
+  ```java
+  //Converting int into Integer
+  int count=50;
+  Integer i=Integer.valueOf(count); // converting int into Integer
+  Integer j=a;//autoboxing,
+  ```
+- The `native` keyword is used for applying to a method to indicate that the method is implemented in native code using JNI (Java Native Interface).
+- `System.class` is a final class provided by `java.lang` package to provide access to system resources.
+- `println` is a method of `PrintStream` class that is also referred as `out`
+- A static class in Java has only static methods. It is a container of functions. It is created based on procedural programming design. Singleton class is a pattern in Object Oriented Design. A Singleton class has only one instance of an object in JVM.
+
+## Java Design Pattern in Short
+
+### Strategy Design Pattern
+
+Strategy pattern is very useful for implementing a family of algorithms. It is a behavioral design pattern. With Strategy pattern we can select the algorithm at runtime.
+
+In Strategy pattern we create an abstraction, which is an interface through which clients interact with our system. Behind the abstraction we create multiple implementation of same interface with different algorithms.
+
+So we use Strategy pattern to hide the algorithm implementation details from client.
+
+**In Java `Collections.sort()` method uses strategy design pattern.**
+
+### Observer Design Pattern
+
+In Observer design pattern, there is a Subject that maintains the list of Observers that are waiting for any update on the Subject. Once there is an update in Subject it notifies all the observers for the change.
+
+**The most popular use of Observer pattern is in Model View Controller (MVC) architectural pattern.**
+
+Main issue with Observer pattern is that it can cause memory leaks. The subject holds a strong reference to observers. If observers are not de-registered in time, it can lead to memory leak.
+
+Some of its usage are in:
+
+- `java.util.Observer`
+- `java.util.EventListener`
+- `javax.faces.event.PhaseListener`
+
+### State Design Pattern
+
+State design pattern is a behavioral design pattern that is use for defining the state machine for an object. Each state of an object is defined in a child class of State class. When different actions are taken on an Object, it can change its state.
+
+Some people consider State pattern similar to Strategy pattern, since an Object changes its Strategy with different method invocations. But, State pattern is based on the Object’s internal state, where as Strategy pattern is based on Client’s invocation.
+
+State pattern is very useful in increasing the maintainability of the code in a large code-base.
+
+### Decorator Design Pattern
+
+Some people call Decorator pattern as Wrapper pattern as well. It is used to add the behavior to an object, without changing the behavior of other objects of same class.
+
+Good use of Decorator pattern is in `java.io` package. E.g. `FileInputStream` handles a File. To add Buffering behavior we can decorate `FileInputStream` with `BufferedInputStream`. To add the gzip - `GzipInputStream` and to add serialization - `ObjectInputStream`.
+
+```java
+FileInputStream fis = new FileInputStream("/myfile.gz");
+BufferedInputStream bis = new BufferedInputStream(fis); // adds buffering
+GzipInputStream gis = new GzipInputStream(bis); // adds gzip
+// with each step, we decorated the FileInputStream with additional behaviour
+```
+
+### Composite Design Pattern
+
+Tree Structure: The most common use of Composite design pattern is Tree structure. E.g. Manager has Employees. But Manager is also an Employee.
+
+Graphics: We can group shapes inside a composite and make higher-level groups of smaller groups of shapes to complete the graphics displayed on screen.
+
+### Singleton Design Pattern
+
+With Singleton pattern we can be sure that there is only one instance of a class at any time in the application. This helps in storing properties that have to be used in the application in a unique location.
+
+Runtime: `java.lang.Runtime` is singleton-based class. It interfaces with the environment/machine in which Java process is running.
+
+Enum: enum construct is based on Singleton pattern. Enum values can be accessed globally in same way by all classes.
+
+Properties: Every class can get same copy of properties.
+
+Spring: All the beans are by default Singleton per IoC container. You can however provide scope of a bean prototype.
+
+To create thread-safe Singleton there are 3 ways: Double Checked Locking, Bill Pugh Singleton and Enum.
+
+### Template Method Design Pattern
+
+It is a behavioral design pattern. We can use it to create an outline for an algorithm or a complex operation. We first create the skeleton of a program. Then we delegate the steps of the operation to subclasses. The subclasses can redefine the inner implementation of each step.
+
+E.g. While designing a Game in Java, we can implement it as an algorithm with Template Method pattern. Each step in the game can be deferred to subclasses responsible for handling that step.
+
+In Java, Abstract Collection classes like `java.util.AbstractList`, `java.util.AbstractSet` and `java.util.AbstractMap` implements a template for their corresponding Collection.
+
+In `java.io` package there are Stream and Writer classes like `java.io.InputStream`, `java.io.OutputStream`, `java.io.Reader` and `java.io.Writer` that provide non-abstract methods.
+
+### Factory Method Design Pattern
+
+It's a creational design pattern. A Factory is an object that is used to create more objects.
+
+In Java, it's used in:
+
+- java.lang.Class.forName()
+- java.util.Calendar.getInstance()
+- java.util.ResourceBundle.getBundle()
+- java.nio.charset.Charset.forName()
+- java.util.EnumSet.of()
+
+By using Static Factory Method we encapsulate the creation process of an object. One main advantage of using Factory is that Factory can choose the correct implementation at runtime and create the right object.
+
+E.g. If we have a ShapeFactory with createShape(String type) method. Client can call ShapeFactory.createShape(“Circle”) to get a circular shape.
+
+Another use of Factory is in providing access to limited resources to a large set of users.
+
+E.g. In ConnectionPool, we can limit the total number of connections.
+
+### Builder Design Pattern
+
+In Java, it's used in:
+
+- java.lang.StringBuilder.append()
+- java.nio.IntBuffer.put()
+- java.lang.Appendable
+
+### Proxy Design Pattern
+
+Proxy design pattern provides an extra level of indirection for providing access to another object. It can also protect a real object from any extra level of complexity.
+
+It's used in:
+
+- java.lang.reflect.Proxy
+- java.rmi.\*
+- javax.inject.Inject
+- javax.persistence.PersistenceContext
+
+### Mediator Design Pattern
+
+By using Mediator pattern we can decouple the multiple objects that interact with each other. With a Mediator object we can create many-to-many relationships in multiple objects.
+
+It's used in:
+
+- java.util.Timer: `schedule()` methods in Timer class act as Mediator between the clients and the TimerTask to be scheduled.
+- java.util.concurrent.Executor.execute(): The `execute()` method in an Executor class acts as a Mediator to execute the different tasks.
+- java.util.concurrent.ExecutorService
+- java.lang.reflect.Method.invoke(): In Method class of reflection package, invoke() method acts as a Mediator.
+
+### Adapter Design Pattern
+
+If we have two classes with incompatible interfaces, we use Adapter pattern to make it work. We create an Adapter object that can adapt the interface of one class to another class.
+
+It's used in:
+
+- java.util.Arrays.asList(): This method can adapt an Array to work as a List.
+- java.util.Collections.list(): This method can adapt any collection to provide List behavior.
+- java.util.Collections.enumeration(): This method returns an enumeration over the collection.
+- java.io.InputStreamReader(InputStream): This method adapts a Stream to Reader class.
+
+### SOLID Design Principle
+
+1. S: Single responsibility. A Class should have a single responsibility.
+2. O: Open-closed. Software entities should be open for extension but closed for modification.
+3. L: Liskov substitution. Objects in a program should be replaceable by subclasses of same type without any adverse impact.
+4. I: Interface segregation. Multiple client specific interfaces are preferable over single generic interface.
+5. D: Dependency inversion. Program should depend on abstract entities. It should not depend on concrete implementation of an interface.
+
+If we follow these principles, then we can create a stable program that is easy to maintain and can be extended over time.
+
+### Architectural Design Patterns
+
+1. MVC: Model View Controller. It's extensively used in architecture of Spring framework.
+2. Publish-subscribe: Basis of messaging architecture. In this, messages are published to a Topic. And subscribers subscribe to the topic of their interests.
+3. Service Locator: This design pattern is used in a service like JNDI to locate the available services. It uses as central registry to maintain the list of services.
+4. n-Tier: This is a generic design pattern to divide the architecture in multiple tiers.
+5. Data Access Object (DAO): This pattern is used in providing access to database objects. The underlying principle is that we can change the underlying database system, without changing the business logic.
+6. Inversion of Control (IoC): This is the core of Dependency Injection in Spring framework. It increases the modularity of an application and keeps objects loosely coupled with Dependency Injection.
+
+### Memento Design Pattern
+
+Memento design pattern is used to implement rollback feature in an object. In a Memento pattern there are three objects:
+
+- Originator: This is the object that has an internal state.
+- Caretaker: This is the object that can change the state of Originator. But it wants to have control over rolling back the change.
+- Memento: This is the object that Caretaker gets from Originator, before making and change. If Caretaker wants to Rollback the change it gives Memento back to Originator. Originator can use Memento to restore its own state to the original state.
+
+E.g. In online forms, if we want to fill form with pre-populated data then this can be kept in memento. If user wants to just save the form we save the form and update the memento.
+
+### Façade Design Pattern
+
+A Façade provides convenient methods for common tasks that are used more often. It reduces external dependencies on the working of inner code.
+
+It can act as a single well-designed API by wrapping a collection of poorly designed APIs. A Façade pattern can be used when a System is very complex and difficult to use. It can simplify the usage of complex system.
+
+### AntiPattern
+
+An AntiPattern is opposite of a Design Pattern. It is a common practice in an organization that is used to deal with a recurring problem but it has more bad consequences than good ones.
+
+Some of these patterns are:
+
+1. Gold Plating: Keep on adding extra things on a working solution even though these extra things do not add any additional value.
+2. Spaghetti Code: Program that are written in a very complex way and are hard to understand due to misuse of data structures.
+3. Coding By Exception: Adding new code just to handle exception cases and corner case scenarios.
+4. Copy Paste Programming: Just copying the same code multiple times rather than writing generic code that can be parameterized.
 
 ## References/Useful Links
 
