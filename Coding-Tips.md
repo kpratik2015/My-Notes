@@ -18,6 +18,7 @@
   - [Dictionary](#dictionary)
   - [Min, Max, Sort](#min-max-sort)
   - [zip](#zip)
+  - [Misc](#misc)
 
 # Things to Know of Python in CC
 
@@ -636,4 +637,26 @@ import java.util.stream.IntStream;
 List<String> names = new ArrayList<>(Arrays.asList("John", "Jane", "Jack", "Dennis"));
 List<Integer> ages = new ArrayList<>(Arrays.asList(24, 25, 27));
 IntStream.range(0, Math.min(names.size(), ages.size())).mapToObj(i -> names.get(i) + ":" + ages.get(i)).forEach(System.out::println);
+```
+
+## Misc
+
+```java
+// Sized array
+int[] x = new int[3]; // x ==> int[3] { 0, 0, 0 }
+// Multiple assignment
+int i = 0, j = 0;
+// Sort
+int[] st = {5,3,2}
+Arrays.sort(st); // in-memory
+```
+
+```py
+# Sized array
+[0] * 3 # [0, 0, 0]
+# Multiple assignment
+i, j = 0, 0
+# Sort
+st = [5,3,2]
+st.sort() # in-memory
 ```

@@ -28,6 +28,22 @@
     - [Data Transfer](#data-transfer)
     - [Shared Workers](#shared-workers)
   - [Benchmarking](#benchmarking)
+  - [Q&A](#qa)
+    - [What is variable hoisting?](#what-is-variable-hoisting)
+    - [What is difference between undefined and null?](#what-is-difference-between-undefined-and-null)
+    - [What is event bubbling?](#what-is-event-bubbling)
+    - [What is event capturing?](#what-is-event-capturing)
+    - [What is event delegation?](#what-is-event-delegation)
+    - [What is Object?](#what-is-object)
+    - [What is ‘this’ keyword?](#what-is-this-keyword)
+    - [What is namespace?](#what-is-namespace)
+    - [What is prototype in javascript?](#what-is-prototype-in-javascript)
+    - [What is Promise?](#what-is-promise)
+    - [What is Browser Object Model?](#what-is-browser-object-model)
+  - [What is Navigator Object?](#what-is-navigator-object)
+    - [What is Document Object?](#what-is-document-object)
+    - [What are deferred scripts?](#what-are-deferred-scripts)
+    - [What are asynchronous scripts?](#what-are-asynchronous-scripts)
   - [Credits/Reference](#creditsreference)
 
 ## Objects
@@ -1512,6 +1528,123 @@ x.sort(function mySort(a, b) {
 The second case is not only testing a custom user JS function, but it's also testing creating a new function expression for each iteration. The inline function expression creation can be from 2% to 20% slower.
 
 _Note: a different outcome between two test cases almost certainly invalidates the entire test!_
+
+## Q&A
+
+### What is variable hoisting?
+
+In Javascript regardless of where the actual declaration has been made, all variable declarations that are using var, are hoisted/lifted to the top of their functional/local scope (if declared inside a function) or to the top of their global scope (if declared outside of a function).
+This lifting of scopes is called hoisting.
+
+```js
+bla = 2;
+var bla;
+// ...is implicitly understood as:
+var bla;
+bla = 2;
+```
+
+### What is difference between undefined and null?
+
+The undefined means a variable has been declared but has no value has yet been assigned.
+On the other hand, null is basically a value which has been assigned.
+Also, undefined is a type itself (undefined) while null is an object.
+Unassigned variables are initialized with a default value of undefined by JavaScript or undefined can be assigned to variable through code.
+Whereas JavaScript never sets a value to null.
+
+### What is event bubbling?
+
+When an event happens on an element, it first runs the handlers on that particular element, after that handlers on its parent runs, this happens all the way up on all other ancestors.
+This bubbling of events from child to parent is called event bubbling.
+
+_To stop event bubbling we can use `event.stopPropagation()`_
+
+### What is event capturing?
+
+Capturing phase is invisible to use but what in it, outer-most ancestor (<html>) is checked for onclick event handler. If present, it's run and checking moves on to inner elements.
+
+### What is event delegation?
+
+Event delegation concept relies on the fact that if you want some code to run when you click on any one of a large number of grouped child elements, you can set the event listener on their parent and have events that happen on them bubble up to their parent, instead of having to set the event listener on every child individually.
+
+### What is Object?
+
+The object is collection of properties and methods.
+Object in Javascript are variables as well. Object can have properties any data types (String, Number, Boolean etc.).
+
+### What is ‘this’ keyword?
+
+The this keyword refers to the object it belongs to.
+In a function, this refers to the Global object (Windows object).
+In strict mode, when used in a function, this is undefined.
+In HTML event handlers, this refers to the element in html that received
+the event.
+
+### What is namespace?
+
+In JavaScript, namespace is a single global object which will contain all our functions, methods, variables.
+Javascript don’t provide default namespace you have to create it, so all functions, variables and object in Javascript are by default global.
+
+Example:
+
+```js
+var myProjectNameSpace = {
+  projectfunctionone: function () {},
+  projectfunctiontwo: function () {},
+};
+myProjectNameSpace.Projectfunctionone();
+```
+
+### What is prototype in javascript?
+
+All objects in Javascript have property called as prototype, the prototype is an object which has a constructor properties by default.
+
+The prototype object is associated with every functions and objects by default in JavaScript, where function's prototype property is accessible and modifiable and object's prototype property is not visible.
+
+The prototype property allows you to add properties and methods to any object.
+
+### What is Promise?
+
+The Promise object represents the eventual completion (or failure) of an asynchronous operation along with its resulting value.
+A Promise is a proxy for a value which may or may not be known when the promise is created.
+
+### What is Browser Object Model?
+
+The browser object model (BOM) is a hierarchy of browser objects that are used to manipulate methods and properties associated with the Web browser itself.
+The default object of browser is window means you can invoke all the functions of window by specifying window or directly
+Objects that make up the BOM include the window object, navigator object, screen object, location object, history, and the document object.
+
+## What is Navigator Object?
+
+The navigator object is used to get browser information like name, version, type, language. It has methods like javaEnabled() and taintEnabled().
+`navigator.appVersion` is used to find operating system of client device.
+
+### What is Document Object?
+
+The Document object represents HTML document that is displayed in window. Document object has properties which allows access and modification of document content.
+
+The way document is accessed and modified is called Document Object Model or DOM.
+Document object provides methods like open(), close(), write(), getElementById(), getElementByName(), getElementByTagName().
+
+### What are deferred scripts?
+
+The defer attribute tells browser to only execute the script file once the HTML document has been fully parsed.
+
+```html
+<script defer src=”myscript.js”>
+```
+
+This reduces loading time of web page and web page is displayed faster.
+
+### What are asynchronous scripts?
+
+The async attribute is used to indicate browser that script file can be executed asynchronously.
+
+```html
+<script async src=”somescript.js”>
+```
+
+The HTML parser does not have pause at the point it reaches the script tag to fetch and execute, the execution can occur whenever the script becomes ready after being fetched in parallel with document parsing.
 
 ## Credits/Reference
 

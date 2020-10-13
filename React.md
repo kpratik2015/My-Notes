@@ -15,6 +15,21 @@ A JavaScript library for building user interfaces.
   - [Server-Side React Components](#server-side-react-components)
   - [Handling Application State](#handling-application-state)
   - [Apollo](#apollo)
+  - [JSX](#jsx)
+  - [Babel](#babel)
+  - [Uncontrolled v/s Controlled Components](#uncontrolled-vs-controlled-components)
+  - [Testing](#testing)
+    - [Integration vs Unit Testing](#integration-vs-unit-testing)
+    - [Shallow rendering](#shallow-rendering)
+    - [Jest](#jest)
+    - [Enzyme](#enzyme)
+  - [Flux and Redux](#flux-and-redux)
+  - [Q&A](#qa)
+    - [What are React components?](#what-are-react-components)
+    - [How do you tell React to insert component on page (DOM)?](#how-do-you-tell-react-to-insert-component-on-page-dom)
+    - [In React, how are native HTML elements cased?](#in-react-how-are-native-html-elements-cased)
+    - [What is a Virtual DOM?](#what-is-a-virtual-dom)
+    - [Virtual DOM vs. Shadow DOM, are they the same thing?](#virtual-dom-vs-shadow-dom-are-they-the-same-thing)
 
 ## Why React?
 
@@ -43,6 +58,10 @@ React has something called the virtual DOM, which is used to keep a representati
 When you read about React, you'll often see words such as diffing and patching. Diffing means comparing old content with new content to figure out what's changed. Patching means executing the necessary DOM operations to render the new content.
 
 _Note: Like any other JavaScript library, React is constrained by the run-to-completion nature of the main thread._
+
+**Easy to integrate into existing projects by not being overly opinionated**
+
+You can add React to an existing project little by little if you want, and this is in large part thanks to the fact that React doesn’t impose a rigid application architecture on you like other options do.
 
 ## React Features
 
@@ -903,3 +922,231 @@ export default function Home(state = initialState, { type, payload }) {
 ## Apollo
 
 At a high level, you can think of Apollo as an implementation of Flux architecture patterns and you can think of GraphQL as the interface that describes how the Flux stores within Apollo Client work.
+
+## JSX
+
+JSX stands for JavaScript Syntax Extension, and it is a syntax React provides that looks a lot like HTML/XML.JSX was created to make this JavaScript representation of HTML more HTML-like.
+
+## Babel
+
+Most browsers in use today do not fully support ES6. Babel is a JavaScript transpiler. Babel turns ES6 code into ES5 code. We call this process transpiling. So we can enjoy the features of ES6 today yet ensure our code still runs in browsers that only support ES5.
+
+Another handy feature of Babel is that it understands JSX. Babel compiles our JSX into vanilla ES5 JS that our browser can then interpret and execute. We just need to instruct the browser that we want to use Babel to compile and run our JavaScript code.
+
+Vanilla e.g.:
+
+```html
+<script src="vendor/babel-standalone.js"></script>
+<!-- The attribute type="text/babel" indicates to Babel that we would like it to handle the loading of this script. The attribute data-plugins specifies a special Babel plugin we use -->
+<script
+  type="text/babel"
+  data-plugins="transform-class-properties"
+  src="./js/app.js"
+></script>
+```
+
+## Uncontrolled v/s Controlled Components
+
+With React we shouldn’t have to worry about modifying the DOM to match application state. We should concentrate only on altering state and rely on React’s ability to efficiently manipulate the DOM to match. This provides us with the certainty that for any given value of state, we can predict what render() will return and therefore know what our app will look like.
+
+In uncontrolled component, for instance an input - a user chould have typed (or not typed) into the field, the only way to know what the input field looks like is to access it via refs and check its value.
+
+By converting this field to a “controlled component”, we give React control over it. It’s value will always be specified by render() and our application state. When we do this, we can predict how our application will look by examining our state object.
+
+By directly tying our view to our application state we get certain features for very little work. For example, imagine a long form where the user must answer many questions by filling out lots of input fields. If the user is halfway through and accidentally reloads the page that would ordinarily clear out all the fields. If these were controlled components and our application state was persisted to localStorage, we would be able to come back exactly where they left off.
+
+The flow for a controlled component looks like this:
+
+1. The user enters/changes the input.
+2. The onChange handler is called with the “change” event.
+3. Using event.target.value we update the input element’s value in state.
+4. render() is called and the input is updated with the new value in state.
+
+## Testing
+
+JavaScript has a variety of testing libraries that pack a bunch of great features. These libraries help us organize our test suite in a robust, maintainable manner.
+An example of testing libraries you may have heard of or worked with are Mocha, Jasmine, QUnit, Chai, and Tape.
+
+Testing libraries as having three major components:
+
+- The test runner. This is what you execute in the command-line. The test runner is responsible for finding your tests, running them, and reporting results back to you in the console.
+- A domain-specific language for organizing your tests. As we’ll see, these functions help us perform common tasks like orchestrating setup and teardown before and after tests run.
+- An assertion library. The assert functions provided by these libraries help us easily make otherwise complex assertions, like checking equality between JavaScript objects or the presence of certain elements in an array.
+
+### Integration vs Unit Testing
+
+Integration tests are tests where multiple modules or parts of a software system are tested together. For a React app, we can think of each component as an individual module. Therefore, an integration test would involve testing our app as a whole.
+
+Integration tests might go even further. If our React app was communicating with an API server, integration tests could involve communicating with that server as well. Developers often like to call these types of integration tests end-to-end tests.
+
+For React components, we’ll make two kinds of assertions:
+
+1. Given a set of inputs (state & props), assert what a component should output (render).
+2. Given a user action, assert how the component behaves. The component might make a state update or call a prop-function passed to it by a parent.
+
+### Shallow rendering
+
+Normally, when a React component renders it first produces its virtual DOM representation. This virtual DOM representation is then used to make updates to an actual DOM.
+
+When a component is shallow rendered, it does not write to a DOM. Instead, it maintains its virtual DOM representation. You can then make assertions against this virtual DOM much like you would an actual one.
+
+**Furthermore, your component is rendered only one level deep (hence “shallow”).** So if the render function of your component contains children, those children won’t actually be rendered. Instead, the virtual DOM representation will just contain references to the un-rendered child components.
+
+React provides a library for shallow rendering React components, react-test-renderer. This library is useful, but is a bit low-level and can be verbose.
+Enzyme is a library that wraps react-test-renderer, providing lots of handy functionality that is helpful for writing React component tests.
+
+There are a two primary advantages to shallow rendering:
+
+1. It tests components in isolation: This is preferable for unit tests.
+2. It’s faster: With shallow rendering, you avoid the DOM entirely.
+
+### Jest
+
+Facebook created and maintains Jest. For assertions, Jest uses Jasmine’s assertion library.
+As of Jest 15, Jest will consider any file that ends with `*.test.js` or `*.spec.js` a test.
+
+In Jest, we use `expect()` statements to make assertions. `toBe` is a matcher, it uses === operator under the hood. `toEqual` is more sophisticated as it can assert two identical objects.
+
+```js
+// Sample
+describe("My test suite", () => {
+  // It’s conventional to title the top-level describe whatever module is currently under test.
+  it("`true` should be `true`", () => {
+    expect(true).toBe(true);
+  });
+  it("`false` should be `false`", () => {
+    expect(false).toBe(false);
+  });
+});
+```
+
+When writing unit tests, we’ll often find that the module we’re testing depends on other modules in our application. Jest has a powerful way to mock client. We could “inject” this fake Client as opposed to the real one for testing purposes.
+
+```js
+// Example
+const Client = {
+  search: (_, cb) => {
+    const result = [
+      {
+        description: "Hummus",
+        kcal: "166",
+        protein_g: "8",
+        fat_g: "10",
+        carbohydrate_g: "14",
+      },
+    ];
+    cb(result);
+  },
+};
+```
+
+### Enzyme
+
+Enzyme was initially developed by Airbnb. Enzyme, through react-test-renderer, allows you to shallow render a component. Instead of using ReactDOM.render() to render a component to a real DOM, you use Enzyme’s shallow() to shallow render it:
+
+```js
+const wrapper = Enzyme.shallow(<App />);
+```
+
+## Flux and Redux
+
+A common pain point is the tight coupling between user interactions and state changes. For complex web applications, oftentimes a single user interaction can affect many different, discrete parts of the state.
+The function in the top-level component that handles a user clicking on an email must describe all of the state changes that occur. This loads a single function with lots of complexity and responsibility.
+
+Facebook was running into this and other architectural problems with their apps. This motivated them to invent Flux.
+
+Flux is a design pattern. The predecessor to Flux at Facebook was another design pattern, Model-View-Controller (MVC).
+
+In MVC, user interactions with the View trigger logic in the Controller. The Controller instructs the Model how to update itself. After the Model updates, the View re-renders.
+
+The Flux design pattern is made up of four parts, organized as a one-way data pipeline:
+
+```
+  ..................................
+  |                                |
+  .                                .
+Action -> Dispatcher -> Store -> View
+```
+
+The view dispatches actions that describe what happened. The store receives these actions and determines what state changes should occur. After the state updates, the new state is pushed to the View.
+
+**Redux**
+
+All of your application’s data is in a single data structure called the state which is held in the store.
+We saw that the store has a single private variable for the state, state.
+Your app reads the state from this store.
+We use getState() to access the store’s state.
+The state is never mutated directly outside the store.
+Because state is a private variable, it cannot be mutated outside of the store.
+The views emit actions that describe what happened.
+We use dispatch() to send these actions to the store.
+A new state is created by combining the old state and the action by a function called the reducer.
+Inside of dispatch(), our store uses reducer() to get the new state, passing in the current state and the action.
+
+_Reducers functions must be pure functions._
+
+## Q&A
+
+### What are React components?
+
+React components are ES6 classes that extend the class React.Component.
+
+A ReactComponent is a JavaScript object that, at a minimum, has a render() function. render() is expected to return a ReactElement.
+
+_Note: While JavaScript is not a classical language, ES6 introduced a class declaration syntax. ES6 classes are syntactical sugar over JavaScript’s prototype-based inheritance model._
+
+`contains()` matches all the attributes on an element. `containsMatchingElement()` will check if anything in the component’s output looks like the expected element. We don’t have to match attribute-for-attribute.
+
+`find()` is another EnzymeWrapper method. It expects as an argument an Enzyme selector.
+
+```js
+// Example
+it('should have the `th` "Items"', () => {
+  expect(wrapper.contains(<th>Items</th>)).toBe(true);
+});
+it("should have a `button` element", () => {
+  expect(wrapper.containsMatchingElement(<button>Add item</button>)).toBe(true);
+});
+it("should have an `input` element", () => {
+  expect(wrapper.containsMatchingElement(<input />)).toBe(true);
+});
+it("`button` should be disabled", () => {
+  const button = wrapper.find("button").first();
+  expect(button.props().disabled).toBe(true);
+});
+```
+
+### How do you tell React to insert component on page (DOM)?
+
+Using `ReactDOM.render()`. We pass in two arguments to the ReactDOM.render() method. The first argument is what we’d like to render. The second argument is where to render it: `ReactDOM.render([what], [where]);` (e.g. `ReactDOM.render(<App />, document.getElementById('content'));`)
+The two things can also be said as:
+
+1. The root of our virtual tree
+2. the mount location where we want React write to the actual browser DOM
+
+```js
+var boldElement = React.createElement("b");
+var mountElement = document.querySelector("#root");
+// Render the boldElement in the DOM tree
+ReactDOM.render(boldElement, mountElement);
+```
+
+### In React, how are native HTML elements cased?
+
+In React, native HTML elements always start with a lowercase letter whereas React component names always start with an uppercase letter.
+
+### What is a Virtual DOM?
+
+The Virtual DOM is a tree of JavaScript objects that represents the actual DOM.
+One of the interesting reasons to use the Virtual DOM is the API it gives us. When using the Virtual DOM we code as if we’re recreating the entire DOM on every update.
+The Virtual DOM will:
+
+- use efficient diffing algorithms, in order to know what changed
+- update subtrees of the DOM simultaneously
+- batch updates to the DOM
+
+React’s Virtual DOM is a tree of ReactElements.
+
+### Virtual DOM vs. Shadow DOM, are they the same thing?
+
+No. The Shadow DOM is a form of encapsulation on our elements. Think about using the `<video>` tag in your browser. In a video tag, your browser will create a set of video controls such as a play button, a timecode number, a scrubber progress bar etc. These elements aren’t part of your “regular DOM”, but instead, part of the “Shadow DOM”.
