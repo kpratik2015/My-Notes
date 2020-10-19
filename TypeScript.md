@@ -866,6 +866,42 @@ dates[0].setFullYear(2037); // OK
 
 ## Misc
 
+Avoid designs in which one value being null or not null is implicitly related to another value being null or not null. Push null values to the perimeter of your API by making larger objects either null or fully non-null. This will make code clearer both for human readers and for the type checker.
+
+```ts
+interface LngLat {
+  lng: number;
+  lat: number;
+}
+type LngLatLike = LngLat | { lon: number; lat: number } | [number, number];
+interface Camera {
+  center: LngLat;
+  zoom: number;
+  bearing: number;
+  pitch: number;
+}
+// Omit usage
+interface CameraOptions extends Omit<Partial<Camera>, "center"> {
+  center?: LngLatLike;
+}
+// you can’t write "CameraOptions extends Partial<Camera>" since LngLatLike is a superset of LngLat, not a subset
+```
+
+Either `{[column: string]: string}` or `Record<string, string>`.
+
+**When you annotate the return type, it keeps implementation errors from manifesting as errors in user code.**
+
+```ts
+const cache: { [ticker: string]: number } = {};
+function getQuote(ticker: string): Promise<number> {
+  if (ticker in cache) {
+    return cache[ticker];
+    // ~~~~~~~~~~~~~ Type 'number' is not assignable to 'Promise<number>'
+  }
+  // ...
+}
+```
+
 It’s easy to forget that an error response with fetch does not result in a rejected Promise.
 
 ```ts

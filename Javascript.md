@@ -44,6 +44,85 @@
     - [What is Document Object?](#what-is-document-object)
     - [What are deferred scripts?](#what-are-deferred-scripts)
     - [What are asynchronous scripts?](#what-are-asynchronous-scripts)
+    - [What does NULL mean in Javascript?](#what-does-null-mean-in-javascript)
+    - [What is an undefined value in JavaScript?](#what-is-an-undefined-value-in-javascript)
+    - [What is void(0) used for?](#what-is-void0-used-for)
+    - [What is the ‘Strict’ mode in JavaScript and how can it be enabled?](#what-is-the-strict-mode-in-javascript-and-how-can-it-be-enabled)
+    - [Explain closures in JavaScript? When are they used?](#explain-closures-in-javascript-when-are-they-used)
+    - [Explain the for-in loop?](#explain-the-for-in-loop)
+    - [How can the class of an element be changed?](#how-can-the-class-of-an-element-be-changed)
+    - [Describe the properties of an anonymous function in JavaScript?](#describe-the-properties-of-an-anonymous-function-in-javascript)
+    - [How can the style of an element be changed?](#how-can-the-style-of-an-element-be-changed)
+    - [Explain how can you submit a form using vanilla JavaScript?](#explain-how-can-you-submit-a-form-using-vanilla-javascript)
+    - [What is the disadvantage of using innerHTML in JavaScript?](#what-is-the-disadvantage-of-using-innerhtml-in-javascript)
+    - [Explain window.onload versus onDocumentReady?](#explain-windowonload-versus-ondocumentready)
+    - [What would be the result of 3+2+”7″](#what-would-be-the-result-of-327)
+    - [What is the difference between .call() and .apply()?](#what-is-the-difference-between-call-and-apply)
+    - [What is prototype property?](#what-is-prototype-property)
+    - [How to call other class methods?](#how-to-call-other-class-methods)
+    - [How to inherit from a class?](#how-to-inherit-from-a-class)
+    - [Emulate the private data using closure?](#emulate-the-private-data-using-closure)
+    - [What is DOM ?](#what-is-dom-)
+    - [What are the common doctype declarations?](#what-are-the-common-doctype-declarations)
+    - [What is local storage?](#what-is-local-storage)
+    - [What is HTML5 File API?](#what-is-html5-file-api)
+    - [What is Blob object in javascript?](#what-is-blob-object-in-javascript)
+    - [What is Web RTC?](#what-is-web-rtc)
+    - [List out some of the conditions that are not allowed in strict mode?](#list-out-some-of-the-conditions-that-are-not-allowed-in-strict-mode)
+    - [What is the output of 0.1+0.2 produces in the console and why?](#what-is-the-output-of-0102-produces-in-the-console-and-why)
+    - [What is the value of Object.[[Prototype]]?](#what-is-the-value-of-objectprototype)
+    - [True or False? getElementsByTagName is a JavaScript function.](#true-or-false-getelementsbytagname-is-a-javascript-function)
+    - [Give an example of when to use event delegation in JavaScript.](#give-an-example-of-when-to-use-event-delegation-in-javascript)
+    - [How are numbers stored in JavaScript?](#how-are-numbers-stored-in-javascript)
+    - [True or False? A string can be modified after it is created.](#true-or-false-a-string-can-be-modified-after-it-is-created)
+    - [What types of properties show up in for...in loops?](#what-types-of-properties-show-up-in-forin-loops)
+    - [True or False? .bind(this) immediately calls the bound function.](#true-or-false-bindthis-immediately-calls-the-bound-function)
+    - [True or False? There are a maximum of three parameters in a for loop.](#true-or-false-there-are-a-maximum-of-three-parameters-in-a-for-loop)
+    - [Which function executes a specified code block before the browser next repaints the display?](#which-function-executes-a-specified-code-block-before-the-browser-next-repaints-the-display)
+    - [Which of the below does Object.seal() do? Select all that apply.](#which-of-the-below-does-objectseal-do-select-all-that-apply)
+    - [What is a race condition?](#what-is-a-race-condition)
+    - [What is functional programming?](#what-is-functional-programming)
+    - [What is a higher order function?](#what-is-a-higher-order-function)
+    - [Explain how the prototype chain is used in following code](#explain-how-the-prototype-chain-is-used-in-following-code)
+    - [What is Shadow DOM API?](#what-is-shadow-dom-api)
+    - [True or False: static variables cannot be modified in non-static methods?](#true-or-false-static-variables-cannot-be-modified-in-non-static-methods)
+    - [Async operations are put into what kind of queue?](#async-operations-are-put-into-what-kind-of-queue)
+    - [True or False? Setters still work on a frozen object.](#true-or-false-setters-still-work-on-a-frozen-object)
+    - [What is the difference in layout time and painting time in a web browser?](#what-is-the-difference-in-layout-time-and-painting-time-in-a-web-browser)
+    - [What is currying?](#what-is-currying)
+    - [What is a Generator function in JavaScript?](#what-is-a-generator-function-in-javascript)
+    - [What is the scope of arrow functions?](#what-is-the-scope-of-arrow-functions)
+    - [What is the difference between imperative programming and declarative programming?](#what-is-the-difference-between-imperative-programming-and-declarative-programming)
+    - [What property guarantees access to the global object regardless of environment?](#what-property-guarantees-access-to-the-global-object-regardless-of-environment)
+    - [What is the Queue in JavaScript Runtime?](#what-is-the-queue-in-javascript-runtime)
+  - [Tricky outputs](#tricky-outputs)
+    - [concat string](#concat-string)
+    - [strict mode](#strict-mode)
+    - [Variable hoisting](#variable-hoisting)
+    - [Comma separator](#comma-separator)
+    - [valueOf](#valueof)
+    - [Static method](#static-method)
+    - [Unsigned Right Shift assignment](#unsigned-right-shift-assignment)
+    - [Multiple comparisons](#multiple-comparisons)
+    - [return statement](#return-statement)
+    - [void](#void)
+    - [innerHTML](#innerhtml)
+    - [Mixed type addition](#mixed-type-addition)
+    - [Object assignment](#object-assignment)
+    - [for loop](#for-loop)
+    - [Promise without asynchronity](#promise-without-asynchronity)
+    - [Multiple assignment](#multiple-assignment)
+    - [.bind(this)](#bindthis)
+    - [setTimeout v/s queueMicrotask](#settimeout-vs-queuemicrotask)
+    - [Passing primitive to function](#passing-primitive-to-function)
+    - [Comparing objects v/s primitives with ===](#comparing-objects-vs-primitives-with-)
+    - [Passing {} to map.set](#passing--to-mapset)
+    - [Console output for class](#console-output-for-class)
+  - [Compare](#compare)
+    - [var v/s let v/s const](#var-vs-let-vs-const)
+    - [Map v/s Object({})](#map-vs-object)
+    - [event.target v/s event.currentTarget](#eventtarget-vs-eventcurrenttarget)
+    - [Array.splice() vs Array.slice()](#arraysplice-vs-arrayslice)
   - [Credits/Reference](#creditsreference)
 
 ## Objects
@@ -852,6 +931,8 @@ While native ES6 Promises come with built-in `Promise.all([ .. ])` and `Promise.
 - `first([ .. ])` is a like a race with `any([ .. ])`, which is that it ignores any rejections and fulfills as soon as the first Promise fulfills.
 - `last([ .. ])` is like `first([ .. ])`, but only the latest fulfillment wins.
 
+**The difference in Promise.any() and Promise.race() is that Promise.race() returns the first settled Promise (fulfilled or rejected), while Promise.any() continues to resolve until a promise is fulfilled, and only rejects if all promises are rejected.**
+
 **Concurrent Iterations**
 
 Sometimes you want to iterate over a list of Promises and perform some task against all of them, much like you can do with synchronous arrays
@@ -1646,7 +1727,828 @@ The async attribute is used to indicate browser that script file can be executed
 
 The HTML parser does not have pause at the point it reaches the script tag to fetch and execute, the execution can occur whenever the script becomes ready after being fetched in parallel with document parsing.
 
+### What does NULL mean in Javascript?
+
+The NULL value is used to represent no value or no object. A variable that is null indicates that it points to nothing. In APIs, null is often retrieved in a place where an object can be expected but no object is relevant.
+
+### What is an undefined value in JavaScript?
+
+Undefined is one of JavaScript's primitive types. A variable that has not been assigned a value is of type undefined. A method or statement can also be undefined if it tries to use a variable that is undefined. Finally, a function returns undefined if a value was not returned.
+
+### What is void(0) used for?
+
+The void operator evaluates the given expression and then returns undefined. `void(0)` is used to prevent the page from refreshing. The parameter “zero” is passed while calling it.
+
+### What is the ‘Strict’ mode in JavaScript and how can it be enabled?
+
+ECMAScript 5's strict mode is a way to opt in to a restricted variant of JavaScript. Strict mode is intentionally different from normal JavaScript code.
+Strict mode makes several changes to normal JavaScript semantics. First, strict mode forces some JavaScript silent errors by changing them to throw errors. Second, strict mode enables JavaScript engines to perform certain optimizations that were previously not possible. Third, strict mode prohibits syntax likely to be defined in future versions of ECMAScript.
+
+### Explain closures in JavaScript? When are they used?
+
+A closure is an inner function that has access to the enclosing function’s variables. The closure has access to its own scope (variables defined between its curly brackets), access to the outer function’s variables, and also it has access to the global variables.
+
+### Explain the for-in loop?
+
+The for-in loop is used to loop through the properties of an object. The loop is continued till all the properties of the object are depleted.
+
+```js
+for (let i in [1, 2]) {
+  console.log(i);
+} // 0 1
+```
+
+### How can the class of an element be changed?
+
+```js
+document.getElementById("MyElement").classList.add("MyClass");
+document.getElementById("MyElement").classList.remove("MyClass");
+```
+
+### Describe the properties of an anonymous function in JavaScript?
+
+A function that is declared without a name is known as an anonymous function. Functions stored in variables do not need function names. They are instead called using the variable name.
+
+### How can the style of an element be changed?
+
+```js
+document.getElementById("p2").style.color = "blue";
+```
+
+### Explain how can you submit a form using vanilla JavaScript?
+
+```js
+document.form[0].submit();
+```
+
+### What is the disadvantage of using innerHTML in JavaScript?
+
+Improper handling of the innerHTML property can enable script-injection. Setting innerHTML will destroy existing HTML elements that have event handlers attached to them, potentially creating a memory leak on some browsers. InnerHTML content is refreshed every time and thus is slower.
+
+### Explain window.onload versus onDocumentReady?
+
+`load` is called when all assets are done loading, including images. At this point, all of the objects in the document are in the DOM.
+`ready` is fired when the DOM is ready for interaction and its elements can be manipulated by your code.This means it will run a little faster than waiting for `load`.
+
+### What would be the result of 3+2+”7″
+
+Since 3 and 2 are integers, they will be added numerically. And since 7 is a string, its concatenation will be done. So the result would be **57**.
+
+### What is the difference between .call() and .apply()?
+
+`apply()` lets you invoke the function with arguments as an array; `call()` requires the parameters be listed explicitly.In other words, you use `apply()` when you don’t know the number of parameters.
+
+### What is prototype property?
+
+By Using Prototype we can add new members to an existing object. Every JavaScript object has this property internally. Initially it is an empty object.
+
+### How to call other class methods?
+
+Using `call()` and `apply()` method we can use methods from different context to the current context. It is really helpful in reusability of code and context binding.
+
+```js
+var MyNumber = {
+  getTypeOfNumber: function (number) {
+    var type = number % 2 === 0 ? "Even" : "Odd";
+    return type;
+  },
+  getTypeOfAllNumber: function () {
+    var result = [],
+      i = 0;
+    for (; i < arguments.length; i++) {
+      var type = MyNumber.getTypeOfNumber.call(null, arguments[i]);
+      result.push(type);
+    }
+    return result;
+  },
+};
+var typeOfNumber = MyNumber.getTypeOfNumber.call(null, 21); // "Odd"
+console.log(typeOfNumber);
+var typeOfAllNumber = MyNumber.getTypeOfAllNumber.apply(null, [
+  2,
+  4,
+  5,
+  78,
+  21,
+]);
+console.log(typeOfAllNumber); //  ["Even", "Even", "Odd", "Even", "Odd"]
+```
+
+### How to inherit from a class?
+
+Inheritance can be achieved in JavaScript using prototype property.
+We need to follow 2 steps to create an inheritance.
+Step1:
+Child class prototype should point to parent class object.
+`<ChildClassName>.prototype = new <ParentClass>();`
+Step2:
+Reset the child class prototype constructor to point self.
+`<ChildClassName>.prototype.constructor=<ChildClassName>`
+
+```js
+// Also
+function Dog(name) {
+  this.name = name;
+}
+const buddy = new Dog("buddy");
+const rover = Object.create(buddy);
+```
+
+### Emulate the private data using closure?
+
+```js
+function Student(name) {
+  var _name = name;
+  this.getName = function () {
+    return _name;
+  };
+}
+var student1 = new Student("Sandeep");
+student1._name = "John";
+console.log(student1.getName()); // Sandeep
+```
+
+### What is DOM ?
+
+Document Object Model (DOM) is a programming API for HTML and XML document. JavaScript is most widely used language to access these DOM API properties and methods.
+
+From the MDN Web Docs: The DOM is "A tree-like structure of connected nodes that represents the different elements and strings of text appearing in a markup document"
+
+### What are the common doctype declarations?
+
+There are 8 different type of doctype declaration and are listed below.
+
+- HTML 5: `<!DOCTYPE html>`
+- HTML 4.01 Strict: Does NOT INCLUDE presentational or deprecated elements (like font). Framesets are not allowed. `<!DOCTYPE HTML PUBLIC “-//W3C//DTD HTML 4.01//EN” “http://www.w3.org/TR/html4/strict.dtd”>`
+- HTML 4.01 Transitional: This DTD contains all HTML elements and attributes, INCLUDING presentational and deprecated elements (like font). Framesets are not allowed. `<!DOCTYPE HTML PUBLIC “-//W3C//DTD HTML 4.01 Transitional//EN” “http://www.w3.org/TR/html4/loose.dtd”>`
+- HTML 4.01 Frameset: his DTD is equal to HTML 4.01 Transitional, but allows the use of frameset content.
+- XHTML 1.0 Strict
+- XHTML 1.0 Transitional
+- XHTML 1.0 Frameset
+- XHTML 1.1
+
+### What is local storage?
+
+HTML5 provides a feature to store data locally in end user’s browser. Data is stored in the browser as key-value pair. Unlike cookie it has average space of 5 MB. This storage comes in 2 different type sessionStorage and localStorage.
+_localStorage_ : it stores data with no expiration date. _sessionStorage_ : it stores data with an expiration date.
+
+### What is HTML5 File API?
+
+HTML5 provides new API to work with files inside a browser. This API provides File, FileList and Blob data type to work with files. It provides FileReader interface to read files asynchronously.
+
+### What is Blob object in javascript?
+
+A blob object refers to a sequence of bytes representing data. A blob object can be created using new keyword with Blob constructor. A Blob constructor takes the following parameters:
+
+- Blob part sequence: This can be either ArrayBuffer, ArrayBufferView, Blob and DOMString
+- Blob property bag: It takes one parameter representing type of the ASCII-encoded string in lower case representing the media type of the Blob.
+
+```js
+var a = new Blob();
+var b = new Blob(["foobarbazetcetc" + "birdiebirdieboo"], {
+  type: "text/plain;charset=UTF-8",
+});
+```
+
+A Blob must have a readability state, which is one of OPENED or CLOSED.
+
+### What is Web RTC?
+
+Web RTC provides the capability to browsers for real time communication without any additional plugin installed. It involves audio, video and other type of data streaming among the browser with their native capability.
+
+### List out some of the conditions that are not allowed in strict mode?
+
+- Using a variable without declaring is not allowed. Deleting a variable, a function, or an argument is not allowed.
+- Defining a property more than once is not allowed. Duplicating a parameter name is not allowed.
+- Octal numeric literals and escape characters are not allowed.
+- Writing to a read-only property is not allowed. Deleting an undeletable property is not allowed.
+- Future reserved keywords are not allowed.
+
+### What is the output of 0.1+0.2 produces in the console and why?
+
+JavaScript math library follows IEEE 754 standards for math. IEEE 754 standards use 64 bit representation for a floating point number. This causes a problem while evaluating the 0.1 + 0.2 expression.
+
+JavaScript internally converts the 0.1 to 16 precision which becomes 0.1000000000000000 and then 0.2 gets added and becomes 0.30000000000000004.
+
+This issue can be resolved by using to `toFixed(1)` method to this expression.
+
+### What is the value of Object.[[Prototype]]?
+
+Answer: null
+
+While Object is at the top of the prototype chain, when the browser is seeking the value of an accessed property, it will traverse the prototype chain until the value is found or until there are no more prototypes to traverse.
+_While null is the value of Object.[[Prototype]], undefined is the returned value._
+
+### True or False? getElementsByTagName is a JavaScript function.
+
+Answer: False
+getElementsByTagName is actually Web API function. It is available like a normal JS function, but is accessible regardless of language being used.
+
+### Give an example of when to use event delegation in JavaScript.
+
+One example: Use event delegation if an element that you want to listen for events on may not exist at page load. Instead, put event handler on a parent element and look at event.target.
+Modern frameworks and libraries such as React make this less necessary.
+
+### How are numbers stored in JavaScript?
+
+- Double precision
+- 64-bit
+- Floating point numbers
+
+### True or False? A string can be modified after it is created.
+
+Answer: False
+Strings are immutable in JavaScript. However, the variable pointing to a string can of course be reassigned to another string.
+
+### What types of properties show up in for...in loops?
+
+Answer: Enumerable Properties
+
+### True or False? .bind(this) immediately calls the bound function.
+
+Answer: False
+Unlike the `call()` and `apply()` methods, the `bind()` method doesn’t immediately execute the function. It just returns the function.
+
+### True or False? There are a maximum of three parameters in a for loop.
+
+Answer: False
+
+```js
+for (var i = 0, j = 0; i <= 10; i++, j++) {
+  // this is valid
+}
+```
+
+### Which function executes a specified code block before the browser next repaints the display?
+
+A) requestAnimationFrame()
+B) setTimeout()
+C) requestRepaintDelay()
+
+Answer: A
+
+### Which of the below does Object.seal() do? Select all that apply.
+
+A) prevents new properties from being added
+B) marks all existing properties as non-configurable
+C) prevents values of existing properties from being changed
+
+Answer: A, B. A similar but more rigorous function is `Object.freeze()`
+
+`Object.freeze()` does the following:
+
+- prevents new properties from being added
+- prevents existing properties from being removed
+- prevents changing the enumerability of properties
+- prevents changing the configurability of properties
+- prevents changing the writability of properties
+- prevents changing the values of properties
+- prevents changing the prototype of the object
+
+### What is a race condition?
+
+A race condition is when two threads or async processes must complete in the proper order and update some shared state, otherwise there will be a bug or unwanted outcome.
+
+### What is functional programming?
+
+A coding paradigm utilizing declarative code and pure functions.
+
+### What is a higher order function?
+
+A function that can take a function as an argument, or that returns another
+function.
+
+### Explain how the prototype chain is used in following code
+
+```js
+class Person {
+  firstName: string;
+  lastName: string;
+}
+const myPerson = new Person();
+console.log(myPerson.a);
+```
+
+The browser checks `myPerson.[[Prototype]]` and does not see a property named a. Then the browser checks `myPerson.[[Prototype]].[[Prototype]]` (which is the Object prototype) and does not see a property named a. Then
+the browser checks `myPerson.[[Prototype]].[[Prototype]].[[ Prototype]]`,
+which is null, so the browser returns undefined.
+
+### What is Shadow DOM API?
+
+The Shadow DOM API provides a way to attach a hidden separate DOM to an element not accessible through the usual JS DOM manipulation API. Shadow DOM provides for encapsulation of Web Components. Hidden DOM trees attach to elements in the regular DOM tree.
+
+### True or False: static variables cannot be modified in non-static methods?
+
+A non-static method can reference and modify a static variable with Class.Static syntax, like below.
+
+```js
+class Test {
+  static MAX = 10;
+  getMax() {
+    Test.MAX = 12;
+    console.log(Test.MAX);
+  }
+}
+```
+
+### Async operations are put into what kind of queue?
+
+Event queue
+
+### True or False? Setters still work on a frozen object.
+
+Answer: False. The setters still exist and can be called. They give the appearance of working, but they do not actually change values.
+
+### What is the difference in layout time and painting time in a web browser?
+
+The layout time is the time it takes to calculate the positioning of each object that will be painted. The layout is a 3d construct. Paint time is the time it actually takes to paint the points on the screen. Painting is a 2d construct.
+
+### What is currying?
+
+Converting a single function with multiple arguments into a function called multiple times with a single argument.
+
+### What is a Generator function in JavaScript?
+
+Generators are functions that can be exited and re-entered later. For example, a while loop in a generator functio can be paused.
+
+### What is the scope of arrow functions?
+
+The scope in which they were defined.
+
+### What is the difference between imperative programming and declarative programming?
+
+Imperative programming focuses on how to do things, declarative programming focuses on what to do. Declarative programming may take advantage of built-in APIs to accomplish things, while imperative programming explicitly controls the path of the code execution.
+
+### What property guarantees access to the global object regardless of environment?
+
+`globalThis`
+
+### What is the Queue in JavaScript Runtime?
+
+The Queue is list of messages to be processed, and each message has an associated function to call.
+Different than the stack because stack is a list of dependent functions, where the more recent must be executed in order to execute the older properly. The Queue is First In, First Out, meaning oldest messages are processed first.
+
+## Tricky outputs
+
+### concat string
+
+What does the below code output to the console and why?
+
+```js
+let str = new String("aaa");
+str.concat("bbb").concat("ccc");
+console.log(str); // aaa
+```
+
+returns a new string, the original string is not affected.
+
+### strict mode
+
+What will the code below output to the console and why?
+
+```js
+z = 10;
+console.log(z);
+```
+
+If strict mode is not enabled, z is a global variable initialized as 10, so the answer is 10. If strict mode is on, it will not allow z to be initialized without the var, let, or const keyword, so the answer will be Compile time error
+
+### Variable hoisting
+
+```js
+console.log(x);
+x = 5;
+if (x) {
+  var x = 10;
+  console.log(x);
+}
+// 10, 10
+```
+
+Remember var is function scoped and not block scoped. It will throw lint errors in an IDE environment.
+
+### Comma separator
+
+```js
+let x = (1, 2, 3);
+console.log(x); // 3
+```
+
+The comma separator returns the final value.
+
+### valueOf
+
+What is the value of str after the code executes?
+
+```js
+const str = " this".concat("that ").substring(3).trim().valueOf(2); // histhat
+```
+
+`valueOf` simply returns the value of whatever string it’s called on.
+
+### Static method
+
+What does the code print?
+
+```js
+class MyClass {
+  static staticMethod() {
+    return this.name;
+  }
+  constructor() {
+    this.name = "Jon";
+  }
+}
+const me = new MyClass();
+console.log(MyClass.staticMethod()); // MyClass
+```
+
+The this keyword in staticMethod is not scoped to the instance level.
+
+### Unsigned Right Shift assignment
+
+```js
+let a = 8;
+a >>>= 3;
+console.log(a); // 1
+```
+
+In this case, 8 (1000 in binary) has its bits moved right by three (0001).
+
+### Multiple comparisons
+
+What does 3 > 2 > 1 return?
+
+Answer: False. 3 > 2 evaluates to true. Then true > 1 evaluates to false.
+
+### return statement
+
+True or False? The below code compiles and prints 3?
+
+```js
+const test = () => {
+return
+1 + 2;
+} console.log(test());
+```
+
+Answer: False. return statements automatically have a semicolon placed after them by the compiler if the semicolon was left off. It is a good idea to use parenthesis if you ever need to wrap lines in a return statement.
+
+### void
+
+What is the difference in the output bewteen the two following functions?
+
+```js
+void function voidExample() { // works
+console.log("No Error!");
+}();
+function noVoidExample() { // throws an error
+console.log("No Error!");
+}();
+```
+
+The void keyword allows for the execution of functions that may not otherwise execute.
+
+### innerHTML
+
+```js
+document.getElementById("app").innerHTML = `
+<div>
+hewo
+    hewo2
+</div>`;
+```
+
+Answer: hewo hewo2
+
+### Mixed type addition
+
+```js
+console.log(3 + "2"); // 32
+```
+
+3 will be coerced into a string
+
+### Object assignment
+
+What will the code below output to the console?
+
+```js
+const a = { x: 1 };
+const b = { ...a };
+const c = {};
+Object.assign(c, a);
+a.x = 2;
+console.log(a.x); // 2
+console.log(b.x); // 1
+console.log(c.x); // 1
+```
+
+### for loop
+
+What will the code below output to the console and why?
+
+```js
+let i = 10;
+for (; i < 12; ) {
+  console.log(++i);
+}
+// 11, 12
+```
+
+Evaluate the code below. What are the first and last outputs of the loop?
+
+```js
+for (let i = 0; i <= 10; ++i) {
+  console.log(i);
+}
+```
+
+Answer: 0, 10. Interestingly, i prints out with a value of zero in the initial iteration despite ++i.
+
+### Promise without asynchronity
+
+```js
+function resolveQuickly(x) {
+  return new Promise((resolve) => {
+    console.log(x);
+  });
+}
+async function asyncTest() {
+  var x = resolveQuickly(10);
+  console.log(5);
+}
+asyncTest(); // 10, 5
+```
+
+The function has nothing asynchronous in the Promise, so the Promise resolves synchronously.
+
+### Multiple assignment
+
+```js
+(function () {
+  var a = (b = 3);
+})();
+console.log(typeof a); // undefined
+console.log(typeof b); // number
+/**
+Reason is, it's compiled to following:
+(function() {
+  this.b = 3;
+  var a = b;
+})();
+*/
+```
+
+### .bind(this)
+
+```js
+x = 9;
+var module = {
+  x: 81,
+  getX: function () {
+    return this.x;
+  },
+};
+
+module.getX(); // 81
+
+var getX = module.getX;
+getX(); // 9, because in this case, "this" refers to the global object
+
+// create a new function with 'this' bound to module
+var boundGetX = getX.bind(module);
+boundGetX(); // 81
+
+// Example showing binding some parameters
+var sum = function (a, b) {
+  return a + b;
+};
+
+var add5 = sum.bind(null, 5);
+console.log(add5(10)); // 15
+```
+
+`bind` allows to:
+
+- set the value of "this" to an specific object.
+- reuse methods
+- curry a function
+
+### setTimeout v/s queueMicrotask
+
+Which of the following prints first?
+
+```js
+setTimeout(() => {
+  console.log("setTimeout wins");
+}, 0);
+queueMicrotask(() => {
+  console.log("queueMicrotask wins");
+});
+```
+
+Answer is queueMicrotask wins. Tasks from queueMicrotask are called after the callstack is empty and before the event loop is called. Tasks from setTimeout are part of the eventQueue.
+
+### Passing primitive to function
+
+What will the code below output to the console and why?
+
+```js
+let x = 10;
+const byValue = (y) => {
+  y = 20;
+};
+byValue(x);
+console.log(x); // 10
+```
+
+Unlike objects, when primitives are passed to a function only their value is passed, not the reference to the memory location.
+
+### Comparing objects v/s primitives with ===
+
+Consider the following code. What does each line output?
+
+```js
+console.log(new String("yes") === new String("yes")); // false because two objects compared which are unique
+console.log("yes" === "yes"); // true because two string primitives compared
+```
+
+### Passing {} to map.set
+
+What will the code below output to the console and why?
+
+```js
+const map = new Map();
+map.set({}, 1);
+console.log(map.get({})); // undefined
+```
+
+`map.get({})` is valid syntax, but the Object in the set and in the get are two different empty objects in memory.
+
+### Console output for class
+
+What will the code below output to the console and why?
+
+```js
+class Person {
+  name: string;
+  DOB: string;
+}
+console.log(typeof Person); // function
+```
+
+This is a reminder that classes are simply syntactic sugar that make JavaScript feel more object oriented.
+
+## Compare
+
+### var v/s let v/s const
+
+- `var` declarations are globally scoped or function scoped while `let` and `const` are block scoped.
+- `var` variables can be updated and re-declared within its scope; `let` variables can be updated but not re-declared; `const` variables can neither be updated nor re-declared.
+  ```js
+  let greeting = "say Hi";
+  let greeting = "say Hello instead"; // error: Identifier 'greeting' has already been declared
+  ```
+  However, if the same variable is defined in different scopes, there will be no error:
+  ```js
+  let greeting = "say Hi";
+  if (true) {
+    let greeting = "say Hello instead";
+    console.log(greeting); // "say Hello instead"
+  }
+  console.log(greeting); // "say Hi"
+  ```
+- They are all hoisted to the top of their scope. But while `var` variables are initialized with `undefined`, `let` and `const` variables are not initialized. So if you try to use a `let` variable before declaration, you'll get a `Reference Error`.
+- While `var` and `let` can be declared without being initialized, `const` must be initialized during declaration.
+
+**Problem with var**
+
+```js
+var greeter = "hey hi";
+var times = 4;
+
+if (times > 3) {
+  var greeter = "say Hello instead";
+}
+
+console.log(greeter); // "say Hello instead"
+```
+
+If you have used greeter in other parts of your code, you might be surprised at the output you might get.
+
+**Caveat with const**
+
+While a `const` object cannot be updated, the properties of this objects can be updated.
+
+```js
+const greeting = {
+  message: "say Hi",
+  times: 4,
+};
+greeting.message = "say Hello instead"; // OK
+```
+
+### Map v/s Object({})
+
+```js
+var map = new Map([
+  [1, 2],
+  [3, 4],
+]);
+console.log(map instanceof Object); //true
+var obj = new Object();
+console.log(obj instanceof Map); //false
+```
+
+Creating plain Object and accessing Object’s property with a specific key is much faster than creating a Map. Also, in scenarios where there is a need to apply separate logic to individual property/element(s), then Object is definitely the choice `var obj = { print: function(){ //.. } }`.
+_Map tends to perform better in storing large set of data, especially when keys are unknown until run time, and when all keys are the same type and all values are the same type._
+If I do `obj[123] = true` and then `Object.keys(obj)` then I will get `["123"]` rather than `[123]`. A Map would preserve the type of the key and return `[123]` which is great.
+
+**Key field**: in Object, it follows the rule of normal dictionary. The keys MUST be simple types — either integer or string or symbols. Nothing more. But in Map it can be any data type (an object, an array, etc…).
+**Element order**: in Map, original order of elements (pairs) is preserved, while in Object, it isn’t.
+**get**: `map.get(1)` v/s `obj['id']`
+**Checking if key exists**: `map.has(1)` v/s `'id' in obj`
+**set/add**: `map.set(4,5)` v/s `obj['gender'] = 'female'`
+**delete**: `map.delete(1) or map.clear()` v/s `delete object['id']`
+**size**: `map.size` v/s `Object.keys(obj).length`
+**iteration**:
+Map is built-in iterable.
+
+```js
+console.log(typeof map[Symbol.iterator]); // function
+//For map: { 2=>3, 4=>5}
+for (const item of map) {
+  console.log(item);
+}
+//Or
+for (const [key, value] of map) {
+  console.log(`key: ${key}, value: ${value}`);
+}
+```
+
+But with Object,
+
+```js
+// For: {id: 1, name: "test"}
+for (var key in obj) {
+  console.log(`key: ${key}, value: ${obj[key]}`);
+}
+```
+
+### event.target v/s event.currentTarget
+
+- event.currentTarget returns the element the triggered listener was attached to.
+- event.target returns the most granular element the event was triggered on
+
+### Array.splice() vs Array.slice()
+
+- The `splice()` method returns the removed item(s) in an array and `slice()` method returns the selected element(s) in an array, as a new array object.
+- The `splice()` method changes the original array and `slice()` method doesn’t change the original array.
+- The `splice()` method can take `n` number of arguments.
+
+```js
+var array2 = [6, 7, 8, 9, 0];
+console.log(array2.splice(2, 1));
+// shows [8]
+console.log(array2.splice(2, 0));
+//shows [] , as no item(s) removed.
+
+var array3 = [11, 12, 13, 14, 15];
+console.log(array3.splice(2, 1, "Hello", "World"));
+// shows [13]
+
+console.log(array3);
+// shows [11, 12, "Hello", "World", 14, 15]
+
+// If Argument(2) is less than 0 or equal to NaN, it is treated as if it were 0.
+var array6 = [26, 27, 28, 29, 30];
+console.log(array6.splice(2, -5, "Hello"));
+// shows []
+
+console.log(array6);
+// shows [26,27,"Hello",28,29,30]
+```
+
+- The `slice()` method can take 2 arguments.
+
+```js
+var array = [1, 2, 3, 4, 5];
+console.log(array.slice(2));
+// shows [3, 4, 5], returned selected element(s).
+console.log(array.slice(-2));
+// shows [4, 5], returned selected element(s).
+console.log(array);
+// shows [1, 2, 3, 4, 5], original array remains intact.
+var array2 = [6, 7, 8, 9, 0];
+console.log(array2.slice(2, 4));
+// shows [8, 9]
+console.log(array2.slice(-3, -1));
+// shows [8, 9]
+```
+
 ## Credits/Reference
 
 1. Cody Lindley - JavaScript Enlightenment
 2. Kyle Simpson - You Dont Know JS
+3. Internet
