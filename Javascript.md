@@ -95,6 +95,9 @@
     - [What is the difference between imperative programming and declarative programming?](#what-is-the-difference-between-imperative-programming-and-declarative-programming)
     - [What property guarantees access to the global object regardless of environment?](#what-property-guarantees-access-to-the-global-object-regardless-of-environment)
     - [What is the Queue in JavaScript Runtime?](#what-is-the-queue-in-javascript-runtime)
+    - [What are some limitations of arrow functions?](#what-are-some-limitations-of-arrow-functions)
+    - [What is the difference in the default scope of traditional functions and arrow functions?](#what-is-the-difference-in-the-default-scope-of-traditional-functions-and-arrow-functions)
+    - [Give an example of using new ES6 syntax for creating a parent/child relationship.](#give-an-example-of-using-new-es6-syntax-for-creating-a-parentchild-relationship)
   - [Tricky outputs](#tricky-outputs)
     - [concat string](#concat-string)
     - [strict mode](#strict-mode)
@@ -123,6 +126,7 @@
     - [Map v/s Object({})](#map-vs-object)
     - [event.target v/s event.currentTarget](#eventtarget-vs-eventcurrenttarget)
     - [Array.splice() vs Array.slice()](#arraysplice-vs-arrayslice)
+    - [Object.assign v/s spread](#objectassign-vs-spread)
   - [Credits/Reference](#creditsreference)
 
 ## Objects
@@ -2088,6 +2092,26 @@ Imperative programming focuses on how to do things, declarative programming focu
 The Queue is list of messages to be processed, and each message has an associated function to call.
 Different than the stack because stack is a list of dependent functions, where the more recent must be executed in order to execute the older properly. The Queue is First In, First Out, meaning oldest messages are processed first.
 
+### What are some limitations of arrow functions?
+
+- Arrow functions should not be used as methods
+- Arrow functions do not have arguments, super, or new.target keywords
+- Arrow functions cannot use yield keyword in it's body
+- Arrow functions cannot be used as constructors
+
+### What is the difference in the default scope of traditional functions and arrow functions?
+
+Traditional functions default this to the window scope. Arrow functions execute in the scope in which they are created.
+
+### Give an example of using new ES6 syntax for creating a parent/child relationship.
+
+```js
+let dog = { name: "buddy", legs: 4 };
+let animal = { type: "mammal" };
+Object.setPrototypeOf(dog, animal);
+console.log(Object.getPrototypeOf(dog));
+```
+
 ## Tricky outputs
 
 ### concat string
@@ -2545,6 +2569,33 @@ console.log(array2.slice(2, 4));
 // shows [8, 9]
 console.log(array2.slice(-3, -1));
 // shows [8, 9]
+```
+
+### Object.assign v/s spread
+
+The key difference is that spread defines properties, whilst Object.assign() sets them.This means Object.assign() triggers setters.
+
+```js
+// First, Object.assign() triggers setters, spread doesn’t:
+
+Object.defineProperty(Object.prototype, 'foo', {
+    set(value) {
+        console.log('SET', value);
+    },
+});
+const obj = {foo: 123};
+// The previous piece of code installs a setter foo that is inherited by all normal objects.
+// If we clone obj via Object.assign(), the inherited setter is triggered:
+
+Object.assign({}, obj)
+// SET 123
+// {}
+
+// With spread, it isn’t:
+{ ...obj }
+// { foo: 123 }
+
+// Object.assign() also triggers own setters during copying, it does not overwrite them.
 ```
 
 ## Credits/Reference
