@@ -6,7 +6,13 @@
   - [Object()](#object)
   - [Function()](#function)
   - [The Head/Global Object](#the-headglobal-object)
-  - [Scope and Closures](#scope-and-closures)
+  - [Scope](#scope)
+    - [Lexical Scope](#lexical-scope)
+    - [Function Versus Block Scope](#function-versus-block-scope)
+  - [Hoisting](#hoisting)
+  - [Scope Closure](#scope-closure)
+  - [Lexical this (Arrow Functions) !!](#lexical-this-arrow-functions-)
+  - [Scope and Closures in Short](#scope-and-closures-in-short)
   - [Function Prototype Property](#function-prototype-property)
   - [Array()](#array)
   - [String()](#string)
@@ -99,6 +105,7 @@
     - [What is the difference in the default scope of traditional functions and arrow functions?](#what-is-the-difference-in-the-default-scope-of-traditional-functions-and-arrow-functions)
     - [Give an example of using new ES6 syntax for creating a parent/child relationship.](#give-an-example-of-using-new-es6-syntax-for-creating-a-parentchild-relationship)
   - [Tricky outputs](#tricky-outputs)
+    - [Promise](#promise)
     - [concat string](#concat-string)
     - [strict mode](#strict-mode)
     - [Variable hoisting](#variable-hoisting)
@@ -471,7 +478,346 @@ var cody = Person("Cody Lindley"); // notice we did not use 'new'
 console.log(cody.name); // undefined, the value is actually set at window.name
 ```
 
-## Scope and Closures
+## Scope
+
+Scope is a set of rules for looking up variables by their identifier name.
+
+### Lexical Scope
+
+Scope look-up stops once it finds the first match. The same identifier name can be specified at multiple layers of nested scope, which is called “shadowing” (the inner identifer “shadows” the outer identifier). Regardless of shadowing, scope look-up always starts at the innermost scope being executed at the time, and works its way outward/upward until the first match, and stops.
+
+**Cheating Lexical (Anti-pattern)**
+
+**eval** - The eval(..) function in JavaScript takes a string as an argument and treats the contents of the string as if it had actually been authored code at that point in the program.
+
+```js
+function foo(str, a) {
+  eval(str); // cheating!
+  console.log(a, b);
+}
+var b = 2;
+foo("var b = 3;", 1); // 1, 3
+```
+
+**with** - deprecated
+
+### Function Versus Block Scope
+
+**Scope From Functions**
+
+Each function you declare creates a bubble for itself, but no other structures create their own scope bubbles. Function scope encourages the idea that all variables belong to the function, and can be used and reused throughout the entirety of the function (and indeed, accessible even to nested scopes).
+
+_Note: The easiest way to distinguish declaration vs. expression is the position of the word function in the statement (not just a line, but a distinct statement). If function is the very first thing in the statement, then it’s a function declaration. Otherwise, it’s a function expression._
+
+**Anonymous v/s Named**
+
+Anonymous function expressions are quick and easy to type, and many libraries and tools tend to encourage this idiomatic style of code.
+
+```js
+setTimeout(function () {
+  // anonymous function
+  console.log("I waited 1 second!");
+}, 1000);
+```
+
+However, they have several drawbacks to consider:
+
+- Anonymous functions have no useful name to display in stack traces, which can make debugging more difficult.
+- Without a name, if the function needs to refer to itself, for recursion, etc., the deprecated arguments.callee reference is unfortunately required. Another example of needing to self-reference is when an event handler function wants to unbind itself after it fires.
+- Anonymous functions omit a name, which is often helpful in providing more readable/understandable code. A descriptive name helps self-document the code in question.
+
+**Blocks as Scopes**
+
+Block scope is a tool to extend the earlier Principle of Least Privilege from hiding information in functions to hiding information in blocks of our code.
+
+Declarations made with let will not hoist to the entire scope of the block they appear in. Such declarations will not observably “exist” in the block until the declaration statement.
+
+```js
+{
+  console.log(bar); // ReferenceError!
+  let bar = 2;
+}
+```
+
+Another reason block-scoping is useful relates to closures and garbage collection to reclaim memory.
+
+```js
+var someReallyBigData = { .. };
+process( someReallyBigData );
+var btn = document.getElementById( "my_button" );
+btn.addEventListener( "click", function click(evt){
+console.log("button clicked");
+}, /*capturingPhase=*/false );
+```
+
+In above scenario, someReallyBigData may not be garbage collected by JS engine since click function has a closure over the entire scope. To fix that:
+
+```js
+// anything declared inside this block can go away after!
+{
+let someReallyBigData = { .. };
+process( someReallyBigData );
+}
+```
+
+## Hoisting
+
+```js
+a = 2;
+var a;
+console.log(a); // 2
+```
+
+The JS engine actually will compile your JavaScript code before it interprets it. Part of the compilation phase was to find and associate all declarations with their appropriate scopes.
+
+Only the declarations themselves are hoisted, while any assignments or other executable logic are left in place. If hoisting were to re-arrange the executable logic of our code, that could wreak havoc.
+
+```js
+foo();
+function foo() {
+  console.log(a); // undefined
+  var a = 2;
+}
+```
+
+Function declarations are hoisted, as we just saw. But function expressions are not.
+
+```js
+foo(); // not ReferenceError, but TypeError!
+var foo = function bar() {
+  // ...
+};
+// The variable identifier foo is hoisted and attached to the enclosing scope (global) of this program, so foo() doesn’t fail as a ReferenceError.
+```
+
+**Functions First**
+
+Both function declarations and variable declarations are hoisted. But a subtle detail (that can show up in code with multiple “duplicate” declarations) is that functions are hoisted first, and then variables.
+
+```js
+foo(); // 3
+function foo() {
+  console.log(1);
+}
+var foo = function () {
+  console.log(2);
+};
+function foo() {
+  console.log(3);
+}
+```
+
+Function declarations that appear inside of normal blocks typically hoist to the enclosing scope, rather than being conditional as this code implies:
+
+```js
+foo(); // "b"
+var a = true;
+if (a) {
+  function foo() {
+    console.log("a");
+  }
+} else {
+  function foo() {
+    console.log("b");
+  }
+}
+```
+
+## Scope Closure
+
+Closures are not a special opt-in tool that you must learn new syntax
+and patterns for. Closures happen as a result of writing code that relies on lexical scope.
+
+Definition: Closure is when a function is able to remember and access its lexical scope even when that function is executing outside its lexical scope.
+
+```js
+function foo() {
+  var a = 2;
+  function bar() {
+    console.log(a); // 2
+  }
+  bar();
+}
+foo();
+```
+
+Most accurate way to explain bar() referencing a is via lexical scope look-up rules, and those rules are only (an important!) part of what closure is.
+From a purely academic perspective, what is said of the above snippet is that the function bar() has a closure over the scope of foo().
+
+Let us then consider code that brings closure into full light:
+
+```js
+function foo() {
+  var a = 2;
+  function bar() {
+    console.log(a);
+  }
+  return bar;
+}
+var baz = foo();
+baz(); // 2
+```
+
+bar() is executed, for sure. But in this case, it’s executed outside of its declared lexical scope.
+
+By virtue of where it was declared, bar() has a lexical scope closure over that inner scope of foo(), which keeps that scope alive for bar() to reference at any later time. bar() still has a reference to that scope, and that reference is called closure.
+
+Of course, any of the various ways that functions can be passed around as values, and indeed invoked in other locations, are all examples of observing/exercising closure.
+
+**Modules**
+
+```js
+function CoolModule() {
+  var something = "cool";
+  var another = [1, 2, 3];
+  function doSomething() {
+    console.log(something);
+  }
+  function doAnother() {
+    console.log(another.join(" ! "));
+  }
+  return {
+    doSomething: doSomething,
+    doAnother: doAnother,
+  };
+}
+var foo = CoolModule();
+foo.doSomething(); // cool
+foo.doAnother(); // 1 ! 2 ! 3
+```
+
+First, CoolModule() is just a function, but it has to be invoked for there to be a module instance created. Without the execution of the outer function, the creation of the inner scope and the closures would not occur.
+
+To state it more simply, there are two requirements for the module pattern to be exercised:
+
+1. There must be an outer enclosing function, and it must be invoked at least once (each time creates a new module instance).
+2. The enclosing function must return back at least one inner function, so that this inner function has closure over the private scope, and can access and/or modify that private state.
+
+A slight variation on this pattern is when you only care to have one instance, a singleton of sorts:
+
+```js
+var foo = (function CoolModule() {
+  //..
+})("foo module"); // name the object you are returning as your public API
+foo.doSomething(); // foo module
+```
+
+**ES6 adds first-class syntax support for the concept of modules**. When loaded via the module system, ES6 treats a file as a separate module.Each module can both import other modules or specific API members, as well export their own public API members.
+
+```js
+// bar.js
+function hello(who) {
+return "Let me introduce: " + who;
+}
+export hello;
+```
+
+```js
+// foo.js
+// import only `hello()` from the "bar" module
+import hello from "bar";
+var hungry = "hippo";
+function awesome() {
+console.log(
+hello( hungry ).toUpperCase()
+);
+}
+export awesome;
+```
+
+```js
+// baz.js
+// import the entire "foo" and "bar" modules
+module foo from "foo"; // module imports an entire module API to a bound variable
+module bar from "bar";
+console.log(
+bar.hello( "rhino" )
+); // Let me introduce: rhino
+foo.awesome(); // LET ME INTRODUCE: HIPPO
+```
+
+## Lexical this (Arrow Functions) !!
+
+This code suffers from a problem.
+
+```js
+var obj = {
+  id: "awesome",
+  cool: function coolFn() {
+    console.log(this.id);
+  },
+};
+var id = "not awesome";
+obj.cool(); // awesome
+setTimeout(obj.cool, 100); // not awesome
+```
+
+The problem is the loss of this binding on the cool() function. There are various ways to address that problem, but one often-repeated solution is `var self = this;`.
+
+```js
+var obj = {
+  count: 0,
+  cool: function coolFn() {
+    var self = this;
+    if (self.count < 1) {
+      setTimeout(function timer() {
+        self.count++;
+        console.log("awesome?");
+      }, 100);
+    }
+  },
+};
+obj.cool(); // awesome?
+```
+
+`self` becomes just an identifier that can be resolved via lexical scope and closure, and cares not what happened to the `this` binding along the way.
+
+**The ES6 solution, the arrow function, introduces a behavior called lexical `this`.**
+
+```js
+var obj = {
+  count: 0,
+  cool: function coolFn() {
+    if (this.count < 1) {
+      setTimeout(() => {
+        // arrow-function ftw?
+        this.count++;
+        console.log("awesome?");
+      }, 100);
+    }
+  },
+};
+obj.cool(); // awesome?
+```
+
+The short explanation is that arrow functions do not behave at all like normal functions when it comes to their `this` binding. They discard all the normal rules for `this` binding, and instead take on the `this` value of their immediate lexical enclosing scope, whatever it is.
+
+So, in that snippet, the arrow function doesn’t get its `this` unbound in some unpredictable way, it just “inherits” the `this` binding of the `cool()` function (which is correct if we invoke it as shown!).
+
+One other detraction from arrow functions is that they are anonymous, not named.
+
+A more appropriate approach, in my perspective, to this “problem,” is to use and embrace the this mechanism correctly.
+
+```js
+var obj = {
+  count: 0,
+  cool: function coolFn() {
+    if (this.count < 1) {
+      setTimeout(
+        function timer() {
+          this.count++; // `this` is safe
+          // because of `bind(..)`
+          console.log("more awesome");
+        }.bind(this),
+        100
+      ); // look, `bind()`!
+    }
+  },
+};
+obj.cool(); // more awesome
+```
+
+## Scope and Closures in Short
 
 Three types of scope:
 
@@ -2114,6 +2460,27 @@ console.log(Object.getPrototypeOf(dog));
 
 ## Tricky outputs
 
+### Promise
+
+```js
+function pTest() {
+  return new Promise(function (resolveFunction, rj) {
+    resolveFunction(pTest); // ok
+  });
+}
+
+pTest().then(() => console.log("Fulfilled")); // Fulfilled
+```
+
+The invocation of `resolutionFunc` includes a value parameter. The value is passed back to the tethered `promiseObj`. The `promiseObj` (asynchronously) invokes any `.then()` associated with it.
+
+```js
+new Promise((r, rj) => rj())
+  .then(() => console.log("ok"))
+  .catch(() => console.log("catch"))
+  .then(() => console.log("last ok")); // catch last ok
+```
+
 ### concat string
 
 What does the below code output to the console and why?
@@ -2150,6 +2517,50 @@ if (x) {
 ```
 
 Remember var is function scoped and not block scoped. It will throw lint errors in an IDE environment.
+
+```js
+var x = 10;
+console.log(x);
+var x;
+console.log(x);
+```
+
+```js
+var x = 12;
+function f() {
+  let x = 13;
+  console.log(x); // 13
+}
+f();
+console.log(x); // 12
+
+function fizz() {
+  var y = 99;
+  if ((y = 100)) {
+    var y;
+    console.log(y); // 100
+  }
+  console.log(y); // 100
+}
+fizz();
+console.log(y); // not defined error
+```
+
+```js
+let s = "out";
+if (true) {
+  let s = "in";
+  console.log(s); // in
+}
+console.log(s); // out
+
+var varS = "out";
+if (true) {
+  var varS = "in";
+  console.log(varS); // in
+}
+console.log(varS); // in
+```
 
 ### Comma separator
 
@@ -2427,6 +2838,15 @@ This is a reminder that classes are simply syntactic sugar that make JavaScript 
 ## Compare
 
 ### var v/s let v/s const
+
+```
+---------------------------------------------------------------------------
+Keyword | Scope          | Hoisting | Can Be Reassigned | Can Be Redeclared
+---------------------------------------------------------------------------
+var     | Function scope | Yes      | Yes               | Yes
+let     | Block scope    | No       | Yes               | No
+const   | Block scope    | No       | No                | No
+```
 
 - `var` declarations are globally scoped or function scoped while `let` and `const` are block scoped.
 - `var` variables can be updated and re-declared within its scope; `let` variables can be updated but not re-declared; `const` variables can neither be updated nor re-declared.
