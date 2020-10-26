@@ -40,6 +40,13 @@
     - [Symbols](#symbols)
     - [Iterators](#iterators)
     - [Generators](#generators-1)
+    - [Modules](#modules)
+    - [Classes](#classes)
+    - [Promises](#promises-1)
+    - [Collections](#collections)
+    - [API Additions](#api-additions)
+    - [Function Names](#function-names)
+    - [Proxies](#proxies)
   - [Program Performance](#program-performance)
     - [Worker Environment](#worker-environment)
     - [Data Transfer](#data-transfer)
@@ -2187,6 +2194,441 @@ The purpose of this capability is to notify the generator if the controlling cod
 
 - Producing a series of values
 - Queue of tasks to perform serially
+
+### Modules
+
+As of ES6, we no longer need to rely on the enclosing function and closure to provide us with module support. ES6 uses file-based modules, meaning one module per file.
+
+It’s expected that the contemporaneous advent of HTTP/2 will significantly mitigate any such performance concerns, as it operates on a persistent socket connection and thus can very efficiently load many smaller files in parallel and interleaved with one another.
+
+The API of an ES6 module is static. That is, you define statically what all the top-level exports are on your module’s public API, and those cannot be amended later.
+
+ES6 modules are singletons. The properties and methods you expose on a module’s public API are not just normal assignments of values or references. They are actual bindings (almost like pointers) to the identifiers in your inner module definition.
+
+**CommonJS**
+
+There’s a similar, but not fully compatible, module syntax called CommonJS, which is familiar to those in the Node.js ecosystem. For Node.js, that probably means (for now) that the target is CommonJS. For the browser, it’s probably UMD or AMD.
+
+**The New Way**
+
+Anything you don’t label with export stays private inside the scope of the module. That is, although something like `var bar = ..` looks like it’s declaring at the top-level global scope, the top-level scope is actually the module itself; there is no global scope in modules.
+
+Though you can clearly use export multiple times inside a module’s definition, ES6 definitely prefers the approach that a module has a single export, which is known as a default export.
+
+There can only be one default per module definition.
+
+```js
+function foo(..) { // Form 1
+// ..
+}
+export default foo;
+// v/s
+function foo(..) { // Form 2
+// ..
+}
+export { foo as default };
+```
+
+Form 1 - exporting a binding to the function expression value at that moment, not to the identifier foo.
+_If you later assign foo to a different value inside your module, the module import still reveals the function originally exported, not the new value._
+
+If you never plan to update a default export’s value, `export default ..` is fine. If you do plan to update the value, you must use `export { .. as default }`.
+
+Two-way bindings are not allowed. If you import a foo from a module, and try to change the value of your imported foo variable, an error will be thrown!
+
+```js
+import foofn, * as hello from "world";
+foofn = 42; // (runtime) TypeError!
+```
+
+If the module you’re importing with `* as ..` has a default export, it is named default in the namespace specified.
+
+Declarations that occur as a result of an import are “hoisted”.
+
+```js
+foo(); // can run because of hoisting + static resolution
+import { foo } from "foo";
+```
+
+**Circular Module Dependencya**
+
+A imports B. B imports A.
+
+With modules, you have declarations in entirely different scopes, so ES6 has to do extra work to help make these circular references work.
+
+### Classes
+
+One of the most heralded benefits to the new class and extend design is the ability to subclass the built-in natives, like Array.
+
+```js
+class MyCoolArray extends Array {
+  first() {
+    return this[0];
+  }
+  last() {
+    return this[this.length - 1];
+  }
+}
+var a = new MyCoolArray(1, 2, 3);
+a.length; // 3
+a; // [1,2,3]
+
+class Oops extends Error {
+  constructor(reason) {
+    this.oops = reason;
+  }
+}
+// later:
+var ouch = new Oops("I messed up!");
+throw ouch;
+```
+
+The ouch custom error object in this previous snippet will behave like any other genuine error object, including capturing stack.
+
+**new.target**
+
+new.target is a new “magical” value available in all functions, though in normal functions it will always be undefined.
+
+n any constructor, new.target always points at the constructor that new actually directly invoked, even if the constructor is in a parent class and was delegated to by a `super(..)` call from a child constructor.
+
+If new.target is undefined, you know the function was not called with new. You can then force a new invocation if that’s necessary.
+
+```js
+class Foo {
+  constructor() {
+    console.log("Foo: ", new.target.name);
+  }
+}
+class Bar extends Foo {
+  constructor() {
+    super();
+    console.log("Bar: ", new.target.name);
+  }
+  baz() {
+    console.log("baz: ", new.target);
+  }
+}
+var a = new Foo();
+// Foo: Foo
+var b = new Bar();
+// Foo: Bar <-- respects the `new` call-site
+// Bar: Bar
+b.baz();
+// baz: undefined
+```
+
+**static** and **Symbol.species Constructor Getter**
+
+```js
+class MyCoolArray extends Array {
+  // force `species` to be parent constructor
+  static get [Symbol.species]() {
+    return Array;
+  }
+}
+var a = new MyCoolArray(1, 2, 3),
+  b = a.map(function (v) {
+    return v * 2;
+  });
+b instanceof MyCoolArray; // false
+b instanceof Array; // true
+```
+
+### Promises
+
+A Promise can only have one of two possible resolution outcomes: fulfilled or rejected, with an optional single value. Thus, once a Promise is resolved, it’s an immutable value that cannot be changed.
+
+**Promise API**
+
+`Promise.resolve(..)` creates a promise resolved to the value passed in.
+
+```js
+var p2 = new Promise(function pr(resolve) {
+  resolve(42);
+});
+```
+
+Any value that you are not already certain is a trustable promise—even if it could be an immediate value — can be normalized by passing it to `Promise.resolve(..)`.
+
+`Promise.reject(..)` creates an immediately rejected promise.
+
+```js
+var p2 = new Promise(function pr(resolve, reject) {
+  reject("Oops");
+});
+```
+
+`Promise.all([ .. ])` accepts an array of one or more values (e.g., immediate values, promises, thenables). It returns a promise back that will be fulfilled if all the values fulfill, or reject immediately once the first of any of them rejects.
+
+While `Promise.all([ .. ])` waits for all fulfillments (or the first rejection), `Promise.race([ .. ])` waits only for either the first fulfillment or rejection.
+
+_Note: While Promise.all([]) will fulfill right away (with no values), Promise.race([]) will hang orever._
+
+### Collections
+
+**TypedArrays**
+
+Typed arrays are really more about providing structured access to binary data using array-like semantics (indexed access, etc.). The “type” in the name refers to a “view” layered on type of the bucket of bits, which is essentially a mapping of whether the bits should be viewed as an array of 8-bit signed integers, 16-bit signed integers, and so on.
+
+```js
+var buf = new ArrayBuffer(32);
+buf.byteLength; // 32
+var arr = new Uint16Array(buf);
+arr.length; // 16
+```
+
+`buf` is now a binary buffer that is 32-bytes long (256-bits), that’s preinitialized to all 0s. `arr` is a typed array of 16-bit unsigned integers mapped over the 256-bit `buf` buffer, meaning you get 16 elements.
+
+Several web platform features use or return array buffers, such as `FileReader#readAsArrayBuffer(..)`, `XMLHttpRequest#send(..)`, and `ImageData (canvas data)`.
+
+**Maps**
+
+The major drawback with objects-as-maps is the inability to use a nonstring value as the key.
+
+```js
+var m = new Map();
+var x = { id: 1 },
+  y = { id: 2 };
+m.set(x, "foo");
+m.set(y, "bar");
+m.get(x); // "foo"
+m.get(y); // "bar"
+
+// OR
+var m = new Map([
+  [x, "foo"],
+  [y, "bar"],
+]);
+var vals = [...m.values()]; // ["foo","bar"]
+```
+
+The only drawback is that you can’t use the `[ ]` bracket access syntax for setting and retrieving values.
+
+**Sets**
+
+```js
+var s = new Set();
+var x = { id: 1 },
+  y = { id: 2 };
+s.add(x);
+s.add(y);
+s.size;
+s.delete(y);
+s.clear();
+s.has(x); // false
+// Sets have the same iterator methods as maps.
+```
+
+**WeakMaps & WeakSets**
+
+WeakMaps take (only) objects as keys. Those objects are held weakly, which means if the object itself is GC’d, the entry in the WeakMap is also removed.
+
+WeakMaps do not have a size property or clear() method, nor do they expose any iterators over their keys, values, or entries. **But they are particularly useful if the object is not one you completely control, such as a DOM element.**
+
+It’s important to note that a WeakMap only holds its keys weakly, not its values.
+
+### API Additions
+
+**Array.of(..)**
+
+`Array.of(..)` replaces `Array(..)` as the preferred function-form constructor for arrays, because `Array.of(..)` does not have that special single-number-argument case.
+
+```js
+var b = Array.of(3);
+b.length; // 1
+b[0]; // 3
+var c = Array.of(1, 2, 3);
+c.length; // 3
+c; // [1,2,3]
+```
+
+**Array.from(..)**
+
+```js
+// ES5
+// array-like object
+var arrLike = {
+  length: 3,
+  0: "foo",
+  1: "bar",
+};
+var arr = Array.prototype.slice.call(arrLike);
+// Also when lice(..) is often used is in duplicating a real array:
+var arr2 = arr.slice();
+
+// ES6
+var arr = Array.from(arrLike);
+var arrCopy = Array.from(arr);
+
+// Caveat
+var arrLike = {
+  length: 4,
+  2: "foo",
+};
+Array.from(arrLike);
+// [ undefined, undefined, "foo", undefined ]
+// Because positions 0, 1, and 3 didn’t exist on arrLike
+
+// An array initialized to a certain length with actual undefined values in each slot
+var c = Array.from({ length: 4 });
+// four `undefined` values
+```
+
+The second argument, if provided, is a mapping callback.
+
+```js
+var arrLike = {
+  length: 4,
+  2: "foo",
+};
+Array.from(arrLike, function mapper(val, idx) {
+  if (typeof val == "string") {
+    return val.toUpperCase();
+  } else {
+    return idx;
+  }
+});
+// [ 0, 1, "FOO", 3 ]
+```
+
+Note: As with other array methods that take callbacks, `Array.from(..)` takes an optional third argument that if set will specify the this binding for the callback passed as the second argument.
+
+**copyWithin(..)**
+
+It copies a portion of an array to another location in the same array, overwriting whatever was there before. The arguments are target (the index to copy to), start (the inclusive index to start the copying from), and optionally end (the exclusive index to stop copying).
+
+```js
+[1, 2, 3, 4, 5].copyWithin(3, 0); // [1,2,3,1,2]
+[1, 2, 3, 4, 5].copyWithin(3, 0, 1); // [1,2,3,1,5]
+[1, 2, 3, 4, 5].copyWithin(0, -2); // [4,5,3,4,5]
+[1, 2, 3, 4, 5].copyWithin(0, -2, -1); // [4,2,3,4,5]
+// caveat - the copying algorithm reverses direction
+[1, 2, 3, 4, 5].copyWithin(2, 1); // [1,2,2,3,4]
+```
+
+**fill(..)**
+
+```js
+var a = Array(4).fill(undefined);
+a;
+// [undefined,undefined,undefined,undefined]
+var a = [null, null, null, null].fill(42, 1, 3);
+a; // [null,42,42,null]
+```
+
+**find(..) & findIndex(..)**
+
+The `indexOf(..)` comparison requires a strict === match, so a search for "2" fails to find a value of 2. ES6’s `find(..)` works basically the same as `some(..)`, except that once the callback returns a true/truthy value, the actual array value is returned:
+
+```js
+var a = [1, 2, 3, 4, 5];
+a.find(function matcher(v) {
+  return v == "2";
+}); // 2
+```
+
+**Object.is(..)**
+
+It makes value comparisons in an even more strict fashion than the === comparison. Two important exceptions:
+
+```js
+var x = NaN,
+  y = 0,
+  z = -0;
+x === x; // false
+y === z; // true
+Object.is(x, x); // true
+Object.is(y, z); // false
+```
+
+In cases where you’re trying to strictly identify a NaN or -0 value, `Object.is(..)` is now the preferred option.
+
+**Object.assign(..)**
+
+For each source, its enumerable and own (e.g., not “inherited”) keys, including symbols, are copied as if by plain = assignment.
+
+```js
+var target = {},
+  o1 = { a: 1 },
+  o2 = { b: 2 },
+  o3 = { c: 3 },
+  o4 = { d: 4 };
+// set up read-only property
+Object.defineProperty(o3, "e", {
+  value: 5,
+  enumerable: true,
+  writable: false,
+  configurable: false,
+});
+// set up non-enumerable property
+Object.defineProperty(o3, "f", {
+  value: 6,
+  enumerable: false,
+});
+o3[Symbol("g")] = 7;
+// set up non-enumerable symbol
+Object.defineProperty(o3, Symbol("h"), {
+  value: 8,
+  enumerable: false,
+});
+Object.setPrototypeOf(o3, o4);
+// Only the properties a, b, c, e, and Symbol("g") will be copied to target:
+Object.assign(target, o1, o2, o3);
+target.a; // 1
+target.b; // 2
+target.c; // 3
+Object.getOwnPropertyDescriptor(target, "e");
+// { value: 5, writable: true, enumerable: true,
+// configurable: true }
+Object.getOwnPropertySymbols(target);
+// [Symbol("g")]
+```
+
+### Function Names
+
+As of ES6, there are now inference rules that can determine a sensible name property value to assign a function even if that function doesn’t have a lexical name to use.
+
+```js
+var abc = function () {
+  // ..
+};
+abc.name; // "abc"
+class Awesome {
+  constructor() {} // name: Awesome
+  funny() {} // name: funny
+}
+export default function () {} // name: default
+var y = new Function(); // name: anonymous
+```
+
+Note: If a function has a name value assigned, that’s typically the name used in stack traces in developer tools.
+
+The name property is not writable by default, but it is configurable, meaning you can use Object.defineProperty(..) to manually change it if so
+desired.
+
+### Proxies
+
+A proxy is a special kind of object you create that “wraps”—or sits in front of —another normal object. You can register special handlers (aka traps) on the proxy object, which are called when various operations are performed against the proxy. These handlers have the opportunity to perform extra logic in addition to forwarding the operations on to the original target/wrapped object.
+
+```js
+var obj = { a: 1 },
+  handlers = {
+    get(target, key, context) {
+      // note: target === obj,
+      // context === pobj
+      console.log("accessing: ", key);
+      return Reflect.get(target, key, context);
+    },
+  },
+  pobj = new Proxy(obj, handlers);
+obj.a;
+// 1
+pobj.a;
+// accessing: a
+// 1
+```
+
+Each proxy handler has a default definition that automatically calls the corresponding Reflect utility. You will almost certainly use both Proxy and Reflect in tandem.
 
 ## Program Performance
 
