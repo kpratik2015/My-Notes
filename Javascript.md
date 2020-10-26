@@ -29,6 +29,17 @@
   - [Generators](#generators)
     - [Generator Delegation](#generator-delegation)
     - [Thunks](#thunks)
+  - [ES6](#es6)
+    - [Block-Scoped Functions](#block-scoped-functions)
+    - [Spread/Rest](#spreadrest)
+    - [Default Value Expressions](#default-value-expressions)
+    - [Destructuring](#destructuring)
+    - [Object Literal Extensions](#object-literal-extensions)
+    - [Tagged Template Literals](#tagged-template-literals)
+    - [Arrow Functions](#arrow-functions)
+    - [Symbols](#symbols)
+    - [Iterators](#iterators)
+    - [Generators](#generators-1)
   - [Program Performance](#program-performance)
     - [Worker Environment](#worker-environment)
     - [Data Transfer](#data-transfer)
@@ -1793,6 +1804,389 @@ fooThunk(function (sum) {
 Comparing thunks to promises generally: they're not directly interchangable as they're not equivalent in behavior. Promises are vastly more capable and trustable than bare thunks.
 
 But in another sense, they both can be seen as a request for a value, which may be async in its answering.
+
+## ES6
+
+let-block
+
+```js
+let (a = 2, b, c) { // explicit block scoping
+// ..
+}
+// Explicit block scoping
+```
+
+`let (..) { .. }` form, the most explicit of the options, was not adopted in ES6. That may be revisited post-ES6.
+`let` declarations attach to the block scope but are not initialized until they appear in the block. Accessing a let-declared variable earlier than its let ..declaration/initialization causes an error.
+
+A `const` declaration must have an explicit initialization. If you wanted a constant with the undefined value, you’d have to declare `const a = undefined` to get it.
+
+**Constants are not a restriction on the value itself, but on the variable’s assignment of that value**. In other words, the value is not frozen or immutable because of const, _just the assignment of it_.
+
+Note: Assigning an object or array as a constant means that value will not be able to be garbage collected until that constant’s lexical scope goes away, as the reference to the value can never be unset. That may be desirable, but be careful if it’s not your intent!
+
+### Block-Scoped Functions
+
+```js
+if (something) {
+  function foo() {
+    console.log("1");
+  }
+} else {
+  function foo() {
+    console.log("2");
+  }
+}
+foo(); // ??
+```
+
+In pre-ES6 environments, foo() would print "2" regardless of the value of something, because both function declarations were hoisted out of the blocks, and the second one always wins.
+In ES6, that last line throws a `ReferenceError`.
+
+### Spread/Rest
+
+When `...` is used in front of any `iterable`, it acts to "spread" it out into its individual values.
+
+```js
+function foo(x, y, z) {
+  console.log(x, y, z);
+}
+foo(...[1, 2, 3]); // 1 2 3
+```
+
+In this case `...` acts as simpler syntactic replacement for `apply(..)` like `foo.apply(null, [1,2,3]);`
+
+It can also be used to spread/expand value in other context like `var a = [1,2]; var b = [1, ...a, 5]` where it's repalcing `concat(..)` as it behaves like `[1].concat(a, [5])`
+
+Another common usage is in gathering a set of values together in an array.
+
+```js
+function foo(x, y, ...z) {
+  console.log(x, y, z);
+}
+foo(1, 2, 3, 4, 5); // 1 2 [3,4,5]
+```
+
+### Default Value Expressions
+
+Function default values can be more than just simple values like 31; they can be any valid expression, even a function call:
+
+```js
+function foo(x = y + 3, z = bar(x)) {
+  console.log(x, z);
+}
+function foo(
+  x = (function (v) {
+    return v + 11;
+  })(31)
+) {
+  console.log(x);
+}
+foo(); // 42
+```
+
+There will probably be cases where that pattern will be quite useful, such as:
+
+```js
+function ajax(url, cb = function () {}) {
+  // ..
+}
+```
+
+In early ES5, `Function.prototype` is itself an empty no-op function. So, the declaration could have been `cb = Function.prototype` and saved the inline function expression creation.
+
+In this case, we essentially want to default cb to be a no-op empty function call if not otherwise specified.
+
+### Destructuring
+
+```js
+var a, b, c, x, y, z;
+[a, b, c] = foo();
+({ x, y, z } = bar());
+console.log(a, b, c); // 1 2 3
+console.log(x, y, z); // 4 5 6
+```
+
+You can even solve the traditional “swap two variables” task without a temporary variable:
+
+```js
+var x = 10,
+  y = 20;
+[y, x] = [x, y];
+console.log(x, y); // 20 10
+```
+
+**Destructuring Parameters**
+
+```js
+function f3([x, y, ...z], ...w) {
+  console.log(x, y, z, w);
+}
+f3([]); // undefined undefined [] []
+f3([1, 2, 3, 4], 5, 6); // 1 2 [3,4] [5,6]
+```
+
+### Object Literal Extensions
+
+Concise properties
+
+```js
+var x = 2,
+  y = 3,
+  o = {
+    x,
+    y,
+  };
+```
+
+Concise Methods
+
+```js
+var o = {
+  x: function () {
+    // ..
+  },
+  y: function () {
+    // ..
+  },
+};
+
+// AS OF ES6
+
+var o = {
+  x() {
+    // ..
+  },
+  y() {
+    // ..
+  },
+};
+```
+
+**Note**: concise methods have special behaviors that their older counterparts don’t; specifically, the allowance for `super`.
+
+Generators also have a concise method form:
+
+```js
+var o = {
+  *foo() { .. }
+};
+```
+
+**Computed Property Names**
+
+```js
+var prefix = "user_";
+var o = {
+  baz: function () {},
+  [prefix + "foo"]: function () {},
+  [prefix + "bar"]: function () {},
+  // ..
+};
+```
+
+### Tagged Template Literals
+
+```js
+function foo(strings, ...values) {
+  console.log(strings); // [ "Everything is ", "!"]
+  console.log(values); // [ "awesome" ]
+}
+var desc = "awesome";
+foo`Everything is ${desc}!`; // essentially a special kind of function call
+```
+
+**Raw Strings**
+
+```js
+function showraw(strings, ...values) {
+  console.log(strings);
+  console.log(strings.raw);
+}
+showraw`Hello\nWorld`;
+// [ "Hello
+// World" ]
+// [ "Hello\nWorld" ]
+
+// ES6 comes with a built-in function: String.raw(..)
+console.log(String.raw`Hello\nWorld`);
+// Hello\nWorld
+```
+
+Other uses for string literal tags include special processing for internationalization, localization, and more!
+
+### Arrow Functions
+
+Consider:
+
+```js
+var controller = {
+  makeRequest: () => {
+    // ..
+    this.helper();
+  },
+  helper: () => {
+    // ..
+  },
+};
+controller.makeRequest();
+```
+
+The `this.helper` reference fails, because this here doesn’t point to controller as it normally would. Where does it point? It lexically inherits this from the surrounding scope. In this previous snippet, that’s the global scope, where this points to the global object.
+
+In addition to lexical this, arrow functions also have lexical arguments— they don’t have their own arguments array but instead inherit from their parent—as well as lexical `super` and `new.target`.
+
+**When to use arrow function:**
+
+- If you have a short, single-statement inline function expression, where the only statement is a return of some computed value, and that function doesn’t already make a `this` reference inside it, and there’s no self reference (recursion, event binding/unbinding).
+- If you have an inner function expression that’s relying on a `var self = this` hack or a `.bind(this)` call on it in the enclosing function to ensure proper this binding.
+-
+
+### Symbols
+
+A new primitive type has been added to JavaScript: the symbol. Unlike the other primitive types, however, symbols don’t have a literal form.
+
+```js
+var sym = Symbol("some optional description");
+typeof sym; // "symbol"
+```
+
+The main point of a symbol is to create a string-like value that can’t collide with any other value.
+
+```js
+const EVT_LOGIN = Symbol("event.login");
+// You’d then use EVT_LOGIN in place of a generic string literal like "event.login":
+evthub.listen(EVT_LOGIN, function (data) {
+  // ..
+});
+```
+
+The benefit here is that EVT_LOGIN holds a value that cannot be duplicated (accidentally or otherwise) by any other value, so it is impossible for there to be any confusion of which event is being dispatched or handled.
+
+Note: If evthub instead needed to use the symbol value as a real string, it would need to explicitly coerce with String(..) or toString(), as implicit string coercion of symbols is not allowed.
+
+**Symbols as Object Properties**
+
+If a symbol is used as a property/key of an object, it’s stored in a special way so that the property will not show up in a normal enumeration of the object’s properties:
+
+```js
+var o = {
+  foo: 42,
+  [Symbol("bar")]: "hello world",
+  baz: true,
+};
+Object.getOwnPropertyNames(o); // [ "foo","baz" ]
+Object.getOwnPropertySymbols(o); // [ Symbol(bar) ]
+```
+
+The specification uses the @@ prefix notation to refer to the built-in symbols, the most common ones being: @@iterator, @@toStringTag, @@toPrimitive.
+
+### Iterators
+
+An iterator is a structured pattern for pulling information from a source in one-at-a-time fashion.
+
+```js
+var arr = [1, 2, 3];
+var it = arr[Symbol.iterator]();
+it.next(); // { value: 1, done: false }
+it.next(); // { value: 2, done: false }
+it.next(); // { value: 3, done: false }
+it.next(); // { value: undefined, done: true }
+```
+
+### Generators
+
+A generator can pause itself in mid-execution, and can be resumed either right away or at a later time.
+
+```js
+// Syntax
+function *foo() { //.. }
+function* foo() { //.. }
+function * foo() { //.. }
+function*foo() { //.. }
+```
+
+Generators also have a new keyword you can use inside them, to signal the pause point: `yield`.
+`yield` is not just a pause point. It’s an expression that sends out a value when pausing the generator.
+
+```js
+function* foo() {
+  while (true) {
+    yield Math.random();
+  }
+}
+```
+
+```js
+// yield .. is of the same “expression precedence”
+var a, b;
+a = 3; // valid
+b = 2 + a = 3; // invalid
+b = 2 + (a = 3); // valid
+yield 3; // valid
+a = 2 + yield 3; // invalid
+a = 2 + (yield 3); // valid
+```
+
+**yield \***
+
+yield delegation - invokes that iterable’s iterator, and delegates its own host generator’s control to that iterator until it’s exhausted.
+
+```js
+function* foo() {
+  yield* [1, 2, 3];
+}
+// implies
+function* foo() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+```
+
+Consider:
+
+```js
+function* foo() {
+  var x = yield 1;
+  var y = yield 2;
+  var z = yield 3;
+  console.log(x, y, z);
+}
+var it = foo();
+// start up the generator
+it.next(); // { value: 1, done: false }
+// answer first question
+it.next("foo"); // { value: 2, done: false }
+// answer second question
+it.next("bar"); // { value: 3, done: false }
+// answer third question
+it.next("baz"); // "foo" "bar" "baz"
+// { value: undefined, done: true }
+```
+
+While the generator’s inner execution context is paused, the rest of the program continues unblocked, including the ability for asynchronous actions to control when the generator is resumed.
+
+The iterator attached to a generator supports the optional `return(..)` and `throw(..)` methods. Both of them have the effect of aborting a paused generator immediately.
+
+```js
+function* foo() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+var it = foo();
+it.next(); // { value: 1, done: false }
+it.return(42); // { value: 42, done: true }
+it.next(); // { value: undefined, done: true }
+```
+
+The purpose of this capability is to notify the generator if the controlling code is no longer going to iterate over it anymore, so that it can perhaps do any cleanup tasks.
+
+**Generator Uses**
+
+- Producing a series of values
+- Queue of tasks to perform serially
 
 ## Program Performance
 
