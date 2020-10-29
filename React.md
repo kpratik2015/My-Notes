@@ -7,7 +7,18 @@ A JavaScript library for building user interfaces.
   - [React Features](#react-features)
   - [Rendering with JSX](#rendering-with-jsx)
   - [Component Properties, State, and Context](#component-properties-state-and-context)
+  - [React Portal](#react-portal)
+  - [Refs and the DOM](#refs-and-the-dom)
+  - [Render Props](#render-props)
   - [Hooks](#hooks)
+    - [useState](#usestate)
+    - [useEffect](#useeffect)
+    - [useLayoutEffect](#uselayouteffect)
+    - [useMemo](#usememo)
+    - [useContext](#usecontext)
+    - [useImperativeHandle](#useimperativehandle)
+    - [useLayoutEffect](#uselayouteffect-1)
+    - [Extra](#extra)
   - [Event Handling](#event-handling)
   - [Crafting Reusable Components](#crafting-reusable-components)
   - [React Component Life Cycle](#react-component-life-cycle)
@@ -24,12 +35,17 @@ A JavaScript library for building user interfaces.
     - [Jest](#jest)
     - [Enzyme](#enzyme)
   - [Flux and Redux](#flux-and-redux)
+  - [Best Practices](#best-practices)
+  - [Tricky Outputs](#tricky-outputs)
+    - [setInterval + ReactDOM.render()](#setinterval--reactdomrender)
+  - [Notes](#notes)
   - [Q&A](#qa)
     - [What are React components?](#what-are-react-components)
     - [How do you tell React to insert component on page (DOM)?](#how-do-you-tell-react-to-insert-component-on-page-dom)
     - [In React, how are native HTML elements cased?](#in-react-how-are-native-html-elements-cased)
     - [What is a Virtual DOM?](#what-is-a-virtual-dom)
     - [Virtual DOM vs. Shadow DOM, are they the same thing?](#virtual-dom-vs-shadow-dom-are-they-the-same-thing)
+    - [What's missing in React Hooks as compared to Class based?](#whats-missing-in-react-hooks-as-compared-to-class-based)
 
 ## Why React?
 
@@ -142,7 +158,214 @@ export default ({ items }) => (
 );
 ```
 
+## React Portal
+
+Helps to make a mount point outside react tree which internally react still keeps in the same tree for same optimization. This has a good use case when some parent has a `position: relative;` but you want the child to break out of parent in `absolute` positioning.
+
+`ReactDOM.createPortal(child, container)`, where
+
+- child: any renderable React child.
+- container: DOM element
+
+Features like context work exactly the same regardless of whether the child is a portal, as the portal still exists in the React tree regardless of position in the DOM tree. This includes event bubbling. An event fired from inside a portal will propagate to ancestors in the containing React tree, even if those elements are not ancestors in the DOM tree.
+
+## Refs and the DOM
+
+Uses of Refs:
+
+- Managing focus, text selection, or media playback
+- Triggering imperative animations
+- Integrating with third-party DOM libraries
+
+Avoid using refs for anything that can be done declaratively. For example, instead of exposing `open()` and `close()` methods on a Dialog component, pass an `isOpen` prop to it.
+
+`ref` updates happen before componentDidMount or componentDidUpdate lifecycle methods.
+
+**Ref forwarding** lets components opt into exposing any child component’s ref as their own. Discouraged use but can be done in cases when you need to trigger focus or measure size/position of child DOM node.
+
+**Callback Refs**
+
+Instead of passing a ref attribute created by `createRef()`, you pass a **function**.
+
+```jsx
+import React from "react";
+export default function App() {
+  let inputRef = null;
+  function setInputRef(el) {
+    inputRef = el;
+  }
+  React.useEffect(() => {
+    if (inputRef) inputRef.focus();
+  }, [inputRef]);
+  return <input className="App" ref={setInputRef} />;
+}
+```
+
+**The “ref” object is a generic container whose current property is mutable and can hold any value, similar to an instance property on a class.**
+
+This helps in getting previous props or state:
+
+```jsx
+import React from "react";
+
+function usePrevious(value) {
+  const ref = React.useRef();
+  React.useEffect(() => {
+    // Executes after render of parent
+    ref.current = value;
+  });
+  return ref.current;
+}
+export default function App() {
+  const [count, setCount] = React.useState(0);
+  const prevCount = usePrevious(count);
+  return (
+    <>
+      <h1>
+        Now: {count}, before: {prevCount}
+      </h1>
+      <button onClick={() => setCount((c) => c + 1)}>Increment</button>
+    </>
+  );
+}
+```
+
+Note: Typically, modify refs in event handlers and effects. Do not set refs during rendering.
+
+## Render Props
+
+The term “render prop” refers to a technique for sharing code between React components using a prop whose value is a function.
+
+```jsx
+<DataProvider render={(data) => <h1>Hello {data.target}</h1>} />
+```
+
+[An Example of Mouse](https://codesandbox.io/s/react-render-prop-example-with-hooks-zmhjw)
+
+**A render prop is a function prop that a component uses to know what to render.** Any prop that is a function that a component uses to know what to render is technically a “render prop”.
+
+We could just as easily use the `children` prop!
+
+```jsx
+<Mouse children={mouse => (
+  <p>The mouse position is {mouse.x}, {mouse.y}</p>
+)}/>
+// OR
+<Mouse>
+  {mouse => (
+    <p>The mouse position is {mouse.x}, {mouse.y}</p>
+  )}
+</Mouse>
+```
+
+**Caveats**
+
 ## Hooks
+
+### [useState](https://reactjs.org/docs/hooks-state.html)
+
+It’s similar to `this.setState` in a class, except it doesn’t merge the old and new state together. Normally, variables “disappear” when the function exits but state variables are preserved by React. Updating a state variable always replaces it instead of merging it.
+React guarantees that setState function identity is stable.
+React uses the `Object.is` comparison algorithm.
+
+### [useEffect](https://reactjs.org/docs/hooks-effect.html)
+
+The Effect Hook lets you perform side effects in function components. In React class components, the render method itself shouldn’t cause side effects. It would be too early — we typically want to perform our effects after React has updated the DOM.
+
+By using this Hook, you tell React that your component needs to do something **after render**. **React guarantees the DOM has been updated** by the time it runs the effects.
+
+Function passed to useEffect is going to be different on every render - intentional. A different effect, replacing the previous one.
+
+**Unlike `componentDidMount` or `componentDidUpdate`, effects scheduled with `useEffect` don’t block the browser from updating the screen.**
+
+Effects run for every render and not just once. This is why React also cleans up effects from the previous render before running the effects next time.
+
+**React will apply every effect used by the component, in the order they were specified.**
+
+**React defers running useEffect until after the browser has painted, so doing extra work is less of a problem.** OR The function passed to useEffect fires after layout and paint, during a deferred event.
+
+### [useLayoutEffect](https://reactjs.org/docs/hooks-reference.html#uselayouteffect)
+
+A DOM mutation that is visible to the user must fire synchronously before the next paint so that the user does not perceive a visual inconsistency. (The distinction is conceptually similar to passive versus active event listeners.) For these types of effects, React provides one additional Hook called useLayoutEffect.
+
+### [useMemo](https://reactjs.org/docs/hooks-reference.html#usememo)
+
+This optimization helps to avoid expensive calculations on every render. It only serves as a hint, and doesn’t guarantee the computation won’t re-run.
+
+Two cases:
+
+1. To avoid re-creating initial state, pass a function to useState: `const [rows, setRows] = useState(() => createRows(props.count));`
+2. `useRef` on render with null check
+
+Conveniently, useMemo also lets you skip an expensive re-render of a child:
+
+```jsx
+function Parent({ a, b }) {
+  // Only re-rendered if `a` changes:
+  const child1 = useMemo(() => <Child1 a={a} />, [a]);
+  // Only re-rendered if `b` changes:
+  const child2 = useMemo(() => <Child2 b={b} />, [b]);
+  return (
+    <>
+      {child1}
+      {child2}
+    </>
+  );
+}
+```
+
+If we have a context with a less variable part and a more variable/changing part then we can extract the less changing part (`theme` below) and use `useMemo` to not allow re-rendering of children unless that less changing part changes.
+
+```jsx
+function Button() {
+  let appContextValue = useContext(AppContext);
+  let theme = appContextValue.theme; // Your "selector"
+  return useMemo(() => {
+    // The rest of your rendering logic
+    return <ExpensiveTree className={theme} />;
+  }, [theme]);
+}
+```
+
+The only difference between `useRef()` and creating a `{current: ...}` object yourself is that `useRef` will give you the same ref object on every render. Keep in mind that useRef doesn’t notify you when its content changes. Mutating the .current property doesn’t cause a re-render.
+
+### [useContext](https://reactjs.org/docs/hooks-reference.html#usecontext)
+
+The current context value is determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
+Even if an ancestor uses React.memo or shouldComponentUpdate, a rerender will still happen starting at the component itself using useContext.
+
+**If some context changes too often, consider splitting it out**. Apply it sparingly because it makes component reuse more difficult.
+
+Instead of useContext you can use composition to avoid passing in props through intermediary children:
+
+```jsx
+function Page(props) {
+  const user = props.user;
+  const content = <Feed user={user} />;
+  const topBar = (
+    <NavigationBar>
+      <Link href={user.permalink}>
+        <Avatar user={user} size={props.avatarSize} />
+      </Link>
+    </NavigationBar>
+  );
+  return <PageLayout topBar={topBar} content={content} />;
+}
+```
+
+The propagation from Provider to its descendant consumers is not subject to the shouldComponentUpdate method, so the consumer is updated _even when an ancestor component skips an update_. Changes determined by `Object.is`
+
+**Caveat** Don't do this `<MyContext.Provider value={{something: 'something'}}>` as the value object is created new on every provider component re-render. Put it in useState to maintain referrential integrity.
+
+### [useImperativeHandle](https://reactjs.org/docs/hooks-reference.html#useimperativehandle)
+
+`useImperativeHandle(ref, createHandle, [deps])` customizes the instance value that is exposed to parent components when using ref. As always, imperative code using refs should be avoided in most cases.
+
+### [useLayoutEffect](https://reactjs.org/docs/hooks-reference.html#uselayouteffect)
+
+It fires **synchronously** after all DOM mutations. Use this to read layout from the DOM and synchronously re-render. Updates scheduled inside `useLayoutEffect` will be flushed synchronously, **before the browser has a chance to paint**. Good use case is triggering scroll down on every new log message in a chat type window.
+
+### Extra
 
 When in doubt, use one `useState()` Hook per state value.
 
@@ -1085,6 +1308,51 @@ Inside of dispatch(), our store uses reducer() to get the new state, passing in 
 
 _Reducers functions must be pure functions._
 
+## Best Practices
+
+The list of dependencies should include all values (props/state/anything derived from props or state) that are used inside callback and participate in React data flow
+
+```js
+function Example({ someProp }) {
+  useEffect(() => {
+    function doSomething() {
+      console.log(someProp);
+    }
+    doSomething();
+  }, [someProp]); // ✅ OK (our effect only uses `someProp`)
+}
+```
+
+```js
+function Counter() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCount((c) => c + 1); // ✅ This doesn't depend on `count` variable outside
+    }, 1000);
+    return () => clearInterval(id);
+  }, []); // ✅ Our effect doesn't use any variables in the component scope
+  return <h1>{count}</h1>;
+}
+```
+
+## Tricky Outputs
+
+### [setInterval + ReactDOM.render()](https://codesandbox.io/s/react-diffing-algo-multiple-reactdom-renders-bleum)
+
+## Notes
+
+- Sending commands that project prior state to a new state is the whole purpose of a reducer. As Sunil Pai from the React team puts it, using a reducer helps separate reads, from writes. reducer is incredibly easy to test; it’s just a vanilla JavaScript function.
+- render in hooks is function body itself.
+- Hook calls can’t be placed inside loops.
+- Hooks offer smaller component trees which means React has less work to do. Hooks avoid a lot of overheads that are present in constructor of class based components.
+- There is an internal list of “memory cells” associated with each component.
+- Hooks embrace JavaScript closures.
+- useReducer is more suited for managing state objects that contain multiple sub-values.
+- Moving more complexity higher in the tree makes those higher-level components more complicated and forces the lower-level components to be more flexible than you may want.
+- One can use [render props](https://reactjs.org/docs/render-props.html) if the child needs to communicate with the parent before rendering. If two or more context values are often used together, you might want to consider creating your own render prop component that provides both.
+- To keep context re-rendering fast, React needs to make each context consumer a separate node in the tree.
+
 ## Q&A
 
 ### What are React components?
@@ -1150,3 +1418,7 @@ React’s Virtual DOM is a tree of ReactElements.
 ### Virtual DOM vs. Shadow DOM, are they the same thing?
 
 No. The Shadow DOM is a form of encapsulation on our elements. Think about using the `<video>` tag in your browser. In a video tag, your browser will create a set of video controls such as a play button, a timecode number, a scrubber progress bar etc. These elements aren’t part of your “regular DOM”, but instead, part of the “Shadow DOM”.
+
+### What's missing in React Hooks as compared to Class based?
+
+From React: "There are no Hook equivalents to the uncommon `getSnapshotBeforeUpdate`, `getDerivedStateFromError` and `componentDidCatch` lifecycles yet, but we plan to add them soon."

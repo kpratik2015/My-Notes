@@ -79,6 +79,7 @@ Randomly going over concepts of Java.
     - [Memento Design Pattern](#memento-design-pattern)
     - [Façade Design Pattern](#façade-design-pattern)
     - [AntiPattern](#antipattern)
+  - [Workshop - Performance Tuning using Profilers](#workshop---performance-tuning-using-profilers)
   - [References/Useful Links](#referencesuseful-links)
 
 ## Take Note of
@@ -1950,6 +1951,28 @@ Some of these patterns are:
 2. Spaghetti Code: Program that are written in a very complex way and are hard to understand due to misuse of data structures.
 3. Coding By Exception: Adding new code just to handle exception cases and corner case scenarios.
 4. Copy Paste Programming: Just copying the same code multiple times rather than writing generic code that can be parameterized.
+
+## Workshop - Performance Tuning using Profilers
+
+Identify the bottleneck:
+
+- System - CPU/RAM/Disk/Disk IO - DBs/Network IO
+- Application - Thread contention, High Memory Allocation, Synchronous calls to DB/File
+- JVM - GC Pausess/Slowness at the start (warmup)
+
+**Commands to collect performance data**
+
+- `free -h`
+- `lscpu` - get hardware details
+- `vmstat -t`
+- `pldstat`
+- `mpstat`
+- `iostat`
+- `sar`
+
+**Garbage Collection**
+
+Young Generation (eden, s0, s1) -> Old Generation (Tenured) -> Metaspace (Permanent)
 
 ## References/Useful Links
 
