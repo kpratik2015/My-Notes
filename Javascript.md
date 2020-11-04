@@ -123,6 +123,7 @@
     - [What is the difference in the default scope of traditional functions and arrow functions?](#what-is-the-difference-in-the-default-scope-of-traditional-functions-and-arrow-functions)
     - [Give an example of using new ES6 syntax for creating a parent/child relationship.](#give-an-example-of-using-new-es6-syntax-for-creating-a-parentchild-relationship)
   - [Tricky outputs](#tricky-outputs)
+    - [this](#this)
     - [Promise](#promise)
     - [concat string](#concat-string)
     - [strict mode](#strict-mode)
@@ -147,6 +148,7 @@
     - [Passing {} to map.set](#passing--to-mapset)
     - [Console output for class](#console-output-for-class)
   - [Compare](#compare)
+    - [Event Loop, Call Stack, Event & Job Queue](#event-loop-call-stack-event--job-queue)
     - [var v/s let v/s const](#var-vs-let-vs-const)
     - [Map v/s Object({})](#map-vs-object)
     - [event.target v/s event.currentTarget](#eventtarget-vs-eventcurrenttarget)
@@ -1057,6 +1059,22 @@ _Methods (e.g., Math.random();)_:
 ## Asynchrony
 
 The simplest (but definitely not only, or necessarily even best!) way of "waiting" from now until later is to use a function, commonly called a callback function.
+
+`setTimeOut` is function which is provided by the WebAPI(timer.js) which enables developers to run the tasks in asynchronous way. All the asynchronous tasks are queued as they are triggered & are executed in the same order as they were triggered. The order is maintained in a queue called ‘Task Queue’.
+
+```js
+console.log("1");
+setTimeout(() => console.log("Async"), 0);
+console.log("2");
+console.log("3");
+
+// OUTPUT:
+// 1
+// 2
+// 3
+// undefined
+// Async
+```
 
 ```js
 ajax("http://some.url.1", function myCallbackFunction(data) {
@@ -3296,6 +3314,32 @@ console.log(Object.getPrototypeOf(dog));
 
 ## Tricky outputs
 
+### this
+
+```js
+var name = 'outsideK';
+var k = {
+    name: 'insideK',
+    getName: function() {
+        return function() {
+            return this.name;
+        }
+    }
+}
+
+console.log(k.getName()()); // outsideK
+
+var k = {
+    name: 'insideK',
+    getName: function() {
+        return () => {
+            return this.name;
+        }
+    }
+}
+console.log(k.getName()()); // insideK
+```
+
 ### Promise
 
 ```js
@@ -3621,6 +3665,8 @@ queueMicrotask(() => {
 
 Answer is queueMicrotask wins. Tasks from queueMicrotask are called after the callstack is empty and before the event loop is called. Tasks from setTimeout are part of the eventQueue.
 
+JavaScript promises and the Mutation Observer API both use the microtask queue to run their callbacks, but there are other times when the ability to defer work until the current event loop pass is wrapping up.
+
 ### Passing primitive to function
 
 What will the code below output to the console and why?
@@ -3672,6 +3718,18 @@ console.log(typeof Person); // function
 This is a reminder that classes are simply syntactic sugar that make JavaScript feel more object oriented.
 
 ## Compare
+
+### Event Loop, Call Stack, Event & Job Queue
+
+**Stack**: This is where all your javascript code gets pushed and executed one by one as the interpreter reads your program, and gets popped out once the execution is done.
+
+**Heap**: This is where all the memory allocation happens for your variables, that you have defined in your program.
+
+**Callback Queue**: This is where your asynchronous code gets pushed to, and waits for the execution.
+
+**Event Loop**: Then comes the Event Loop, which keeps running continuously and checks the Main stack, if it has any frames to execute, if not then it checks Callback queue, if Callback queue has codes to execute then it pops the message from it to the Main Stack for the execution.
+
+**Job Queue**: Apart from Callback Queue, browsers have introduced one more queue which is “Job Queue”, reserved only for new Promise() functionality. So when you use promises in your code, you add .then() method, which is a callback method. These `thenable` methods are added to Job Queue once the promise has returned/resolved, and then gets executed.
 
 ### var v/s let v/s const
 

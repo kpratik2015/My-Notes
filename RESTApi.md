@@ -1,4 +1,4 @@
-# REST API
+# REpresentational State Transfer (REST) API
 
 RESTful web services use web protocol i.e. HTTP protocol method.
 
@@ -75,3 +75,29 @@ Common status code classes:
 501 - Not implemented - The server does not support the facility required.
 502 - Service temporarily overloaded
 503 - Service Unavailable
+
+## HTTP Verbs
+
+Every webpage contains both an address (the URL) as well as a list of approved actions known as HTTP verbs. The HTTP protocol contains a number of request methods that can be used while requesting information from a server. The four most common map to CRUD functionality. They are POST, GET, PUT, and DELETE. To create content you use POST, to read content GET, to update it PUT, and to delete it you use DELETE.
+
+## Endpoints
+
+A web API has endpoints instead which are URLs with a list of available actions (HTTP verbs) that expose data (typically in JSON)
+
+## HTTP
+
+HTTP is a request-response protocol between two computers that have an existing TCP connection. Every HTTP message consists of a request/status line, headers, and optional body data.
+
+```
+GET / HTTP/1.1
+Host: google.com
+Accept_Language: en-US
+```
+
+## Statelessness
+
+A final important point to make about HTTP is that it is a stateless protocol. This means each request/response pair is completely independent of the previous one.
+
+Statelessness brings a lot of benefits to HTTP. Since all electronic communication systems have signal loss over time, if we did not have a stateless protocol, things would constantly break if one request/response cycle didn’t go through. As a result HTTP is known as a very resilient distributed protocol.
+
+Ultimately a web API is a collection of endpoints that expose certain parts of an underlying database.
