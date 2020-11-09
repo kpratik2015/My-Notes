@@ -3321,7 +3321,9 @@ var name = 'outsideK';
 var k = {
     name: 'insideK',
     getName: function() {
+        // this here points to k
         return function() {
+            // this here points to window
             return this.name;
         }
     }
@@ -3393,7 +3395,7 @@ if (x) {
   var x = 10;
   console.log(x);
 }
-// 10, 10
+// undefined, 10
 ```
 
 Remember var is function scoped and not block scoped. It will throw lint errors in an IDE environment.
@@ -3403,6 +3405,7 @@ var x = 10;
 console.log(x);
 var x;
 console.log(x);
+// 10, 10
 ```
 
 ```js
