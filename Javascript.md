@@ -51,6 +51,8 @@
     - [Worker Environment](#worker-environment)
     - [Data Transfer](#data-transfer)
     - [Shared Workers](#shared-workers)
+  - [Testing](#testing)
+    - [Code coverage](#code-coverage)
   - [Benchmarking](#benchmarking)
   - [Q&A](#qa)
     - [What is variable hoisting?](#what-is-variable-hoisting)
@@ -2065,7 +2067,8 @@ In addition to lexical this, arrow functions also have lexical arguments— they
 
 - If you have a short, single-statement inline function expression, where the only statement is a return of some computed value, and that function doesn’t already make a `this` reference inside it, and there’s no self reference (recursion, event binding/unbinding).
 - If you have an inner function expression that’s relying on a `var self = this` hack or a `.bind(this)` call on it in the enclosing function to ensure proper this binding.
--
+
+[**When not to use arrow functions**](https://www.javascripttutorial.net/es6/when-you-should-not-use-arrow-functions/)
 
 ### Symbols
 
@@ -2276,7 +2279,41 @@ With modules, you have declarations in entirely different scopes, so ES6 has to 
 
 ### Classes
 
+Prior to ES6, JavaScript had no classes. To mimic a class, we often use a constructor function as shown in the following example:
+
+```js
+function Animal(type) {
+  this.type = type;
+}
+Animal.prototype.identify = function () {
+  console.log(this.type);
+};
+var cat = new Animal("Cat");
+cat.identify(); // Cat
+// identify() method is assigned to the prototype so that it can be shared by all instances
+```
+
+First, class declarations are not hoisted like function declarations. Second, all the code inside a class automatically executes in the strict mode, and you cannot change this behavior. Third, class methods are non-enumerable. Fourth, calling the class constructor without the new operator will raise `TypeError`.
+
+Similar to functions, classes have expression forms too.
+
+```js
+// JavaScript class is a first-class citizen.
+let Animal = class {
+  constructor(type) {
+    this.type = type;
+  }
+  identify() {
+    console.log(this.type);
+  }
+};
+```
+
+Refer [this](https://www.javascripttutorial.net/es6/javascript-inheritance/) for inheritance. And more on [class](https://www.javascripttutorial.net/es6/javascript-class/)
+
 One of the most heralded benefits to the new class and extend design is the ability to subclass the built-in natives, like Array.
+**In derived classes, `super()` must be called before you can use `this`.**
+In a subclass, we can create our own methods. We can even create a method with the same name as the base class' method. The method of the subclass will override that of the base class.
 
 ```js
 class MyCoolArray extends Array {
@@ -2292,8 +2329,9 @@ a.length; // 3
 a; // [1,2,3]
 
 class Oops extends Error {
-  constructor(reason) {
-    this.oops = reason;
+  constructor(...args) {
+    super(...args);
+    this.oops = args[0];
   }
 }
 // later:
@@ -2423,6 +2461,8 @@ var vals = [...m.values()]; // ["foo","bar"]
 The only drawback is that you can’t use the `[ ]` bracket access syntax for setting and retrieving values.
 
 **Sets**
+
+More on [Set](https://www.javascripttutorial.net/es6/javascript-set/)
 
 ```js
 var s = new Set();
@@ -2561,7 +2601,18 @@ Object.is(y, z); // false
 
 In cases where you’re trying to strictly identify a NaN or -0 value, `Object.is(..)` is now the preferred option.
 
-**Object.assign(..)**
+[**Object.assign(..)**](https://www.javascripttutorial.net/es6/javascript-object-assign/)
+
+Note that the `Object.assign()` only carries a shallow clone, not a deep clone.
+
+```js
+/**
+ * The Object.assign() copies all enumerable and own properties from the source objects to the target object. It returns the * target object.
+ *
+ * The Object.assign() invokes the getters on the source objects and setters on the target. It assigns properties only, not copying or defining new properties.
+ */
+Object.assign(target, ...sources);
+```
 
 For each source, its enumerable and own (e.g., not “inherited”) keys, including symbols, are copied as if by plain = assignment.
 
@@ -2773,6 +2824,35 @@ addEventListener("connect", function (evt) {
 ```
 
 **Note:** Shared Workers survive the termination of a port connection if other port connections are still alive, whereas dedicated Workers are terminated whenever the connection to their initiating program is terminated.
+
+## Testing
+
+![By Kent C. Dodds](https://testingjavascript.com/static/trophyWithLabels@2x-4d0c19a94d88ac607cc5cbeaa8f8708d.png)
+
+- **Unit test**: Specify and test one point of the contract of single method of a class. This should have a very narrow and well defined scope. Complex dependencies and interactions to the outside world are stubbed or mocked.
+- **Integration test**: Test the correct inter-operation of multiple subsystems. There is whole spectrum there, from testing integration between two classes, to testing integration with the production environment.
+- **Smoke test (aka sanity check)**: A simple integration test where we just check that when the system under test is invoked it returns normally and does not blow up. It’s important to maintain a suite of automated functional tests that act like smoke tests for your newly deployed releases.
+- **Regression test**: A test that was written when a bug was fixed. It ensures that this specific bug will not occur again.
+
+Most apps will require both unit tests and functional tests, and many complex apps will also require integration tests.
+
+- **Unit tests** ensure that individual components of the app work as expected. Assertions test the component API.
+- **Integration tests** ensure that component collaborations work as expected. Assertions may test component API, UI, or side-effects (such as database I/O, logging, etc…)
+- **Functional tests** ensure that the app works as expected from the user’s perspective. Assertions primarily test the user interface.
+
+Unit tests should be:
+
+- Dead simple.
+- Lightning fast. i.e. no network calls
+- A good bug report. i.e. a fail test should tell you: which component is at test, expected behavior, actual result, expected result and behaviour reproduced.
+
+Why Use TDD?
+
+Every component lacking unit tests has legacy code that becomes difficult to maintain. We could add unit tests after we create the production code. However, we may run the risk of overlooking some scenarios that should have been tested. By creating tests first, we have a higher chance of covering every logic scenario in our component, which would make it easy to refactor and maintain.
+
+### Code coverage
+
+It's almost impossible to imagine all the paths our code can take and so arises the need for a tool that helps to uncover these blind spots. That tool is code coverage.
 
 ## Benchmarking
 
@@ -3215,7 +3295,9 @@ A race condition is when two threads or async processes must complete in the pro
 
 ### What is functional programming?
 
-A coding paradigm utilizing declarative code and pure functions.
+A coding paradigm utilizing declarative code and pure functions. In computer science, functional programming is a programming paradigm … that treats computation as the evaluation of mathematical functions and avoids changing-state and mutable data. It is a declarative programming paradigm, which means programming is done with expressions or declarations instead of statements.
+
+One well-known and widely used declarative language is SQL. With SQL, each SELECT statement specifies what data to return, and the database’s query optimizer and execution engine interpret the SQL statement to figure out how to return it.
 
 ### What is a higher order function?
 
@@ -3317,28 +3399,28 @@ console.log(Object.getPrototypeOf(dog));
 ### this
 
 ```js
-var name = 'outsideK';
+var name = "outsideK";
 var k = {
-    name: 'insideK',
-    getName: function() {
-        // this here points to k
-        return function() {
-            // this here points to window
-            return this.name;
-        }
-    }
-}
+  name: "insideK",
+  getName: function () {
+    // this here points to k
+    return function () {
+      // this here points to window
+      return this.name;
+    };
+  },
+};
 
 console.log(k.getName()()); // outsideK
 
 var k = {
-    name: 'insideK',
-    getName: function() {
-        return () => {
-            return this.name;
-        }
-    }
-}
+  name: "insideK",
+  getName: function () {
+    return () => {
+      return this.name;
+    };
+  },
+};
 console.log(k.getName()()); // insideK
 ```
 
@@ -3791,6 +3873,8 @@ greeting.message = "say Hello instead"; // OK
 ```
 
 ### Map v/s Object({})
+
+More on [Map](https://www.javascripttutorial.net/es6/javascript-map/)
 
 ```js
 var map = new Map([
