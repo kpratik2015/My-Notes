@@ -2044,6 +2044,25 @@ Other uses for string literal tags include special processing for internationali
 
 ### Arrow Functions
 
+Because by definition, arrow functions don't have prototypes. They're designed to be lightweight, without some of the baggage that old-style functions have.
+
+Another likely reason for this is that arrow functions capture the surrounding this rather than having it determined dynamically. So they would serve poorly as constructor functions because the this within them would be referring to the this from the surrounding scope instead of the object being created. (In fact, you can't even use them as constructor functions. JavaScript will throw an error if you try to.)
+
+```js
+let Person = () => {};
+
+Person.prototype.city = () => {
+  return "New York";
+}; // Uncaught TypeError: Cannot set property 'city' of undefined
+
+// Below works:
+var Person = function () {};
+
+Person.prototype.city = function () {
+  return "New York";
+};
+```
+
 Consider:
 
 ```js
