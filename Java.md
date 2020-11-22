@@ -80,6 +80,16 @@ Randomly going over concepts of Java.
     - [Façade Design Pattern](#façade-design-pattern)
     - [AntiPattern](#antipattern)
   - [Workshop - Performance Tuning using Profilers](#workshop---performance-tuning-using-profilers)
+  - [Q&A](#qa)
+    - [Difference between == and .equals() method in Java](#difference-between--and-equals-method-in-java)
+    - [What are OOPs Concepts in Java?](#what-are-oops-concepts-in-java)
+    - [What is Predicate?](#what-is-predicate)
+    - [What are Java 8 features?](#what-are-java-8-features)
+    - [What is internal working of hashmap?](#what-is-internal-working-of-hashmap)
+    - [What is consumer and producer in Java 8?](#what-is-consumer-and-producer-in-java-8)
+  - [Codes](#codes)
+    - [Find frequency of characters in a string in java - Ref](#find-frequency-of-characters-in-a-string-in-java---ref)
+    - [Create Singleton - Ref](#create-singleton---ref)
   - [References/Useful Links](#referencesuseful-links)
 
 ## Take Note of
@@ -1973,6 +1983,216 @@ Identify the bottleneck:
 **Garbage Collection**
 
 Young Generation (eden, s0, s1) -> Old Generation (Tenured) -> Metaspace (Permanent)
+
+## Q&A
+
+### Difference between == and .equals() method in Java
+
+1. `==` is operation and `.equals()` is method.
+2. `==` for reference comparison (address comparison) and `.equals()` method for content comparison.
+3. If a class does not override the equals method, then by default it uses equals(Object o) method of the closest parent class that has overridden this method
+
+### What are OOPs Concepts in Java?
+
+Object-Oriented Programming is a methodology to design a program using classes and objects. It simplifies software development and maintenance by providing some concepts:
+
+- Object - Any entity that has state and behavior is known as an object.
+- Class - Collection of objects is called class. It is a logical entity.
+- Inheritance - When one object acquires all the properties and behaviors of a parent object, it is known as inheritance.
+- Polymorphism - If one task is performed in different ways, it is known as polymorphism. In Java, we use method overloading and method overriding to achieve polymorphism.
+- Abstraction - Hiding internal details and showing functionality is known as abstraction. In Java, we use abstract class and interface to achieve abstraction.
+- Encapsulation - Binding (or wrapping) code and data together into a single unit are known as encapsulation. A java class is the example of encapsulation. Java bean is the fully encapsulated class because all the data members are private here.
+
+Apart from these concepts, there are some other terms which are used in Object-Oriented design:
+
+- Coupling - Coupling refers to the knowledge or information or dependency of another class.
+- Cohesion - Cohesion refers to the level of a component which performs a single well-defined task.
+- Association - Association represents the relationship between the objects.
+- Aggregation - Aggregation is a way to achieve Association. Aggregation represents the relationship where one object contains other objects as a part of its state.
+- Composition - The composition is also a way to achieve Association. The composition represents the relationship where one object contains other objects as a part of its state.
+
+### What is Predicate?
+
+In Java 8, Predicate is a functional interface, which accepts an argument and returns a boolean. Usually, it used to apply in a filter for a collection of objects.
+
+```java
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.function.Predicate;
+
+List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+List<Integer> collect = list.stream().filter(x -> x > 5).collect(Collectors.toList());
+
+// create a list of strings
+List<String> names = Arrays.asList("Geek","GeeksQuiz","g1","QA","Geek2");
+
+// declare the predicate type as string and use
+// lambda expression to create object
+Predicate<String> p = (s)->s.startsWith("G");
+
+// Iterate through the list
+for (String st:names)
+{
+  // call the test method
+  if (p.test(st))
+    System.out.println(st);
+}
+```
+
+### What are Java 8 features?
+
+1. Lambda Expression
+
+   ```java
+    //Syntax of lambda expression
+    (parameter_list) -> {function_body}
+   ```
+
+2. Method references
+   Method reference is a shorthand notation of a lambda expression to call a method. `str -> System.out.println(str)` can be replaced with `System.out::println`
+
+3. Functional interfaces
+   An interface with only single abstract method is called functional interface.
+
+4. Interface changes: Default and static methods
+   Java 8 allows the interfaces to have default and static methods. The reason we have default methods in interfaces is to allow the developers to add new methods to the interfaces without affecting the classes that implements these interfaces.
+
+5. Streams
+   By using streams we can perform various aggregate operations on the data returned from collections, arrays, Input/Output operations.
+
+6. Stream filter
+7. forEach()
+8. Collectors class
+9. StringJoiner class
+10. Optional class
+11. Arrays Parallel Sort
+
+[Read more](https://beginnersbook.com/2017/10/java-8-features-with-examples/)
+
+### What is internal working of hashmap?
+
+Before understanding the internal working of HashMap, you must be aware of `hashCode()` and `equals()` method.
+
+- `equals()`: It checks the equality of two objects. It compares the Key, whether they are equal or not.
+- `hashCode()`: It returns the memory reference of the object in integer form. The value received from the method is used as the bucket number. The bucket number is the address of the element inside the map. Hash code of null Key is 0.
+- Buckets: A bucket is one element of HashMap array. It is used to store nodes. Two or more nodes can have the same bucket. In that case link list structure is used to connect the nodes. Buckets are different in capacity. A relation between bucket and capacity is as follows: `capacity = number of buckets * load factor`
+
+The default size of HashMap is 16 (0 to 15).
+
+Index Calculation in Hashmap: `index = hashCode(key) & (n-1)`
+
+Java 8 hash elements use balanced trees instead of linked lists after a certain threshold is reached.
+
+Note:
+
+1. Time complexity is almost constant for put and get method until rehashing is not done.
+2. hash code of null key is 0.
+3. When getting an object with its key, the linked list is traversed until the key matches or null is found on next field.
+
+### What is consumer and producer in Java 8?
+
+`Consumer<T>` is an in-built functional interface introduced in Java8. The consumer can be used in all contexts where an object needs to be consumed, i.e. taken as an input and some operation is to be performed on the object without returning any result.
+
+```java
+@FunctionalInterface
+public interface Consumer<T> {
+  void accept(T t);
+}
+
+// Example:
+Consumer<String> consumer = ConsumerTest::printNames;
+consumer.accept("C++");
+private static void printNames(String name) {
+  System.out.println(name);
+}
+```
+
+`Supplier<T>` is an in-built functional interface introduced in Java8. The supplier can be used in all contexts where there is no input but an output is expected.
+
+```java
+@FunctionalInterface
+public interface Supplier<T> {
+  /**
+    * Gets a result.
+    * @return a result
+    */
+  T get();
+}
+
+// Example:
+List<String> names = new ArrayList<String>();
+names.add("Harry");
+
+names.stream().forEach((item)-> {
+  printNames(()-> item);
+});
+
+private static void printNames(Supplier<String> supplier) {
+  System.out.println(supplier.get());
+}
+```
+
+## Codes
+
+### Find frequency of characters in a string in java - [Ref](https://java2blog.com/java-program-find-frequency-each-character-string/)
+
+```java
+import java.util.Scanner;
+
+public class StringOperator
+{
+   public static void main(String args[])
+   {
+        int i;
+        String str;
+
+        int counter[] = new int[256];
+        Scanner in = new Scanner(System.in);
+
+        System.out.print("Enter a String : ");
+        str=in.nextLine();
+
+         for (i = 0; i < str.length(); i++) {
+            counter[(int) str.charAt(i)]++;
+        }
+        // Print Frequency of characters
+        for (i = 0; i < 256; i++) {
+            if (counter[i] != 0) {
+                  System.out.println("The character " + (char) i  + " has occurred for " + counter[i] + " times");
+            }
+        }
+   }
+}
+```
+
+### Create Singleton - [Ref](https://medium.com/@kevalpatel2106/how-to-make-the-perfect-singleton-de6b951dfdb0)
+
+```java
+public class SingletonClass {
+
+    private static SingletonClass sSoleInstance;
+    // private static volatile SingletonClass sSoleInstance; // for thread safety
+
+    private SingletonClass(){ //private constructor.
+      //Prevent form the reflection api.
+        if (sSoleInstance != null){
+            throw new RuntimeException("Use getInstance() method to get the single instance of this class.");
+        }
+    }
+    // public synchronized static SingletonClass getInstance(){ // for thread safety if needed
+    public static SingletonClass getInstance(){
+        if (sSoleInstance == null){ //if there is no instance available... create new one
+            sSoleInstance = new SingletonClass();
+            // synchronized (SingletonClass.class) {   //Check for the second time.
+            //   //if there is no instance available... create new one
+            //   if (sSoleInstance == null) sSoleInstance = new SingletonClass();
+            // }
+        }
+        return sSoleInstance;
+    }
+}
+```
 
 ## References/Useful Links
 
