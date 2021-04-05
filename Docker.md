@@ -1,6 +1,14 @@
 # Docker
 
 - [Docker](#docker)
+  - [Introduction to Docker Images](#introduction-to-docker-images)
+    - [Docker Client](#docker-client)
+    - [Docker Server](#docker-server)
+    - [Docker Images](#docker-images)
+    - [Testing Docker Setup](#testing-docker-setup)
+    - [Exploring the Dockerfile](#exploring-the-dockerfile)
+    - [Linux Containers](#linux-containers)
+    - [Building Image](#building-image)
   - [Q&A](#qa)
     - [What is Docker?](#what-is-docker)
     - [What is the difference between Docker image and Docker container?](#what-is-the-difference-between-docker-image-and-docker-container)
@@ -12,6 +20,74 @@
     - [What are the main features of Docker-compose?](#what-are-the-main-features-of-docker-compose)
     - [What is the most popular use of Docker?](#what-is-the-most-popular-use-of-docker)
     - [What is the role of open source development in the popularity of Docker?](#what-is-the-role-of-open-source-development-in-the-popularity-of-docker)
+
+## Introduction to Docker Images
+
+Most of the time the docker server is a Virtual Machine.
+
+### Docker Client
+
+It's the `docker` command. Its job to take everything you typed and wrap those into API calls and pings the server. You can directly use the API calls but `docker` CLI might be running multiple calls in the background.
+
+### Docker Server
+
+`dockerd` It's the daemon that allows to run docker containers. Server needs access to dockerhub with `docker login`. `.docker/config.json` can be checked out.
+
+### Docker Images
+
+Contains one or more filesystem layers and some important metadata that represent all the files required to run a Dockerized application. Result of docker build. You can download them. They're immutable and you mostly copy them. They act as a base to create containers from.
+
+### Testing Docker Setup
+
+`docker image ls` - lists out all of the images on Docker Server.
+`docker container run -d --rm --name quantum --publish mode=ingress,target=8080,published=18080 some_image_name:latest` - runs a docker container. `-d` detach or daemonize. `--rm` short for remove i.e. delete the container as soon as it exits since images can be huge size. `--name` gives a human readable name to later stop the container. `ingress` means to enter i.e. traffic coming inside container from outside world. `target` port inside container which is listening to outside world. `published` port that we would like to be exposed from host that we're running on.
+
+Docker has its own network stack sort of like VMs.
+
+`docker container ls` - list all running docker containers. It lists a container hash that is unique to the system. Often referred as long id. Often we only need the first 12 characters or you can work with first 3 characters.
+
+`docker container stop {id}` - stops the container.
+
+`docker container ls -a` - shows all containers that have been run but in stop state currently.
+
+`docker ps` is same as `docker container ls`. `docker image ls` lists images.
+
+### Exploring the Dockerfile
+
+```Dockerfile
+cd ${HOME}
+mkdir class-docker-images
+cd ${HOME}/class-docker-images
+git clone ...
+cd folder_name
+```
+
+It is a file of instructions. `FROM` sets the base image. `FROM` is actually not a requirement. `scratch` can be used as `FROM` to make a fresh image without base.
+`alpine` is a distribution of linux. Designed to be small, used for embedded system.
+`RUN` executes a command on top of an image.
+`ADD` (`COPY` preferred for non-url) - get files out of our project and add it inside container.
+
+If nothing is running in foreground in a container then the kernel shuts it down. So like apache server is run then run it in FOREGROUND.
+
+`EXPOSE 80` - port 80 on this container should be available to other containers in the network. Docker uses IP table in the background and makes sure this port is reachable. You don't need to provide it if you're using `-p`.
+
+`CMD` is not the same thing as `RUN`. It is just setting some metadata. It also has an entry point. When container is created from image, the first thing its gonna do is what's mentioned in `CMD` e.g. `CMD ["./start.sh"]`
+
+`ENTRYPOINT` - if mentioned then following `CMD` commands will run in the executable environment.
+
+Default shell environment can be different. So `/bin/bash` should be defined as ENTRYPOINT.
+
+### Linux Containers
+
+A Linux Container is a single instantiation of a Docker or OCI-standard image. OCI - Open Container Initiative.
+
+### Building Image
+
+`docker image build -t image_name:latest .` - `-t` saves a step as we know what it needs to be tagged. `latest` is the default. The `.` is the build context - this is where the files are which needed to be uploaded. The current directory is looked at by default for the `Dockerfile`.
+
+The reason to tag is to push `docker image push image_name`
+
+`docker search something` can be used to search in dockerhub.
 
 ## Q&A
 
