@@ -3,6 +3,7 @@
 Randomly going over concepts of Java.
 
 - [Java Pointers](#java-pointers)
+  - [Java Essentials](#java-essentials)
   - [Take Note of](#take-note-of)
   - [Things to Remember & Gotchas](#things-to-remember--gotchas)
   - [Effective Java](#effective-java)
@@ -91,6 +92,10 @@ Randomly going over concepts of Java.
     - [Find frequency of characters in a string in java - Ref](#find-frequency-of-characters-in-a-string-in-java---ref)
     - [Create Singleton - Ref](#create-singleton---ref)
   - [References/Useful Links](#referencesuseful-links)
+
+## Java Essentials
+
+jshell creates REPL i.e. Read, Evaluate, Print and Loop. To exit out of jshell use `Ctrl + D`. Java is statically typed. Java objects are always by reference. You cannot de-reference an object.
 
 ## Take Note of
 
