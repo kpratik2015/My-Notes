@@ -155,3 +155,60 @@ export const configureStore = () =>
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION_()
   );
 ```
+
+---
+
+Redux generally used for application's data. Like data from server. A form data don't need to be stored in redux. Keep it locally using `useState`. Unless the form values will flow from one page to another.
+
+useSelector v/s connect -
+using 2 hooks: useSelector and useDispatch
+
+```jsx
+import { useSelector, useDispatch } from "react-redux";
+
+export const TodoList = () => {
+  const todos = useSelector((state) => state.todos); // hooks way of connect.
+  const dispatch = useDispatch();
+  const onClick = (e) => {
+    const text = e.target.value;
+    dispatch(createTodo(text));
+  };
+  return null;
+};
+```
+
+Why use connect instead of useSelector ? Using connect makes testing components easier.
+
+For storing redux store locally:
+
+```jsx
+// store.js
+import storage from "redux-persist/lib/storage";
+import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
+
+const persistedReducer = persistReducer(
+  {
+    key: "root",
+    storage,
+    stateReconciler: autoMergeLevel2, // If existing state, then merge into it upto 2 levels deep.
+  },
+  rootReducer
+);
+
+export const configureStore = () => createStore(persistedReducer);
+
+// index.js
+import { persistStore } from "redux-persist";
+import { PersistGate } from "redux-persist/lib/integration/react";
+
+const store = configureStore();
+const persistor = persistStore(store);
+
+// ...
+
+<Provider store={store}>
+  <PersistGate persistor={persistor} loading={<p>Loading...</p>}>
+    <App />
+  </PersistGate>
+</Provider>;
+```
