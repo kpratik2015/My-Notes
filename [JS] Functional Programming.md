@@ -8,6 +8,7 @@
   - [JavaScript objects in a functional way](#javascript-objects-in-a-functional-way)
   - [Partial Application](#partial-application)
   - [Composition](#composition)
+  - [Tips](#tips)
 
 All paradigms try to solve the problem of organizing all the ideas that a program solves. Functional programming makes it easier to avoid hard to re-create bugs. It does this by writing program in a series of testable self-contained code.
 
@@ -328,3 +329,18 @@ const capitalizeHairColor = (obj) => ({
 
 people.map((person) => capitalizeName(removeAge(capitalizeHairColor(person))));
 ```
+
+## Tips
+
+```js
+const mulByTwo = (n) => n * 2;
+const addFour = (n) => n + 4;
+const pipe = (fn, ...fns) => (...args) =>
+  fns.reduce((acc, f) => f(acc), fn(...args));
+
+[1, 2, 3].map(pipe(mulByTwo, addFour));
+```
+
+`.map` and `.filter` do create new arrays so that definitely is something to be aware of.
+
+By the isomorphism of FP with CT we know that (fmap g) ∘ (fmap f) equals fmap (g ∘ f), so a compiler would be able to optimize this away easily. This is not the case in JS because g and f might have order-dependent side-effects, i.e. it is not functional.
