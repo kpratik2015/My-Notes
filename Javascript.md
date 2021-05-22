@@ -54,6 +54,7 @@
   - [Testing](#testing)
     - [Code coverage](#code-coverage)
   - [Benchmarking](#benchmarking)
+  - [Fascinating Parts](#fascinating-parts)
   - [Q&A](#qa)
     - [What is variable hoisting?](#what-is-variable-hoisting)
     - [What is difference between undefined and null?](#what-is-difference-between-undefined-and-null)
@@ -2912,6 +2913,18 @@ x.sort(function mySort(a, b) {
 The second case is not only testing a custom user JS function, but it's also testing creating a new function expression for each iteration. The inline function expression creation can be from 2% to 20% slower.
 
 _Note: a different outcome between two test cases almost certainly invalidates the entire test!_
+
+## Fascinating Parts
+
+In JavaScript every function call is a vararg call.
+
+```js
+function max(a, b) {
+  if (a > b) return a;
+  return b;
+}
+console.log(max(4, 7, 13)); // Works but wrong result
+```
 
 ## Q&A
 
