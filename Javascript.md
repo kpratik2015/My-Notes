@@ -125,6 +125,9 @@
     - [What are some limitations of arrow functions?](#what-are-some-limitations-of-arrow-functions)
     - [What is the difference in the default scope of traditional functions and arrow functions?](#what-is-the-difference-in-the-default-scope-of-traditional-functions-and-arrow-functions)
     - [Give an example of using new ES6 syntax for creating a parent/child relationship.](#give-an-example-of-using-new-es6-syntax-for-creating-a-parentchild-relationship)
+    - [Error v/s new Error](#error-vs-new-error)
+    - [Number() conversion v/s parseInt()](#number-conversion-vs-parseint)
+    - [Object.getOwnPropertyNames() vs Object.keys()](#objectgetownpropertynames-vs-objectkeys)
   - [Tricky outputs](#tricky-outputs)
     - [this](#this)
     - [Promise](#promise)
@@ -158,6 +161,7 @@
     - [Array.splice() vs Array.slice()](#arraysplice-vs-arrayslice)
     - [Object.assign v/s spread](#objectassign-vs-spread)
   - [Credits/Reference](#creditsreference)
+  - [Read More](#read-more)
 
 ## Objects
 
@@ -279,7 +283,7 @@ _Instance Properties (e.g., var myFunction = function(x, y, z) {}; myFunction.le
 _Instance Methods (e.g., var myFunction = function(x, y, z) {}; myFunction.toString();)_:
 
 - apply()
-- call()
+- call() : “call” is a method on every function that allows you to invoke the function specifying in what context the function will be invoked.
 - toString()
 
 _Functions always return a value. If not returned, then undefined is returned_
@@ -585,6 +589,8 @@ process( someReallyBigData );
 
 ## Hoisting
 
+This process of assigning variable declarations a default value of undefined during the creation phase is called Hoisting.
+
 ```js
 a = 2;
 var a;
@@ -664,6 +670,7 @@ function foo() {
 foo();
 ```
 
+This concept of a child function “closing” over the variable environment of its parent function is called Closures.
 Most accurate way to explain bar() referencing a is via lexical scope look-up rules, and those rules are only (an important!) part of what closure is.
 From a purely academic perspective, what is said of the above snippet is that the function bar() has a closure over the scope of foo().
 
@@ -851,6 +858,8 @@ Three types of scope:
 **JavaScript Does Not Have Block Scope**
 
 **The Scope Chain (Lexical Scoping)**
+
+The process of the JavaScript engine going one by one and checking each individual parent Execution Context if a variable doesn’t exist in the local Execution Context is called the Scope Chain.
 
 ```js
 var sayHiText = "howdy";
@@ -3062,6 +3071,7 @@ Strict mode makes several changes to normal JavaScript semantics. First, strict 
 
 ### Explain closures in JavaScript? When are they used?
 
+Think of closures as a kind of regional scope: broader than local but not as broad as global.
 A closure is an inner function that has access to the enclosing function’s variables. The closure has access to its own scope (variables defined between its curly brackets), access to the outer function’s variables, and also it has access to the global variables.
 
 ### Explain the for-in loop?
@@ -3140,13 +3150,10 @@ var MyNumber = {
 };
 var typeOfNumber = MyNumber.getTypeOfNumber.call(null, 21); // "Odd"
 console.log(typeOfNumber);
-var typeOfAllNumber = MyNumber.getTypeOfAllNumber.apply(null, [
-  2,
-  4,
-  5,
-  78,
-  21,
-]);
+var typeOfAllNumber = MyNumber.getTypeOfAllNumber.apply(
+  null,
+  [2, 4, 5, 78, 21]
+);
 console.log(typeOfAllNumber); //  ["Even", "Even", "Odd", "Even", "Odd"]
 ```
 
@@ -3425,6 +3432,65 @@ let animal = { type: "mammal" };
 Object.setPrototypeOf(dog, animal);
 console.log(Object.getPrototypeOf(dog));
 ```
+
+### Error v/s new Error
+
+In React, `throw new Error("The application could not authenticate.");` logs into the console and shows an error screen while in development mode. Whereas the following code only logs into the console: `throw "The application could not authenticate.";`
+
+In JS:
+
+- `throw "My error"`: this creates an Error object and returns the primitive data extracted from the constructor "this" object. And if you try checking the typeof in the catch block, it tells you its a primitive typeof "string"
+- `throw new Error("My error")`: this returns you an object where you can access the error value from the message property. What simply happens here is that the "new keyword" constructs a "this" object and assign "{name:"Error",message:"..."}" to it and returns it. And when you try to check the typeof from the catch block, you will see a typeof "object".
+
+In general:
+`throw new Error('problem')` captures a number of properties of the place where the error happened.
+`throw 'problem'` does not.
+
+Exceptions you plan to catch can be simple: throw 'problem'. Exceptions you don't plan to catch should use new Error('problem'). Let's say the local datastore is corrupted, you might be in a situation where you don't want to handle it, but you do want to flag it. In this case it's a good time to use the Error object so you have that stack snapshot.
+
+### Number() conversion v/s parseInt()
+
+`Number()` converts the type whereas parseInt parses the value of input.
+
+```js
+parseInt("32px"); // 32
+parseInt("5e1"); // 5
+Number("32px"); // NaN
+Number("5e1"); // 50
+```
+
+`parseInt` will parse up to the first non-digit character. On the other hand, `Number` will try to convert the entire string.
+
+`parseInt` accepts two parameters. The second parameter is used to indicate the radix number. If the value starts with `0x` or `0X`, then the radix is 16 (hexadecimal). In other cases, the radix is 10 (decimal). Since the method could be implemented differently in different versions of JavaScript and browsers, it's recommended to pass the radix number.
+
+```js
+parseInt("0101", 10); // 101
+parseInt("0101", 2); // 5
+```
+
+They return different results when we passing special values such as `undefined` or `null`
+
+```js
+parseInt(); // NaN
+parseInt(null); // NaN
+parseInt(true); // NaN
+parseInt(""); // NaN
+Number(); // 0
+Number(null); // 0
+Number(true); // 1
+Number(""); // 0
+```
+
+Space can create issue:
+
+```js
+parseInt("   5   "); // 5
+parseInt("12 345"); // 12, not 12345
+```
+
+### Object.getOwnPropertyNames() vs Object.keys()
+
+[Reference](https://thisthat.dev/object-get-own-property-names-vs-object-keys/)
 
 ## Tricky outputs
 
@@ -4036,3 +4102,8 @@ Object.assign({}, obj)
 1. Cody Lindley - JavaScript Enlightenment
 2. Kyle Simpson - You Dont Know JS
 3. Internet
+
+## Read More
+
+1. [The Ultimate Guide to Hoisting, Scopes, and Closures in JavaScript](https://ui.dev/ultimate-guide-to-execution-contexts-hoisting-scopes-and-closures-in-javascript/)
+2. [Understanding the "this" keyword, call, apply, and bind in JavaScript](https://ui.dev/this-keyword-call-apply-bind-javascript/)

@@ -39,6 +39,7 @@ A JavaScript library for building user interfaces.
   - [Tricky Outputs](#tricky-outputs)
     - [setInterval + ReactDOM.render()](#setinterval--reactdomrender)
   - [Notes](#notes)
+  - [Questions](#questions)
   - [Q&A](#qa)
     - [What are React components?](#what-are-react-components)
     - [How do you tell React to insert component on page (DOM)?](#how-do-you-tell-react-to-insert-component-on-page-dom)
@@ -1352,6 +1353,32 @@ function Counter() {
 - Moving more complexity higher in the tree makes those higher-level components more complicated and forces the lower-level components to be more flexible than you may want.
 - One can use [render props](https://reactjs.org/docs/render-props.html) if the child needs to communicate with the parent before rendering. If two or more context values are often used together, you might want to consider creating your own render prop component that provides both.
 - To keep context re-rendering fast, React needs to make each context consumer a separate node in the tree.
+
+## Questions
+
+- What design pattern does React use? Flux.
+
+- What is the use of key? The developer can hint at which child elements may be stable across different renders with a key prop.
+
+- Tell me what you know about setState hook in react. Is it any different from this.setState used in class components?
+
+- When would you pass a function to setState ?
+
+- What's the use of useEffect hook?
+
+- Do you know what React internally uses to compare hook's dependency array? `Object.is` instead of `===`. NaN !== NaN in JavaScript. (it is the only value that is not === to itself in JavaScript)
+
+- What's the difference between useEffect and useLayoutEffect? useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+
+- Is useEffect asynchronous? Does the ordering of useEffect matter? Does it executes after paint or before?
+
+- Class components had a render() function. In hooks based react, what is the render function?
+
+- Do you know about Portal? What's the use case.
+
+- Are there any functions that the hooks based React doesn't have but it's there in class based components? getSnapshotBeforeUpdate, getDerivedStateFromError and componentDidCatch.
+
+- Can we use a hook conditionally? e.g. if (name !== '') { useEffect ... }
 
 ## Q&A
 
