@@ -13,6 +13,7 @@
   - [Scope Closure](#scope-closure)
   - [Lexical this (Arrow Functions) !!](#lexical-this-arrow-functions-)
   - [Scope and Closures in Short](#scope-and-closures-in-short)
+  - [Prototypal Inheritance](#prototypal-inheritance)
   - [Function Prototype Property](#function-prototype-property)
   - [Array()](#array)
   - [String()](#string)
@@ -128,6 +129,10 @@
     - [Error v/s new Error](#error-vs-new-error)
     - [Number() conversion v/s parseInt()](#number-conversion-vs-parseint)
     - [Object.getOwnPropertyNames() vs Object.keys()](#objectgetownpropertynames-vs-objectkeys)
+    - [What are disadvantages of closures?](#what-are-disadvantages-of-closures)
+    - [Why setTimeout does not execute as per delay?](#why-settimeout-does-not-execute-as-per-delay)
+    - [What does it mean when people say don't block your main thread?](#what-does-it-mean-when-people-say-dont-block-your-main-thread)
+    - [What is a simple way to block main thread?](#what-is-a-simple-way-to-block-main-thread)
   - [Tricky outputs](#tricky-outputs)
     - [this](#this)
     - [Promise](#promise)
@@ -639,7 +644,7 @@ function foo() {
 Function declarations that appear inside of normal blocks typically hoist to the enclosing scope, rather than being conditional as this code implies:
 
 ```js
-foo(); // "b"
+foo(); // Uncaught TypeError: foo is not a function
 var a = true;
 if (a) {
   function foo() {
@@ -913,6 +918,69 @@ console.log(countUpFromZero()); // logs 2
 ```
 
 This technique, facilitated via the scope chain, is an example of a closure.
+
+## Prototypal Inheritance
+
+In JavaScript, objects have a special hidden property `[[Prototype]]`, that is either `null` or references another object. That object is called “a prototype”.
+
+```js
+let animal = {
+  walk() {
+    alert("Animal walk");
+  },
+};
+let rabbit = {
+  __proto__: animal,
+};
+
+// walk is taken from the prototype
+rabbit.walk(); // Animal walk
+```
+
+_Note: `__proto__` is a historical getter/setter for `[[Prototype]]`. `__proto__` is not the same as the internal `[[Prototype]]` property. It’s a getter/setter for `[[Prototype]]`. Modern JS suggests that we should use `Object.getPrototypeOf/Object.setPrototypeOf`_
+
+The prototype is only used for reading properties. Write/delete operations work directly with the object.
+
+```js
+// Continue from previous snippet
+rabbit.walk = function () {
+  alert("Rabbit Walk!");
+};
+rabbit.walk(); // Rabbit Walk!
+```
+
+_Accessor properties are an exception_
+
+```js
+let user = {
+  name: "John",
+  set Name(value) {
+    this.name = value;
+  },
+  get Name() {
+    return `${this.name}`;
+  },
+};
+let admin = { __proto__: user };
+admin.Name = "Alice"; // setter is triggered
+alert(admin.Name); // Alice
+alert(user.Name); // John, state of user protected
+```
+
+**In a method call, this is always the object before the dot.**
+
+But why does `hasOwnProperty` not appear in the `for..in` loop? it’s not `enumerable`. Just like all other properties of `Object.prototype`, it has `enumerable:false` flag.
+
+Changing a prototype “on-the-fly” with `Object.setPrototypeOf` or `obj.__proto__=` is a very slow operation as it breaks internal optimizations for object property access operations.
+
+_Note: A string can not become a prototype._
+
+We can create an object without a prototype by `Object.create(null)`. Such objects are used as **pure dictionaries**.
+
+```js
+let myDict = Object.create(null);
+myDict.hello = "Namaste";
+```
 
 ## Function Prototype Property
 
@@ -3492,6 +3560,51 @@ parseInt("12 345"); // 12, not 12345
 
 [Reference](https://thisthat.dev/object-get-own-property-names-vs-object-keys/)
 
+### What are disadvantages of closures?
+
+Overconsumption of memory because everytime a closure is formed, it consumes a lot of memory. And those closed over variables are not garbage collected till the program is over.
+
+If not handled properly, it can lead to memory leak.
+
+### Why setTimeout does not execute as per delay?
+
+```js
+// Start of JS program, a Global Execution Context (GEC) is created and pushed onto Call Stack
+console.log("Start");
+
+// On encountering setTimeout, the function passed is send to Web APIs and a timer is started
+setTimeout(function cb() {
+  console.log("Callback");
+}, 5000);
+
+// ... some million lines of code or a main thread blocking code taking 10 seconds and keeping the call stack busy
+let startDate = new Date().getTime();
+let endDate = startDate;
+while (endDate < startDate + 10000) {
+  endDate = new Date().getTime();
+}
+
+// After 5th second mark, the CB is pushed into Callback Queue and it waits for 10 seconds
+// as it'll wait for GEC to be pushed out of Call Stack
+console.log("While expires");
+
+// Note: Callback will be printed last
+```
+
+### What does it mean when people say don't block your main thread?
+
+What that means is - don't block the call stack. If the call stack is not empty then it can't process any other event
+
+### What is a simple way to block main thread?
+
+```js
+let startDate = new Date().getTime();
+let endDate = startDate;
+while (endDate < startDate + 10000) {
+  endDate = new Date().getTime();
+}
+```
+
 ## Tricky outputs
 
 ### this
@@ -3916,13 +4029,15 @@ This is a reminder that classes are simply syntactic sugar that make JavaScript 
 
 ### var v/s let v/s const
 
+All declarations (`function`, `var`, `let`, `const` and `class`) are hoisted in JavaScript, while the `var` declarations are initialized with `undefined`, but `let` and `const` declarations remain uninitialized.
+
 ```
 ---------------------------------------------------------------------------
 Keyword | Scope          | Hoisting | Can Be Reassigned | Can Be Redeclared
 ---------------------------------------------------------------------------
 var     | Function scope | Yes      | Yes               | Yes
-let     | Block scope    | No       | Yes               | No
-const   | Block scope    | No       | No                | No
+let     | Block scope    | Yes       | Yes               | No
+const   | Block scope    | Yes       | No                | No
 ```
 
 - `var` declarations are globally scoped or function scoped while `let` and `const` are block scoped.
