@@ -134,6 +134,7 @@
     - [What does it mean when people say don't block your main thread?](#what-does-it-mean-when-people-say-dont-block-your-main-thread)
     - [What is a simple way to block main thread?](#what-is-a-simple-way-to-block-main-thread)
   - [Tricky outputs](#tricky-outputs)
+    - [Comma operator/evaluation](#comma-operatorevaluation)
     - [this](#this)
     - [Promise](#promise)
     - [concat string](#concat-string)
@@ -158,6 +159,8 @@
     - [Comparing objects v/s primitives with ===](#comparing-objects-vs-primitives-with-)
     - [Passing {} to map.set](#passing--to-mapset)
     - [Console output for class](#console-output-for-class)
+    - [Sort](#sort)
+    - [typeof](#typeof)
   - [Compare](#compare)
     - [Event Loop, Call Stack, Event & Job Queue](#event-loop-call-stack-event--job-queue)
     - [var v/s let v/s const](#var-vs-let-vs-const)
@@ -3607,6 +3610,22 @@ while (endDate < startDate + 10000) {
 
 ## Tricky outputs
 
+### Comma operator/evaluation
+
+```js
+let x = 1;
+
+x = (x++, x);
+
+console.log(x); // expected output: 2
+
+x = (2, 3);
+
+console.log(x); // expected output: 3
+```
+
+It evaluates each of its operands (from left to right) and then returns the value of the last operand.
+
 ### this
 
 ```js
@@ -4012,6 +4031,25 @@ console.log(typeof Person); // function
 ```
 
 This is a reminder that classes are simply syntactic sugar that make JavaScript feel more object oriented.
+
+### Sort
+
+Always keep in mind that the following array is valid: `const array = ["1", true, 55, 1.421, "foo", {}];`
+
+```js
+const numbers = [33, 2, 8];
+numbers.sort(); // const intermediate = ["33", "2", "8"];
+console.log(numbers[1]); // 33
+```
+
+### typeof
+
+```js
+console.log(typeof typeof 1); // string
+console.log(typeof NaN); // number
+```
+
+This expression is evaluated from right to left.
 
 ## Compare
 

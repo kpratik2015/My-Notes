@@ -13,6 +13,10 @@
   - [Class Related](#class-related)
   - [Collection classes](#collection-classes)
   - [Generators and Iterables](#generators-and-iterables)
+  - [Handy snippets](#handy-snippets)
+    - [Getting a random number in a specific range](#getting-a-random-number-in-a-specific-range)
+    - [Divide in half + round down](#divide-in-half--round-down)
+    - [Get an Array of all the links in the document](#get-an-array-of-all-the-links-in-the-document)
 
 ## Basic
 
@@ -468,3 +472,26 @@ A generator is a special kind of function that generates successive values.
 - so on
 
 A generator function name starts with `*`. Inside the function, use `yield` keyword to yield control back to client (optionally supplying a value)
+
+## Handy snippets
+
+### Getting a random number in a specific range
+
+```js
+const x = Math.floor(Math.random() * (max - min + 1)) + min;
+```
+
+### Divide in half + round down
+
+```js
+console.log(28 >> 1); // 14
+console.log(29 >> 1); // 14
+console.log(4 >> 1); // 2
+console.log(5 >> 1); // 2
+```
+
+### Get an Array of all the links in the document
+
+```js
+const allLinks = document.links;
+```
