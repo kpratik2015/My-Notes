@@ -166,12 +166,14 @@ const argsAreNumbers = (func) => (x, y) => {
 
 const add = argsAreNumbers((x, y, z) => x + y + z); // argsAreNumbers currently only takes 2 args
 
-const argsAreNumbers = (func) => (...args) => {
-  if (!args.every((arg) => typeof arg === "number")) {
-    throw new Error("Args must be numbers");
-  }
-  return func(...args);
-};
+const argsAreNumbers =
+  (func) =>
+  (...args) => {
+    if (!args.every((arg) => typeof arg === "number")) {
+      throw new Error("Args must be numbers");
+    }
+    return func(...args);
+  };
 
 const add = (...numbers) => {
   return numbers.reduce((sum, x) => sum + x);
@@ -205,7 +207,10 @@ If object has functions then spread operator will copy those functions.
 ```js
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-const not = (func) => (...args) => !func(...args);
+const not =
+  (func) =>
+  (...args) =>
+    !func(...args);
 const isEven = (x) => x % 2 === 0;
 const isOdd = not(isEven); // combining functions
 
@@ -251,9 +256,9 @@ getPropertyWithDefault("N/A", "name", { name: "John" }); // 'John'
 
 // Duplication of N/A and name above.
 
-const getPropertyWithDefaultBetter = (defaultValue) => (propertyName) => (
-  obj
-) => obj[propertyName] || defaultValue;
+const getPropertyWithDefaultBetter =
+  (defaultValue) => (propertyName) => (obj) =>
+    obj[propertyName] || defaultValue;
 const getName = getPropertyWithDefaultBetter("N/A")("name"); // Single place to make change of N/A if suppose later on management decides the default name should be Anonymous. Also, if backend changes name property to something else then we make change at one place.
 getName({ name: "John" });
 ```
@@ -281,7 +286,10 @@ composed(1);
 
 // Advance:
 
-const compose = (...funcs) => (x) => funcs.reduce((acc, func) => func(acc), x); // Takes several functions as an argument and invokes those functions on argument
+const compose =
+  (...funcs) =>
+  (x) =>
+    funcs.reduce((acc, func) => func(acc), x); // Takes several functions as an argument and invokes those functions on argument
 
 const composedA = compose(add1, double, square);
 
@@ -335,8 +343,10 @@ people.map((person) => capitalizeName(removeAge(capitalizeHairColor(person))));
 ```js
 const mulByTwo = (n) => n * 2;
 const addFour = (n) => n + 4;
-const pipe = (fn, ...fns) => (...args) =>
-  fns.reduce((acc, f) => f(acc), fn(...args));
+const pipe =
+  (fn, ...fns) =>
+  (...args) =>
+    fns.reduce((acc, f) => f(acc), fn(...args)); // Pipe works the exact same way as Compose, the only difference is that instead of executing arguments from right to left, it executes them from left to right
 
 [1, 2, 3].map(pipe(mulByTwo, addFour));
 ```

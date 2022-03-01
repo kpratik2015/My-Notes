@@ -13,6 +13,11 @@
   - [Class Related](#class-related)
   - [Collection classes](#collection-classes)
   - [Generators and Iterables](#generators-and-iterables)
+  - [JSON utilities](#json-utilities)
+    - [Formatting](#formatting)
+    - [Hiding certain properties in stringified data](#hiding-certain-properties-in-stringified-data)
+    - [Using toJSON to create custom output formats](#using-tojson-to-create-custom-output-formats)
+    - [Reviving data](#reviving-data)
   - [Handy snippets](#handy-snippets)
     - [Getting a random number in a specific range](#getting-a-random-number-in-a-specific-range)
     - [Divide in half + round down](#divide-in-half--round-down)
@@ -472,6 +477,142 @@ A generator is a special kind of function that generates successive values.
 - so on
 
 A generator function name starts with `*`. Inside the function, use `yield` keyword to yield control back to client (optionally supplying a value)
+
+## JSON utilities
+
+### Formatting
+
+```js
+const user = {
+  name: "John",
+  age: 30,
+  isAdmin: true,
+  friends: ["Bob", "Jane"],
+  address: {
+    city: "New York",
+    country: "USA",
+  },
+};
+console.log(JSON.stringify(user, null, 2)); // 2 -> spaces of indentation, null -> replacer
+// {
+//   "name": "John",
+//   "age": 30,
+//   "isAdmin": true,
+//   "friends": [
+//     "Bob",
+//     "Jane"
+//   ],
+//   "address": {
+//     "city": "New York",
+//     "country": "USA"
+//   }
+// }
+```
+
+### Hiding certain properties in stringified data
+
+```js
+const user = {
+  name: "John",
+  password: "12345",
+  age: 30,
+};
+console.log(
+  JSON.stringify(user, (key, value) => {
+    if (key === "password") {
+      return;
+    }
+    return value;
+  })
+);
+```
+
+You can also pass an array to get certain keys only:
+
+```js
+const user = {
+  name: "John",
+  password: "12345",
+  age: 30,
+};
+console.log(JSON.stringify(user, ["name", "age"]));
+
+// Also works on array
+
+const cakes = [
+  {
+    name: "Chocolate Cake",
+    // .. more data
+  },
+];
+console.log(JSON.stringify(cakes, ["name"])); // [{"name":"Chocolate Cake"},{"name":"Vanilla Cake"},...]
+```
+
+### Using toJSON to create custom output formats
+
+```js
+class Fraction {
+  constructor(n, d) {
+    this.numerator = n;
+    this.denominator = d;
+  }
+
+  toJSON() {
+    return `${this.numerator}/${this.denominator}`;
+  }
+}
+
+console.log(JSON.stringify(new Fraction(1, 2))); // JSON.stringify respects the toJSON property and output "1/2".
+```
+
+### Reviving data
+
+```js
+class Fraction {
+  constructor(n, d) {
+    this.numerator = n;
+    this.denominator = d;
+  }
+
+  toJSON() {
+    return `${this.numerator}/${this.denominator}`;
+  }
+
+  static fromJSON(key, value) {
+    if (typeof value === "string") {
+      const parts = value.split("/").map(Number);
+      if (parts.length === 2) return new Fraction(parts);
+    }
+
+    return value;
+  }
+}
+
+const fraction = new Fraction(1, 2);
+const stringified = JSON.stringify(fraction);
+console.log(stringified);
+// "1/2"
+const revived = JSON.parse(stringified, Fraction.fromJSON);
+console.log(revived);
+// Fraction { numerator: 1, denominator: 2 }
+```
+
+We can pass a second argument to JSON.parse to specify a reviver function.
+
+To revive date:
+
+```js
+function reviveDate(key, value) {
+  const regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,}|)Z$/;
+
+  if (typeof value === "string" && regex.test(value)) {
+    return new Date(value);
+  }
+
+  return value;
+}
+console.log(JSON.parse('"2022-03-01T06:28:41.308Z"', reviveDate));
+```
 
 ## Handy snippets
 
