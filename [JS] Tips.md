@@ -15,6 +15,11 @@
     - [Profile Applications](#profile-applications)
     - [Memory](#memory)
     - [Detect Memory Leaks in Node.js](#detect-memory-leaks-in-nodejs)
+  - [Design Patterns](#design-patterns)
+    - [Constructor Pattern](#constructor-pattern)
+    - [Singleton Pattern](#singleton-pattern)
+    - [Observer Pattern](#observer-pattern)
+    - [Mediator Pattern](#mediator-pattern)
 
 ## Multiple condition checking
 
@@ -284,3 +289,182 @@ Allocation timelines can be started and while recording we can perform actions t
 In inspect mode, we can go to chrome's inspect devices. We then have a memory tab for our Node.js application.
 
 `autocannon -c 1 -d 30 http://localhost:3003` - It'll blast server endpoint with a lot of request. Then we can take snapshots of application via Memory tab and see things changing.
+
+## Design Patterns
+
+### Constructor Pattern
+
+Three common ways to create an object in JavaScript are:
+
+```js
+let instance = {};
+// or
+let instance = Object.create(Object.prototype);
+// or
+let instance = new Object();
+```
+
+Four ways to add properties to it:
+
+```js
+// The . notation
+instance.key = "value";
+
+// brackets notation
+instance["key"] = "value";
+
+// defining a property with Object.defineProperty
+Object.defineProperty(instance, "key", {
+  value: "value",
+  writable: true,
+  enumerable: true,
+  configurable: true,
+});
+
+// defining multiple properties with Object.defineProperties
+Object.defineProperties(instance, {
+  firstKey: {
+    value: "first key value",
+    writable: true,
+  },
+  secondKey: {
+    value: "second key value",
+    writable: false,
+  },
+});
+```
+
+Also, with `new` we can use a function as constructor and initialize properties on the same we would on a more traditional language.
+
+### Singleton Pattern
+
+```js
+let configurationSingleton = (() => {
+  // private value of the singleton initialized only once
+  let config;
+
+  const initializeConfiguration = (values) => {
+    this.randomNumber = Math.random();
+    values = values || {};
+    this.number = values.number || 5;
+    this.size = values.size || 10;
+  };
+
+  // We export the centralized method to return
+  // the singleton's value
+  return {
+    getConfig: (values) => {
+      // initialize the singleton only once
+      if (config === undefined) {
+        config = new initializeConfiguration(values);
+      }
+
+      // and always return the same value
+      return config;
+    },
+  };
+})();
+
+const configObject = configurationSingleton.getConfig({ size: 8 });
+// prints number: 5, size: 8, randomNumber: someRandomDecimalValue
+console.log(configObject);
+
+const configObject1 = configurationSingleton.getConfig({ number: 8 });
+// prints number: 5, size: 8, randomNumber: same randomDecimalValue // como no primeiro config
+console.log(configObject1);
+```
+
+### Observer Pattern
+
+The observer pattern is very useful when we want to optimize the communication between separated parts of the system. It promotes an integration of the parts without making then too coupled.
+
+One variant to this pattern is the `publisher/subscriber` pattern.
+
+On the observer pattern, the emitter keeps all the references to the observers and call the methods directly on these objects. On the other hand, the publisher/subscriber pattern has channels that work as communication layer between the publisher and the subscribers. The publisher fires an event and just executes the callback sent to this event.
+
+```js
+let publisherSubscriber = {};
+
+// We pass an object to the container to manage subscriptions
+((container) => {
+  // the id represents a subscription to the topic
+  let id = 0;
+
+  // the objects will subscribe to a topic by
+  // sending a callback to be executed when
+  // the event is fired
+  container.subscribe = (topic, f) => {
+    if (!(topic in container)) {
+      container[topic] = [];
+    }
+
+    container[topic].push({
+      id: ++id,
+      callback: f,
+    });
+
+    return id;
+  };
+
+  // Every subscription has it's own id, we will
+  // use it to remove the subscription
+  container.unsubscribe = (topic, id) => {
+    let subscribers = [];
+    for (let subscriber of container[topic]) {
+      if (subscriber.id !== id) {
+        subscribers.push(subscriber);
+      }
+    }
+    container[topic] = subscribers;
+  };
+  container.publish = (topic, data) => {
+    for (let subscriber of container[topic]) {
+      // when we execute a callback it is always
+      // good to read the documentation to know which
+      // arguments are passed by the object firing
+      // the event
+      subscriber.callback(data);
+    }
+  };
+})(publisherSubscriber);
+
+let subscriptionID1 = publisherSubscriber.subscribe("mouseClicked", (data) => {
+  console.log("mouseClicked, data: " + JSON.stringify(data));
+});
+let subscriptionID2 = publisherSubscriber.subscribe(
+  "mouseHovered",
+  function (data) {
+    console.log("mouseHovered, data: " + JSON.stringify(data));
+  }
+);
+let subscriptionID1 = publisherSubscriber.subscribe(
+  "mouseClicked",
+  function (data) {
+    console.log("second mouseClicked, data: " + JSON.stringify(data));
+  }
+);
+
+// When we publish an event, all callbacks should
+// be called and you will see three logs
+publisherSubscriber.publish("mouseClicked", { data: "data1" });
+publisherSubscriber.publish("mouseHovered", { data: "data2" });
+
+// We unsubscribe an event
+publisherSubscriber.unsubscribe("mouseClicked", subscriptionID3);
+
+// now we have 2 logs
+publisherSubscriber.publish("mouseClicked", { data: "data1" });
+publisherSubscriber.publish("mouseHovered", { data: "data2" });
+```
+
+The problem with this pattern are the tests. It might get hard to test the behavior of the publisher and listeners.
+
+### Mediator Pattern
+
+When we have different parts of a system that need to communicate on a coordinated manner, a mediator can be the best option.
+
+The difference is that the publisher/subscriber throws the events to the wind and forget about it, while the mediator will take care of each subscriber and be sure they deal with the message.
+
+A good use case for the mediator pattern is the wizard
+
+The mediator becomes a single point of failure, if it stops, everything stops. That is the main problems with this pattern.
