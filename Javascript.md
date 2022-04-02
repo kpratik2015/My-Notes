@@ -56,6 +56,9 @@
     - [Code coverage](#code-coverage)
   - [Benchmarking](#benchmarking)
   - [Fascinating Parts](#fascinating-parts)
+  - [Event loop: microtasks and macrotasks](#event-loop-microtasks-and-macrotasks)
+    - [Optimizations](#optimizations)
+    - [Macrotasks and Microtasks](#macrotasks-and-microtasks)
   - [Q&A](#qa)
     - [What is variable hoisting?](#what-is-variable-hoisting)
     - [What is difference between undefined and null?](#what-is-difference-between-undefined-and-null)
@@ -2170,6 +2173,13 @@ In addition to lexical this, arrow functions also have lexical arguments— they
 
 [**When not to use arrow functions**](https://www.javascripttutorial.net/es6/when-you-should-not-use-arrow-functions/)
 
+Arrow functions:
+
+- Do not have `this`
+- Do not have `arguments`
+- Can’t be called with `new`
+- They also don’t have `super`
+
 ### Symbols
 
 A new primitive type has been added to JavaScript: the symbol. Unlike the other primitive types, however, symbols don’t have a literal form.
@@ -3006,6 +3016,58 @@ function max(a, b) {
 console.log(max(4, 7, 13)); // Works but wrong result
 ```
 
+## Event loop: microtasks and macrotasks
+
+There’s an endless loop, where the JavaScript engine waits for tasks, executes them and then sleeps, waiting for more tasks.
+
+The general algorithm of the engine:
+
+1. While there are tasks:
+   - execute them, starting with the oldest task.
+2. Sleep until a task appears, then go to 1.
+
+The JavaScript engine does nothing most of the time, it only runs if a script/handler/event activates.
+The tasks form a queue, so-called “macrotask queue” (v8 term).
+
+_Rendering never happens while the engine executes a task. It doesn’t matter if the task takes a long time. Changes to the DOM are painted only after the task is complete._
+
+### Optimizations
+
+```js
+let i = 0;
+
+let start = Date.now();
+
+function count() {
+  // move the scheduling to the beginning
+  if (i < 1e9 - 1e6) {
+    setTimeout(count); // schedule the new call
+  }
+
+  do {
+    i++;
+  } while (i % 1e6 != 0);
+
+  if (i == 1e9) {
+    alert("Done in " + (Date.now() - start) + "ms");
+  }
+}
+
+count();
+```
+
+**There’s the in-browser minimal delay of 4ms for many nested setTimeout calls** Even if we set 0, it’s 4ms (or a bit more). So the earlier we schedule it – the faster it runs.
+
+### Macrotasks and Microtasks
+
+**Microtasks** come solely from our code. They are usually created by promises: an execution of .then/catch/finally handler becomes a microtask. Microtasks are used “under the cover” of await as well, as it’s another form of promise handling.
+
+There’s also a special function `queueMicrotask(func)` that queues func for execution in the microtask queue.
+
+Immediately after every macrotask, the engine executes all tasks from microtask queue, prior to running any other macrotasks or rendering or anything else.
+
+All microtasks are completed before any other event handling or rendering or any other macrotask takes place
+
 ## Q&A
 
 ### What is variable hoisting?
@@ -3054,8 +3116,9 @@ Object in Javascript are variables as well. Object can have properties any data 
 The this keyword refers to the object it belongs to.
 In a function, this refers to the Global object (Windows object).
 In strict mode, when used in a function, this is undefined.
-In HTML event handlers, this refers to the element in html that received
-the event.
+In HTML event handlers, this refers to the element in html that received the event.
+
+In JavaScript this is “free”, its value is evaluated at call-time and does not depend on where the method was declared, but rather on what object is “before the dot”.
 
 ### What is namespace?
 
@@ -3652,6 +3715,52 @@ var k = {
   },
 };
 console.log(k.getName()()); // insideK
+```
+
+```js
+function sayHi() {
+  alert(this);
+}
+
+sayHi(); // undefined
+// In non-strict mode the value of this in such case will be the global object (window in a browser)
+```
+
+```js
+function makeUser() {
+  return {
+    name: "John",
+    ref: this,
+  };
+}
+let user = makeUser();
+alert(user.ref.name); // Error: Cannot read property 'name' of undefined
+```
+
+That’s because rules that set this do not look at object definition. Only the moment of call matters.
+Here the value of this inside makeUser() is undefined, because it is called as a function, not as a method with “dot” syntax.
+
+```js
+function makeUser() {
+  return this; // this time there's no object literal
+}
+
+alert(makeUser().name); // Error: Cannot read property 'name' of undefined
+
+// Opposite case:
+
+function makeUser() {
+  return {
+    name: "John",
+    ref() {
+      return this;
+    },
+  };
+}
+
+let user = makeUser();
+
+alert(user.ref().name); // John
 ```
 
 ### Promise

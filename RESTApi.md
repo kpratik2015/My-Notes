@@ -1,5 +1,14 @@
 # REpresentational State Transfer (REST) API
 
+- [REpresentational State Transfer (REST) API](#representational-state-transfer-rest-api)
+  - [HTTP Verbs](#http-verbs)
+  - [Endpoints](#endpoints)
+  - [HTTP](#http)
+  - [Statelessness](#statelessness)
+  - [HTTP Guide](#http-guide)
+    - [CORS](#cors)
+    - [Fetch](#fetch)
+
 RESTful web services use web protocol i.e. HTTP protocol method.
 
 ‘Addressing’ locates resources that are present on the server for the purpose of hosting web services. This is usually done with URI i.e. Unified Resource Identifier.
@@ -101,3 +110,32 @@ A final important point to make about HTTP is that it is a stateless protocol. T
 Statelessness brings a lot of benefits to HTTP. Since all electronic communication systems have signal loss over time, if we did not have a stateless protocol, things would constantly break if one request/response cycle didn’t go through. As a result HTTP is known as a very resilient distributed protocol.
 
 Ultimately a web API is a collection of endpoints that expose certain parts of an underlying database.
+
+## HTTP Guide
+
+For a long time, the only HTTP Web API available was XMLHttpRequest or XHR. The more modern version, supported by all browsers except IE, is Fetch - where XHR uses Callbacks, Fetch uses Promises.
+
+For HTTP requests:
+
+Create = POST
+Read = GET
+Update = PUT or PATCH
+Delete = DELETE
+
+### CORS
+
+CORS stands for Cross-Origin Resource Sharing. By default, browsers and servers running JavaScript use CORS to block requests from a client with a different origin than the server for security. The goal of CORS is to protect the client and server from executing malicious code contained in an HTTP request and to prevent data being stolen from the server.
+
+For most browsers, origin refers to the host, the protocol, and the port, if the port is specified.
+
+Before your original request is sent, HTTP will send a preflight request with some headers like the origin and the method to check if the request you want to make is safe. The server then sends back a preflight response with CORS headers like Access-Control-Allow-Origin and Access-Control-Allow-Methods that tell the browser whether the original request is allowed. This is when a request will be blocked by CORS if it's going to be.
+
+_You can only dictate if a server allows CORS requests if you are writing the server code._
+
+If your origin isn't in the list in the Access-Control-Allow-Origin header in the response, your request will be blocked
+
+However, even if the server allows CORS requests, your browser will block a CORS request in your client-side code. You can get around this by requesting data from the server using your own server and then passing what you needed from the response to your client.
+
+### Fetch
+
+![](images/Web/Fetch.PNG)
