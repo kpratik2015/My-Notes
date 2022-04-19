@@ -26,6 +26,12 @@ Another solution is to use custom events. These are normal events but with a cus
 
 Other options: Web storage & Query strings
 
+Examples of Event Emitter to use:
+
+1. Observables / Subjects (rxjs) - one microfrontend emits new values to a stream that can be consumed by any other microfrontend. It exports the observable to all microfrontends from its in-browser module, so that others may import it.
+2. CustomEvents - browsers have a built-in event emitter system that allows you to fire custom events. Check out [this documentation](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events) for more information. Firing the events with `window.dispatchEvent` allows you to subscribe in any other microfrontend with `window.addEventListener`.
+3. Any other pub/sub event emitter system.
+
 ## Routing
 
 When you use client-side composition and routing, your best implementation choice is an application shell loading multiple micro-frontends in the same view with the webpack plug-in called Module Federation, with iframes, or with web components, for instance. For the edge-side composition, the only solution available is using edge-side includes (ESI).

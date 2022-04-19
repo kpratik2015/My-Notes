@@ -1,6 +1,7 @@
 # Javascript Notes
 
 - [Javascript Notes](#javascript-notes)
+  - [Basics](#basics)
   - [Objects](#objects)
   - [Working with Objects and Properties](#working-with-objects-and-properties)
   - [Object()](#object)
@@ -173,6 +174,49 @@
     - [Object.assign v/s spread](#objectassign-vs-spread)
   - [Credits/Reference](#creditsreference)
   - [Read More](#read-more)
+
+## Basics
+
+- many numbers lose some precision when only 64 bits are available to store them. The important thing is to be aware of it and treat
+  fractional digital numbers as approximations, not as precise values.
+- JavaScript’s representation uses 16 bits per string element, which can describe up to 2^16 different characters
+- uppercase letters are always “less” than lowercase ones, so "Z" < "a" and nonalphabetic characters (!, -, and so on) are also included in the ordering.
+- There is only one value in JavaScript that is not equal to itself, and that is `NaN` (“not a number”). `NaN` is supposed to denote the result of a nonsensical computation
+- Every time a function is called, the current context is stored on top of the call stack. When a function returns, it removes the top context from the stack and uses that context to continue execution.
+- Different calls to same function can’t trample on one another’s local bindings.
+- When called, the function body sees the environment in which it was created, not the environment in which it is called.
+- `Math.floor(Math.random() * 10)` -> any number from 0 through 9
+- `typeof null` produces "object"
+- Higher-order functions allow us to abstract over actions, not just values.
+- An emoji takes up 2 character code, so to accurately loop over a string that may contain it - use `for/of`
+- A prototype is another object that is used as a fallback source of properties.
+- If you put the keyword `new` in front of a function call, the function is treated as a constructor.
+- `this` binding holds the value undefined in functions that are not called as methods in strict mode. When making such a call outside of strict mode, this refers to the global scope object
+- Selective catching is useful e.g. `class InputError extends Error {}` with `catch(e) { if (e instanceof InputError) { ... } else { throw e; } }`
+- Promises can be resolved (or rejected) only once
+- `childNodes` are useful when you're not interested in text nodes otherwise `children`
+- You’ll often want to call `preventDefault` in touch event handlers to override the browser’s default behavior (which may include scrolling the page on swiping) and to prevent the mouse events from being fired, for which you may also have a handler.
+- Simplest debouncing:
+  ```js
+  let timeout;
+  textarea.addEventListener("input", () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => console.log("Typed!"), 500);
+  });
+  ```
+- Simplest throttling:
+  ```js
+  let scheduled = null;
+  window.addEventListener("mousemove", (event) => {
+    if (!scheduled) {
+      setTimeout(() => {
+        document.body.textContent = `Mouse at ${scheduled.pageX}, ${scheduled.pageY}`;
+        scheduled = null;
+      }, 250);
+    }
+    scheduled = event;
+  });
+  ```
 
 ## Objects
 
