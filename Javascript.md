@@ -1,7 +1,7 @@
 # Javascript Notes
 
 - [Javascript Notes](#javascript-notes)
-  - [Basics](#basics)
+  - [Pointers](#pointers)
   - [Objects](#objects)
   - [Working with Objects and Properties](#working-with-objects-and-properties)
   - [Object()](#object)
@@ -175,7 +175,7 @@
   - [Credits/Reference](#creditsreference)
   - [Read More](#read-more)
 
-## Basics
+## Pointers
 
 - many numbers lose some precision when only 64 bits are available to store them. The important thing is to be aware of it and treat
   fractional digital numbers as approximations, not as precise values.
@@ -217,6 +217,81 @@
     scheduled = event;
   });
   ```
+- `Intl.NumberFormat` class defines a more general, internationalized number-formatting method
+- `const` works just like `let` except that you must initialize the constant when you declare it
+- `null` and `undefined` cannot have properties so a `.` or `[]` access would throw `TypeError`
+- The `in` evaluates to `true` if left-side value is name of a property of right-side of object. e.g. `let data = [7,8,9]; "0" in data; // true 1 in data; // true 3 in data; // false`
+- `instanceof` considers the “superclasses” when deciding whether an object is an instance of a class. If the left-side operand of `instanceof` is not an object, `instanceof` returns `false`. If the righthand side is not a class of objects, it throws a `TypeError`.
+- The `??` operator is similar to the `&&` and `||` operators but does not have higher precedence or lower precedence than they do
+- Deleting an array element with `delete` leaves a “hole” in the array and does not change the array’s length. The resulting array is sparse.
+- `void` evaluates its operand, then discards the value and returns `undefined`. It only makes sense if the operand has side effects.
+- Empty catch is possible via `catch { return undefined; }`
+- JS code written in modules is automatically using `"use strict"` directive. Strict mode is restricted subset of JS language, provides stronger error checking and increased security.
+- `delete` does not remove properties that have a configurable attribute of `false`
+- `toLocaleString()` attempts to format numbers, dates, and times according to local conventions
+- `valueOf()` is used in a context where a primitive value is required. Typically converts to number
+- `JSON.stringify()` method looks for a `toJSON()` method on any object
+- If an object has n properties, the process of **spreading** those properties into another object is likely to be an `O(n)` operation.
+- `unshift()` - insert value at beginning of array. `shift()` remove and return first element of array, reducing the length by 1.
+- `let a = [1,2,3]; delete a[2]; a.length => 3` delete does not affect array length
+- Unlike the `for/of` loop, the `forEach()` is aware of sparse arrays and does not invoke your function for elements that are not there.
+- Basic array iteration loop `for(let i = 0; ...` is faster since array length is looked up only once rather than on each iteration.
+- `every()` method is like the mathematical “for all” quantifier `∀`. `some()` method is like the mathematical “there exists” quantifier `∃`
+- `a.flatMap(f)` is the same as (but more efficient than) `a.map(f).flat()`
+- `push()`, `copyWithin()`, `reverse()` and `pop()` both modify the array in place
+- When passing multiple arguments to `unshift()`, they are inserted all at once. `a = []; a.unshift(1,2) // a == [1, 2]`
+- `includes()` uses a slightly different version of equality that does consider `NaN` to be equal to itself
+- For sort comparison function, if the first argument should appear before the second then it should return a number less than zero. `a.sort((a,b) => a-b)`
+- For function invocation in non-strict mode, the invocation context (the `this` value) is the global object. In strict mode, however, the invocation context is `undefined`.
+- Default value of parameter can be initialized based off preceeding parameters. E.g. `const rectangle = (width, height=width*2) => ({width, height});`
+- Functions are specialized kind of objects which means they can have properties. `uniqueInteger.counter = 0; function uniqueInteger() { return uniqueInteger.counter++; } // returns a different integer each time it is called.` Better way to do this is to use closure
+  ```js
+  // A good example
+  function factorial(n) {
+    if (Number.isInteger(n) && n > 0) {
+      // Positive integers only
+      if (!(n in factorial)) {
+        // If no cached result
+        factorial[n] = n * factorial(n - 1); // Compute and cache it
+      }
+      return factorial[n]; // Return the cached result
+    } else {
+      return NaN; // If input was bad
+    }
+  }
+  ```
+- Combination of a function object and a scope (a set of variable bindings) in which the function’s variables are resolved is called a **closure**
+- All functions, except arrow functions, have a prototype property. The value of prototype is an object with a single, non-enumerable `constructor` property. The value of `constructor` property is the function object.
+- The critical feature of constructor invocations is that the prototype property of the constructor is used as the prototype of the new object.
+- If `new.target` is defined then function was invoked as a constructor. Various error constructors can be invoked without `new`, to emulate this in our own constructors - we can: `function Myconstructor() { if(!new.target) return new C(); }`
+- You cannot instantiate a class before you declare it. No hoisting.
+- Static methods are defined as properties of the constructor function rather than properties of the prototype object. It does not make sense to use `this` keyword in static method as they're not called on instances.
+- `Object.defineProperty()` makes new property defined as non-enumerable.
+- In constructors, superclass constructor needs to be invoked before we can access `this`. However, the same is not required of method
+- Scripts with the `type="module"` attribute are loaded and executed like scripts with the `defer` attribute
+- An async module will execute as soon as the code is loaded, even if HTML parsing is not complete and even if this changes the relative ordering of the scripts.
+- With `<script type="module">` modules can only be loaded from same origin as containing HTML document or when proper CORS headers are in place to allow cross-origin.
+- Dynamic `import()` is not a function invocation. It is an operator and parentheses are required part of it. Its an operator since resolving module specifiers as URLs relative to current running module wouldn't be possible with a function.
+- `import.meta` refers to an object that contains metadata about the currently executing module. Primary use case of `import.meta.url` is to be able to refer to images, data files or other resources that are stored in same directory as the module.
+- Set compares keys by strict equality `===` whereas map compares by identity.
+- Map iterates in insertion order. Last pair iterated will be the one most recently added.
+- WeakMap is not iterable and does not define `keys()`, `values()` or `forEach()`. Also `size` property is not present. Intended use of WeakMap is to allow you to associate values with objects without causing memory leaks.
+- ISO-8601 standard format: `year-month-dayThours:minutes:seconds.ms`
+- Error class captures state of JS stack, so good to subclass it. Stack trace shows where the Error object was created so its best to create the object right before throwing it with `throw new Error()`
+- 2nd argument of `JSON.stringify` can be an array which specifies what fields to serialize and what order to serialize them in.
+- Intl.Collator is quite useful e.g. `const filenameOrder = new Intl.Collator(undefined, { numeric: true }).compare; ["page10", "page9"].sort(filenameOrder) // => ["page9", "page10"]`
+- Console API is not part of ECMAScript standard but it's supported by browsers and node.
+- `console.assert()` does not throw exception when an assertion fails.
+- `console.timeLog()` passed string if previously called with `console.time()` then gives the time elapsed since. Alternatively, `console.timeEnd()`
+- `searchParams` is iterable `[...url.searchParams]`
+- If you omit the second argument to `setTimeout()`, it defaults to 0.
+- An iterator is any object with a `next()` method that returns an iteration result object. And an iteration result object is an object with properties named `value` and `done`.
+- Generators are useful when the values to be iterated are not the elements of a data structure, but the result of a computation
+- Promise based asynchronous computations pass the exception to second function passed to `then()` i.e. reject. In practice, `.catch()` usage is more idiomatic
+- Promise.resolve/reject() static methods resolve after current synchronous chunk of code has finished running.
+- `for await (const response of promises) { ... }`
+- Four attributes of an accessor property are get, set, enumerable, and configurable
+- To obtain property descriptor for a named property of a specified object: `Object.getOwnPropertyDescriptor()`. To query attributes of inherited properties then `Reflect.getOwnPropertyDescriptor()`
 
 ## Objects
 
@@ -2263,6 +2338,16 @@ Object.getOwnPropertySymbols(o); // [ Symbol(bar) ]
 
 The specification uses the @@ prefix notation to refer to the built-in symbols, the most common ones being: @@iterator, @@toStringTag, @@toPrimitive.
 
+JavaScript defines a global Symbol registry. The `Symbol.for()` function takes a string argument and returns a Symbol value that is associated with the string you pass. If no Symbol is already associated with that string, then a new one is created and returned; otherwise, the already existing Symbol is returned.
+
+```js
+let s = Symbol.for("shared");
+let t = Symbol.for("shared");
+s === t; // => true
+s.toString(); // => "Symbol(shared)"
+Symbol.keyFor(t); // => "shared"
+```
+
 ### Iterators
 
 An iterator is a structured pattern for pulling information from a source in one-at-a-time fashion.
@@ -2276,7 +2361,72 @@ it.next(); // { value: 3, done: false }
 it.next(); // { value: undefined, done: true }
 ```
 
+Detailed example:
+
+```js
+class Range {
+  constructor(from, to) {
+    this.from = from;
+    this.to = to;
+  }
+  // Make a Range act like a Set of numbers
+  has(x) {
+    return typeof x === "number" && this.from <= x && x <= this.to;
+  }
+  // Return string representation of the range using set notation
+  toString() {
+    return `{ x | ${this.from} ≤ x ≤ ${this.to} }`;
+  }
+  // Make a Range iterable by returning an iterator object.
+  // Note that the name of this method is a special symbol, not a string.
+  [Symbol.iterator]() {
+    // Each iterator instance must iterate the range independently of
+    // others. So we need a state variable to track our location in the
+    // iteration. We start at the first integer >= from.
+    let next = Math.ceil(this.from); // This is the next value we return
+    let last = this.to; // We won't return anything > this
+    return {
+      // This is the iterator object
+      // This next() method is what makes this an iterator object.
+      // It must return an iterator result object.
+      next() {
+        return next <= last // If we haven't returned last value yet
+          ? { value: next++ } // return next value and increment it
+          : { done: true }; // otherwise indicate that we're done.
+      },
+      // As a convenience, we make the iterator itself iterable.
+      [Symbol.iterator]() {
+        return this;
+      },
+    };
+  }
+}
+// Return an iterable object that iterates the result of applying f()
+// to each value from the source iterable
+function map(iterable, f) {
+  let iterator = iterable[Symbol.iterator]();
+  return {
+    // This object is both iterator and iterable
+    [Symbol.iterator]() {
+      return this;
+    },
+    next() {
+      let v = iterator.next();
+      if (v.done) {
+        return v;
+      } else {
+        return { value: f(v.value) };
+      }
+    },
+  };
+}
+// Map a range of integers to their squares and convert to an array
+[...map(new Range(1, 4), (x) => x * x)]; // => [1, 4, 9, 16]
+```
+
 ### Generators
+
+A generator is a kind of iterator (lazy execution). When a generator function is invoked, it does not execute the fuction body but instead returns a generator object which is an iterator.
 
 A generator can pause itself in mid-execution, and can be resumed either right away or at a later time.
 
@@ -2369,6 +2519,40 @@ The purpose of this capability is to notify the generator if the controlling cod
 
 - Producing a series of values
 - Queue of tasks to perform serially
+
+**Useful generator function**
+
+```js
+function* oneDigitPrimes() {
+  yield 2;
+  yield 3;
+  yield 5;
+  yield 7;
+}
+function* zip(...iterables) {
+  // Get an iterator for each iterable
+  let iterators = iterables.map((i) => i[Symbol.iterator]());
+  let index = 0;
+  while (iterators.length > 0) {
+    // While there are still some iterators
+    if (index >= iterators.length) {
+      // If we reached the last iterator
+      index = 0; // go back to the first one.
+    }
+    let item = iterators[index].next(); // Get next item from next iterator.
+    if (item.done) {
+      // If that iterator is done
+      iterators.splice(index, 1); // then remove it from the array.
+    } else {
+      // Otherwise,
+      yield item.value; // yield the iterated value
+      index++; // and move on to the next iterator.
+    }
+  }
+}
+// Interleave three iterable objects
+[...zip(oneDigitPrimes(), "ab", [0])]; // => [2,"a",0,3,"b",5,7]
+```
 
 ### Modules
 
@@ -2907,6 +3091,8 @@ If you have two or more pages (or multiple tabs with the same page!) in the brow
 ### Worker Environment
 
 Inside the Worker, you do not have access to any of the main program's resources. That means you cannot access any of its global variables, nor can you access the page's DOM or other resources. Remember: it's a totally separate thread.
+
+Web worker threads have a different global object than the Window with which they are associated. Code in a worker can refer to its global object as `self`. ES2020 finally defines `globalThis` as the standard way to refer to the global object in any context.
 
 You can, however, perform network operations (Ajax, WebSockets) and set timers. Also, the Worker has access to its own copy of several important global variables/features, including navigator , location , JSON , and applicationCache .
 
@@ -3644,6 +3830,11 @@ Number("5e1"); // 50
 ```js
 parseInt("0101", 10); // 101
 parseInt("0101", 2); // 5
+parseInt("11", 2); // => 3: (1*2 + 1)
+parseInt("ff", 16); // => 255: (15*16 + 15)
+parseInt("zz", 36); // => 1295: (35*36 + 35)
+parseInt("077", 8); // => 63: (7*8 + 7)
+parseInt("077", 10); // => 77: (7*10 + 7)
 ```
 
 They return different results when we passing special values such as `undefined` or `null`

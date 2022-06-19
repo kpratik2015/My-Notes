@@ -354,3 +354,90 @@ const pipe =
 `.map` and `.filter` do create new arrays so that definitely is something to be aware of.
 
 By the isomorphism of FP with CT we know that (fmap g) ∘ (fmap f) equals fmap (g ∘ f), so a compiler would be able to optimize this away easily. This is not the case in JS because g and f might have order-dependent side-effects, i.e. it is not functional.
+
+Functional way of writing `map` and `reduce`:
+
+```js
+const map = function (a, ...args) {
+  return a.map(...args);
+};
+const reduce = function (a, ...args) {
+  return a.reduce(...args);
+};
+
+// usecase
+const sum = (x, y) => x + y;
+let data = [1, 1, 3, 5, 5];
+let mean = reduce(data, sum) / data.length;
+```
+
+Higher-Order Function
+
+```js
+// This higher-order function returns a new function that passes its
+// arguments to f and returns the logical negation of f's return value;
+function not(f) {
+  return function (...args) {
+    // Return a new function
+    let result = f.apply(this, args); // that calls f
+    return !result; // and negates its result.
+  };
+}
+
+const even = (x) => x % 2 === 0; // A function to determine if a number is even
+const odd = not(even); // A new function that does the opposite
+```
+
+Another usecase
+
+```js
+// Return a function that expects an array argument and applies f to
+// each element, returning the array of return values.
+// Contrast this with the map() function from earlier.
+function mapper(f) {
+  return (a) => map(a, f);
+}
+const increment = (x) => x + 1;
+const incrementAll = mapper(increment);
+incrementAll([1, 2, 3]); // => [2,3,4]
+```
+
+Simplest form of memoize
+
+```js
+// Return a memoized version of f.
+// It only works if arguments to f all have distinct string representations.
+function memoize(f) {
+  const cache = new Map(); // Value cache stored in the closure.
+  return function (...args) {
+    // Create a string version of the arguments to use as a cache key.
+    let key = args.length + args.join("+");
+    if (cache.has(key)) {
+      return cache.get(key);
+    } else {
+      let result = f.apply(this, args);
+      cache.set(key, result);
+      return result;
+    }
+  };
+}
+
+// usecase
+
+// Return the Greatest Common Divisor of two integers using the Euclidian
+// algorithm: http://en.wikipedia.org/wiki/Euclidean_algorithm
+function gcd(a, b) {
+  // Type checking for a and b has been omitted
+  if (a < b) {
+    // Ensure that a >= b when we start
+    [a, b] = [b, a]; // Destructuring assignment to swap variables
+  }
+  while (b !== 0) {
+    // This is Euclid's algorithm for GCD
+    [a, b] = [b, a % b];
+  }
+  return a;
+}
+const gcdmemo = memoize(gcd);
+gcdmemo(85, 187); // => 17
+```
