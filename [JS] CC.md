@@ -2,6 +2,7 @@
 
 - [CC](#cc)
   - [Common Algos](#common-algos)
+    - [Invert Binary Tree](#invert-binary-tree)
     - [Optimum palindrome check](#optimum-palindrome-check)
     - [GCD LCM](#gcd-lcm)
     - [Sort](#sort)
@@ -28,6 +29,47 @@
     - [Remove overlap](#remove-overlap)
 
 ## Common Algos
+
+### Invert Binary Tree
+
+```js
+// Recursion
+function invertTree(root) {
+  if (root == null) return root;
+  [root.left, root.right] = [invertTree(root.right), invertTree(root.left)];
+  return root;
+}
+
+// DFS
+function invertTree(root) {
+  const stack = [root];
+
+  while (stack.length) {
+    const n = stack.pop();
+    if (n != null) {
+      [n.left, n.right] = [n.right, n.left];
+      stack.push(n.left, n.right);
+    }
+  }
+
+  return root;
+}
+
+// BFS
+function invertTree(root) {
+  const queue = [root];
+
+  while (queue.length) {
+    const n = queue.shift();
+    if (n != null) {
+      [n.left, n.right] = [n.right, n.left];
+      queue.push(n.left, n.right);
+    }
+  }
+
+  return root;
+}
+```
 
 ### Optimum palindrome check
 

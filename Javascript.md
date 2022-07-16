@@ -4604,3 +4604,4 @@ Object.assign({}, obj)
 
 1. [The Ultimate Guide to Hoisting, Scopes, and Closures in JavaScript](https://ui.dev/ultimate-guide-to-execution-contexts-hoisting-scopes-and-closures-in-javascript/)
 2. [Understanding the "this" keyword, call, apply, and bind in JavaScript](https://ui.dev/this-keyword-call-apply-bind-javascript/)
+3. [WebSockets vs. Server-Sent Events](https://blog.bitsrc.io/websockets-vs-server-sent-events-968659ab0870)

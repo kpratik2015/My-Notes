@@ -291,6 +291,16 @@ const compose =
   (x) =>
     funcs.reduce((acc, func) => func(acc), x); // Takes several functions as an argument and invokes those functions on argument
 
+// Another with reduceRight:
+
+export const compose =
+  (...functions) =>
+  (input) =>
+    functions.reduceRight(
+      (chain, func) => chain.then(func),
+      Promise.resolve(input)
+    );
+
 const composedA = compose(add1, double, square);
 
 composedA(1); // same as using composed
