@@ -173,6 +173,8 @@
     - [Array.splice() vs Array.slice()](#arraysplice-vs-arrayslice)
     - [Object.assign v/s spread](#objectassign-vs-spread)
   - [Credits/Reference](#creditsreference)
+  - [Extra](#extra)
+    - [JS Engines](#js-engines)
   - [Read More](#read-more)
 
 ## Pointers
@@ -4599,6 +4601,16 @@ Object.assign({}, obj)
 1. Cody Lindley - JavaScript Enlightenment
 2. Kyle Simpson - You Dont Know JS
 3. Internet
+
+## Extra
+
+### JS Engines
+
+![JS Engines](images/JS/js-engines.png)
+
+**More:**
+- [Hermes engine](https://hermesengine.dev/), used in React Native. It is built for optimizing React Native features, low memory usage, provides ahead-of-time static optimization, and compact bytecode.
+- [JerryScript engine](https://github.com/jerryscript-project/jerryscript), super lightweight, used for Internet of Things. It can work on devices with a low amount of RAM and it weighs less than 200 KB.
 
 ## Read More
 

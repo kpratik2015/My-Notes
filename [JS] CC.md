@@ -8,6 +8,8 @@
     - [Sort](#sort)
     - [Speed = Distance / Time](#speed--distance--time)
     - [Trie aka prefix/digital tree](#trie-aka-prefixdigital-tree)
+    - [Bayer-Moore Voting Algorithm](#bayer-moore-voting-algorithm)
+    - [Add Binary](#add-binary)
   - [Snippets](#snippets)
     - [Graph](#graph)
     - [XOR](#xor)
@@ -27,6 +29,9 @@
     - [Median of 2 sorted num arrays / 2 pointer](#median-of-2-sorted-num-arrays--2-pointer)
     - [kth Factor of n](#kth-factor-of-n)
     - [Remove overlap](#remove-overlap)
+  - [Revisit](#revisit)
+    - [Linked List](#linked-list)
+      - [Reversal of Singly Linked List](#reversal-of-singly-linked-list)
 
 ## Common Algos
 
@@ -147,6 +152,47 @@ const Trie = function () {
 ```
 
 Trie’s retrieval/insertion time in the worst case is better than hashTable and binary search trees. Requires a lot of memory storage for strings. Easy to print all words in alphabetical order
+
+### Bayer-Moore Voting Algorithm
+
+![For majority element](images/CC/Boyer-Moore-Voting-Algo.png)
+
+### Add Binary
+
+```js
+/**
+ * a = "11", b = "1" => "100"
+ */
+var addBinary = function (a, b) {
+  // Short with BigInt
+  const aBin = `0b${a}`;
+  const bBin = `0b${b}`;
+  const sum = BigInt(aBin) + BigInt(bBin);
+  return sum.toString(2);
+};
+```
+
+```js
+var addBinary = function (a, b) {
+  // Easier to understand
+  a = a.split("").reverse().join("");
+  b = b.split("").reverse().join("");
+  len = a.length > b.length ? a.length : b.length;
+  result = [];
+  for (let i = 0; i < len; i += 1) {
+    num1 = Number(a[i] || 0);
+    num2 = Number(b[i]) || 0;
+    curr = Number(result[i] || 0) + num1 + num2;
+    if (curr >= 2) {
+      result[i] = curr % 2;
+      result.push(1);
+    } else {
+      result[i] = curr;
+    }
+  }
+  return result.reverse().join("");
+};
+```
 
 ## Snippets
 
@@ -558,5 +604,41 @@ const eraseOverlapIntervals = (intervals) => {
 		}
 	}
 	return counter;
+}
+```
+
+## Revisit
+
+### Linked List
+
+#### Reversal of Singly Linked List
+
+2 ptrs: previous (`null`) and current (`head`)
+
+```js
+/**
+ * @param {ListNode} head
+ * @return {ListNode}
+ */
+
+// ES6
+var reverseList = function (head) {
+  let [prev, current] = [null, head];
+  while (current) {
+    [current.next, prev, current] = [prev, current, current.next];
+  }
+  return prev;
+};
+
+// Plain
+function reverseList(head) {
+  var prev = null;
+  while (head) {
+    var next = head.next;
+    head.next = prev;
+    prev = head;
+    head = next;
+  }
+  return prev;
 }
 ```
