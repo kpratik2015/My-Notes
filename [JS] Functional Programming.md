@@ -9,6 +9,7 @@
   - [Partial Application](#partial-application)
   - [Composition](#composition)
   - [Tips](#tips)
+  - [Piping for Left-to-right readability](#piping-for-left-to-right-readability)
 
 All paradigms try to solve the problem of organizing all the ideas that a program solves. Functional programming makes it easier to avoid hard to re-create bugs. It does this by writing program in a series of testable self-contained code.
 
@@ -451,3 +452,20 @@ function gcd(a, b) {
 const gcdmemo = memoize(gcd);
 gcdmemo(85, 187); // => 17
 ```
+
+## Piping for Left-to-right readability
+
+```js
+function pipe(...fns) {
+  return (arg) => fns.reduce((prev, fn) => fn(prev), arg);
+}
+// pipe(odds, double, log)([1, 2, 3, 4, 5])
+
+function pipeWith(arg, ...fns) {
+  return pipe(...fns)(arg);
+}
+
+// pipeWith([1, 2, 3, 4, 5], odds, double, log);
+```
+
+With [pipeline operator proposal](https://github.com/tc39/proposal-pipeline-operator), `[1, 2, 3, 4, 5] |> odds |> double |> log` would do roughly the same as above

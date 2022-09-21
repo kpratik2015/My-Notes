@@ -10,6 +10,8 @@
     - [Trie aka prefix/digital tree](#trie-aka-prefixdigital-tree)
     - [Bayer-Moore Voting Algorithm](#bayer-moore-voting-algorithm)
     - [Add Binary](#add-binary)
+    - [LRU Cache](#lru-cache)
+    - [Linked List cycle and length](#linked-list-cycle-and-length)
   - [Snippets](#snippets)
     - [Graph](#graph)
     - [XOR](#xor)
@@ -32,6 +34,10 @@
   - [Revisit](#revisit)
     - [Linked List](#linked-list)
       - [Reversal of Singly Linked List](#reversal-of-singly-linked-list)
+      - [Middle Node of LL](#middle-node-of-ll)
+    - [Tree](#tree)
+      - [Diameter of Binary Tree](#diameter-of-binary-tree)
+      - [Max Depth](#max-depth)
 
 ## Common Algos
 
@@ -192,6 +198,126 @@ var addBinary = function (a, b) {
   }
   return result.reverse().join("");
 };
+```
+
+### LRU Cache
+
+```js
+/**
+ * @param {number} capacity
+ */
+var LRUCache = function (capacity) {
+  /** Map is ordered dict as in python. */
+  this.cache = new Map();
+  this.capacity = capacity;
+};
+
+/**
+ * @param {number} key
+ * @return {number}
+ */
+LRUCache.prototype.get = function (key) {
+  if (!this.cache.has(key)) return -1;
+  const v = this.cache.get(key);
+  this.cache.delete(key);
+  this.cache.set(key, v);
+  return this.cache.get(key);
+};
+
+/**
+ * @param {number} key
+ * @param {number} value
+ * @return {void}
+ */
+LRUCache.prototype.put = function (key, value) {
+  if (this.cache.has(key)) {
+    this.cache.delete(key);
+  }
+  this.cache.set(key, value);
+  if (this.cache.size > this.capacity) {
+    /** .keys() returns Map interator. That's why .next() */
+    this.cache.delete(this.cache.keys().next().value); // keys().next().value returns first item's key
+  }
+};
+```
+
+### Linked List cycle and length
+
+**Find if cycle exists**
+
+```js
+class Node {
+  constructor(value, next = null) {
+    this.value = value;
+    this.next = next;
+  }
+}
+
+function has_cycle(head) {
+  let slow = head,
+    fast = head;
+  while (fast !== null && fast.next !== null) {
+    fast = fast.next.next;
+    slow = slow.next;
+    if (slow === fast) {
+      return true; // found the cycle
+    }
+  }
+  return false;
+}
+```
+
+**Find length of cycle**
+
+```js
+function find_cycle_length(head) {
+  let slow = head,
+    fast = head;
+
+  while (fast !== null && fast.next !== null) {
+    fast = fast.next.next;
+    slow = slow.next;
+    if (slow === fast) {
+      // found the cycle
+      return calculate_cycle_length(slow);
+    }
+  }
+  return 0;
+}
+
+function calculate_cycle_length(slow) {
+  let current = slow,
+    cycle_length = 0;
+  while (true) {
+    current = current.next;
+    cycle_length += 1;
+    if (current === slow) {
+      break;
+    }
+  }
+  return cycle_length;
+}
+```
+
+**Find start of cycle**
+
+```js
+function find_start(head, cycle_length) {
+  let pointer1 = head,
+    pointer2 = head;
+  // move pointer2 ahead 'cycle_length' nodes
+  while (cycle_length > 0) {
+    pointer2 = pointer2.next;
+    cycle_length -= 1;
+  }
+  // increment both pointers until they meet at the start of the cycle
+  while (pointer1 !== pointer2) {
+    pointer1 = pointer1.next;
+    pointer2 = pointer2.next;
+  }
+
+  return pointer1;
+}
 ```
 
 ## Snippets
@@ -455,12 +581,13 @@ const maxSubArraySum = (arr, n) => {
   let maxSum = 0;
   for (let i = 0; i < n; i++) {
     tempSum += arr[i];
-  }
+  } // first n numbers sum taken as the temporary sum
   maxSum = tempSum;
   for (let i = n; i < arr.length; i++) {
+    // Goes n...arr.length-1
     let increasingPart = i;
-    let nextIdxNumForWindow = arr[increasingPart - n];
-    tempSum = tempSum - nextIdxNumForWindow + arr[i];
+    let startingIdx = arr[increasingPart - n];
+    tempSum = tempSum - startingIdx + arr[i]; // we remove idx from left side of window and add next idx to window
     maxSum = Math.max(tempSum, maxSum);
   }
   return maxSum;
@@ -641,4 +768,52 @@ function reverseList(head) {
   }
   return prev;
 }
+```
+
+#### Middle Node of LL
+
+```js
+var middleNode = function (head) {
+  let slow = (fast = head);
+  while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+  return slow;
+};
+```
+
+### Tree
+
+#### Diameter of Binary Tree
+
+Given the root of a binary tree, return the length of the diameter of the tree.
+
+```js
+function diameterOfBinaryTree(root) {
+  let max = 0;
+
+  function maxDepth(root) {
+    if (root === null) return 0; // if our root(num) is null then there is no path. return 0/null
+    let left = maxDepth(root.left); // Assign the left  of tree to LEFT; this will be easier to call it instead of writing "maxDepth(root.left)" each time
+    let right = maxDepth(root.right); //Same above
+
+    max = Math.max(max, left + right); //if the path doesn't go through the root we just get the max of them
+    return Math.max(left, right) + 1; // the path goes through the root so we add 1(for the root)
+  }
+  //since we don't know if the path will go through the root or not we will have to get the max between(path that visits the root, or the path that doesn't go through the root.)
+  maxDepth(root);
+  return max;
+}
+```
+
+#### Max Depth
+
+```js
+var maxDepth = function (root) {
+  if (root === undefined || root === null) {
+    return 0;
+  }
+  return Math.max(maxDepth(root.left), maxDepth(root.right)) + 1;
+};
 ```
