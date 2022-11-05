@@ -2,13 +2,19 @@
 
 - [CC](#cc)
   - [Common Algos](#common-algos)
+    - [Find unique subsets](#find-unique-subsets)
+    - [Find permutations](#find-permutations)
+    - [Path of sum exists (DFS)](#path-of-sum-exists-dfs)
+    - [Cyclic Sort](#cyclic-sort)
+    - [Overlap](#overlap)
+      - [Merging overlapping intervals](#merging-overlapping-intervals)
     - [Invert Binary Tree](#invert-binary-tree)
     - [Optimum palindrome check](#optimum-palindrome-check)
     - [GCD LCM](#gcd-lcm)
     - [Sort](#sort)
     - [Speed = Distance / Time](#speed--distance--time)
     - [Trie aka prefix/digital tree](#trie-aka-prefixdigital-tree)
-    - [Bayer-Moore Voting Algorithm](#bayer-moore-voting-algorithm)
+    - [Bayer-Moore Voting Algorithm for Majority element](#bayer-moore-voting-algorithm-for-majority-element)
     - [Add Binary](#add-binary)
     - [LRU Cache](#lru-cache)
     - [Linked List cycle and length](#linked-list-cycle-and-length)
@@ -34,12 +40,209 @@
   - [Revisit](#revisit)
     - [Linked List](#linked-list)
       - [Reversal of Singly Linked List](#reversal-of-singly-linked-list)
+      - [Reversal of sub-list of LL](#reversal-of-sub-list-of-ll)
       - [Middle Node of LL](#middle-node-of-ll)
     - [Tree](#tree)
       - [Diameter of Binary Tree](#diameter-of-binary-tree)
       - [Max Depth](#max-depth)
+      - [Populate next pointer](#populate-next-pointer)
+    - [Graph](#graph-1)
+      - [Topological sort / Task Scheduling](#topological-sort--task-scheduling)
+    - [Dynamic Programming](#dynamic-programming)
+      - [Maximum Length of Repeated Subarray](#maximum-length-of-repeated-subarray)
+    - [Stack](#stack)
+      - [Infix expression evaluation](#infix-expression-evaluation)
 
 ## Common Algos
+
+### Find unique subsets
+
+```js
+/**
+ *  Input: [1, 3]
+    Output: [], [1], [3], [1,3]
+  Algo: Breadth First Search (BFS)
+*/
+function find_subsets(nums) {
+  const subsets = [];
+  // start by adding the empty subset
+  subsets.push([]);
+  for (i = 0; i < nums.length; i++) {
+    currentNumber = nums[i];
+    // we will take all existing subsets and insert the current number in them to create new subsets
+    const n = subsets.length;
+    for (j = 0; j < n; j++) {
+      // create a new subset from the existing subset and insert the current element to it
+      const set1 = subsets[j].slice(0); // clone the permutation
+      set1.push(currentNumber);
+      subsets.push(set1);
+    }
+  }
+
+  return subsets;
+}
+```
+
+### Find permutations
+
+```js
+/**
+ * Input: [1,3,5]
+ * Output: [1,3,5], [1,5,3], [3,1,5], [3,5,1], [5,1,3], [5,3,1]
+ * Time and Space complexity: O(N * N!)
+ *
+ */
+const findPermutations = function (nums) {
+  const result = [];
+  const permutes = [];
+  permutes.push([]);
+  // for every num in nums
+  for (let i = 0; i < nums.length; i++) {
+    const num = nums[i];
+    const n = permutes.length;
+    // for every intermediate permutation in permutes
+    for (let j = 0; j < n; j++) {
+      const currPermute = permutes[j];
+      // size will be +1 as inserting num in each place of prev. permute
+      for (let k = 0; k < currPermute.length + 1; k++) {
+        const clonedPermute = [...currPermute];
+        clonedPermute.splice(k, 0, num); // at k we insert the num;
+        if (clonedPermute.length === nums.length) {
+          result.push(clonedPermute);
+        } else {
+          permutes.push(clonedPermute);
+        }
+      }
+    }
+  }
+  return result;
+};
+
+const result = findPermutations([1, 3, 5]);
+result.forEach((permutation) => {
+  console.log(permutation);
+});
+
+// Recursive approach:
+
+function findPermutation(nums) {
+  const result = [];
+  findPermuteRecursively(nums, result);
+  return result;
+}
+
+function findPermuteRecursively(
+  nums,
+  result,
+  index = 0,
+  currentPermutation = []
+) {
+  if (index === nums.length) {
+    result.push(currentPermutation);
+  } else {
+    // create a new permutation by adding the current number at every position
+    for (let i = 0; i < currentPermutation.length + 1; i++) {
+      newPermutation = [...currentPermutation]; // clone the permutation
+      newPermutation.splice(i, 0, nums[index]); // insert nums[index] at index 'i'
+      findPermuteRecursively(nums, result, index + 1, newPermutation);
+    }
+  }
+}
+
+const result = findPermutation([1, 3, 5]);
+result.forEach((permutation) => {
+  console.log(permutation);
+});
+```
+
+### Path of sum exists (DFS)
+
+```js
+function hasPath(root, sum) {
+  if (root === null) {
+    return false;
+  }
+
+  // if the current node is a leaf and its value is equal to the sum, we've found a path
+  if (root.val === sum && root.left === null && root.right === null) {
+    return true;
+  }
+
+  // recursively call to traverse the left and right sub-tree
+  // return true if any of the two recursive call return true
+  return (
+    hasPath(root.left, sum - root.val) || hasPath(root.right, sum - root.val)
+  );
+}
+```
+
+### Cyclic Sort
+
+```js
+function cyclic_sort(nums) {
+  let i = 0;
+  while (i < nums.length) {
+    const j = nums[i] - 1; // j is where current number is suppose to be
+    if (nums[i] !== nums[j]) {
+      // if it isn't
+      [nums[i], nums[j]] = [nums[j], nums[i]]; // swap
+    } else {
+      // only increment when current number is at its right place
+      i += 1;
+    }
+  }
+  return nums;
+}
+
+console.log(cyclic_sort([3, 1, 5, 4, 2]));
+console.log(cyclic_sort([2, 6, 4, 3, 1, 5]));
+console.log(cyclic_sort([1, 5, 6, 4, 3, 2]));
+```
+
+### Overlap
+
+If `b` overlaps `a` then `b.start <= a.end`. Cases considered:
+
+- b starts in btwn a and ends beyond a
+- b range is inside a range
+- b range starts with a start but goes beyond a's end.
+
+#### Merging overlapping intervals
+
+```js
+class Interval {
+  constructor(start, end) {
+    this.start = start;
+    this.end = end;
+  }
+}
+function merge(intervals) {
+  if (intervals.length < 2) {
+    return intervals;
+  }
+  // sort the intervals on the start time
+  intervals.sort((a, b) => a.start - b.start);
+
+  const mergedIntervals = [];
+  let start = intervals[0].start,
+    end = intervals[0].end;
+  for (i = 1; i < intervals.length; i++) {
+    const interval = intervals[i];
+    if (interval.start <= end) {
+      // overlapping intervals, adjust the 'end'
+      end = Math.max(interval.end, end);
+    } else {
+      // non-overlapping interval, add the previous interval and reset
+      mergedIntervals.push(new Interval(start, end));
+      start = interval.start;
+      end = interval.end;
+    }
+  }
+  // add the last interval
+  mergedIntervals.push(new Interval(start, end));
+  return mergedIntervals;
+}
+```
 
 ### Invert Binary Tree
 
@@ -159,9 +362,38 @@ const Trie = function () {
 
 Trie’s retrieval/insertion time in the worst case is better than hashTable and binary search trees. Requires a lot of memory storage for strings. Easy to print all words in alphabetical order
 
-### Bayer-Moore Voting Algorithm
+### Bayer-Moore Voting Algorithm for Majority element
 
 ![For majority element](images/CC/Boyer-Moore-Voting-Algo.png)
+
+```js
+function findMajority(nums) {
+  let count = 0;
+  let candidate = -1;
+
+  // Finding majority candidate
+  for (let i = 0; i < nums.length; i++) {
+    if (count == 0) {
+      candidate = nums[i];
+      count = 1;
+    } else {
+      if (nums[i] === candidate) count++;
+      else count--;
+    }
+  }
+
+  // Checking if majority candidate occurs more than (optional if majority element is for sure present)
+  // n/2 times
+  count = 0;
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] == candidate) count++;
+  }
+  if (count > nums.length / 2) {
+    return candidate;
+  }
+  return -1;
+}
+```
 
 ### Add Binary
 
@@ -504,6 +736,14 @@ for (let i = 1; i <= m; i += 1) {
 }
 ```
 
+For creating adjacency matrix from 1D array:
+
+```js
+for (let i = 0; i < arr.length; i++) {
+  for (let j = i + 1; j < arr.length; j++) {}
+}
+```
+
 ## Problems
 
 ### Permutation of string
@@ -583,11 +823,10 @@ const maxSubArraySum = (arr, n) => {
     tempSum += arr[i];
   } // first n numbers sum taken as the temporary sum
   maxSum = tempSum;
+  // Goes n...arr.length-1
   for (let i = n; i < arr.length; i++) {
-    // Goes n...arr.length-1
-    let increasingPart = i;
-    let startingIdx = arr[increasingPart - n];
-    tempSum = tempSum - startingIdx + arr[i]; // we remove idx from left side of window and add next idx to window
+    let numFromLeft = arr[i - n]; // 0...arr.length-n
+    tempSum = tempSum - numFromLeft + arr[i]; // we remove idx from left side of window and add next idx to window
     maxSum = Math.max(tempSum, maxSum);
   }
   return maxSum;
@@ -770,6 +1009,52 @@ function reverseList(head) {
 }
 ```
 
+#### Reversal of sub-list of LL
+
+```js
+// I/P => 1 -> 2 -> 3 -> 4 -> 5 -> null
+// O/P => 1 -> 4 -> 3 -> 2 -> 5 -> null
+const reverse_sub_list = function (head, p, q) {
+  let [prev, curr] = [null, head];
+  let i = 0;
+  while (curr !== null && i < p - 1) {
+    // skip p-1 nodes
+    prev = curr;
+    curr = curr.next;
+    i++;
+  }
+  // prev => 1
+  // curr => 2
+
+  const leftFirstPrev = prev;
+  const lastNodeOfSubList = curr;
+  let next = null;
+  i = 0;
+  /**
+   * Component  Before:   After(i=0):   After(i=1):   After(i=2):
+   * next       null      3             4             5
+   * curr.next  3         1             2             3
+   * prev       1         2             3             4
+   * curr       2         3             4             5
+   */
+  while (curr !== null && i < q - p + 1) {
+    next = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = next;
+    i++;
+  }
+
+  if (leftFirstPrev !== null) {
+    leftFirstPrev.next = prev; // 1.next => 4
+  } else {
+    head = prev;
+  }
+  lastNodeOfSubList.next = curr; // 2.next => 5
+  return head;
+};
+```
+
 #### Middle Node of LL
 
 ```js
@@ -816,4 +1101,246 @@ var maxDepth = function (root) {
   }
   return Math.max(maxDepth(root.left), maxDepth(root.right)) + 1;
 };
+```
+
+#### Populate next pointer
+
+Populate each next pointer to point to its next right node.
+
+```js
+/**
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+
+Input: root = [1,2,3,4,5,6,7]
+Output: [1,#,2,3,#,4,5,6,7,#]
+*/
+var connect = function (root) {
+  if (!root) return root;
+  let result = [];
+  const queue = [root];
+  while (queue.length) {
+    let levelSize = queue.length;
+    let currentLevel = [];
+    for (let i = 0; i < levelSize; i++) {
+      const node = queue.shift();
+      currentLevel.push(node);
+      if (node.left) {
+        if (queue[queue.length - 1]) {
+          queue[queue.length - 1].next = node.left;
+        }
+        queue.push(node.left);
+      }
+      if (node.right) {
+        if (queue[queue.length - 1]) {
+          queue[queue.length - 1].next = node.right;
+        }
+        queue.push(node.right);
+      }
+    }
+    currentLevel[currentLevel.length - 1].next = null;
+    result.push(currentLevel);
+  }
+  return root;
+};
+```
+
+### Graph
+
+#### Topological sort / Task Scheduling
+
+Worded algo:
+
+1. Init
+   1. `sortedOrder` => empty array which will contain vertices in sorted order.
+   2. `inDegree` => `Array(noOfVertices)` for accounting number of directed edges on a vertex
+   3. `graph` => `[[]]` 2D array with 1 row x n vertices which builds the adjacency graph. (`graph[parentVertex] = childVertex`)
+2. Build graph by going through each edge. Also increment `inDegree` for child vertex
+3. `sources` (queue) => loop through `inDegree` and push vertices with 0 `inDegree` to `sources`
+4. While we have `sources.length`
+   1. `shift()` a source vertex
+   2. Push above vertex to `sortedOrder` array
+   3. For each child of above vertex, decrement `inDegree` and if new `inDegree` of child vertex is `0` then push it to `sources`
+5. Graph has cycle/tasks can't be scheduled be `sortedOrder.length` !== `noOfVertices`
+6. Return `sortedOrder`
+
+```js
+function topological_sort(vertices, edges) {
+  const sortedOrder = [];
+  if (vertices <= 0) {
+    return sortedOrder;
+  }
+
+  // a. Initialize the graph
+  const inDegree = Array(vertices).fill(0); // count of incoming edges
+  const graph = Array(vertices)
+    .fill(0)
+    .map(() => Array()); // adjacency list graph
+
+  // b. Build the graph
+  edges.forEach((edge) => {
+    let parent = edge[0],
+      child = edge[1];
+    graph[parent].push(child); // put the child into it's parent's list
+    inDegree[child]++; // increment child's inDegree
+  });
+
+  // c. Find all sources i.e., all vertices with 0 in-degrees
+  const sources = []; // should be queue
+  for (i = 0; i < inDegree.length; i++) {
+    if (inDegree[i] === 0) {
+      sources.push(i);
+    }
+  }
+
+  // d. For each source, add it to the sortedOrder and subtract one from all of its children's in-degrees
+  // if a child's in-degree becomes zero, add it to the sources queue
+  while (sources.length > 0) {
+    const vertex = sources.shift();
+    sortedOrder.push(vertex);
+    graph[vertex].forEach((child) => {
+      // get the node's children to decrement their in-degrees
+      inDegree[child] -= 1;
+      if (inDegree[child] === 0) {
+        sources.push(child);
+      }
+    });
+  }
+
+  // topological sort is not possible as the graph has a cycle
+  if (sortedOrder.length !== vertices) {
+    return [];
+  }
+
+  return sortedOrder;
+}
+
+console.log(
+  `Topological sort: ${topological_sort(4, [
+    [3, 2],
+    [3, 0],
+    [2, 0],
+    [2, 1],
+  ])}`
+);
+```
+
+### Dynamic Programming
+
+Maximization, minimization, optimization or counting problems
+
+#### Maximum Length of Repeated Subarray
+
+```js
+var findLength = function (nums1, nums2) {
+  const dp = Array(nums1.length + 1)
+    .fill(0)
+    .map(() => Array(nums2.length + 1).fill(0));
+  let max = 0;
+  for (let i = 1; i < nums1.length + 1; i++) {
+    for (let j = 1; j < nums2.length + 1; j++) {
+      if (nums1[i - 1] === nums2[j - 1]) {
+        dp[i][j] = 1 + dp[i - 1][j - 1];
+        if (dp[i][j] > max) {
+          max = dp[i][j];
+        }
+      }
+    }
+  }
+  return max;
+};
+```
+
+### Stack
+
+#### Infix expression evaluation
+
+```js
+// I/P: 2 * (5 * (3 + 6)) / 5 - 2
+// O/P: 16
+// Ref: https://www.codingninjas.com/codestudio/library/expression-evaluation-using-stack
+
+const evaluate = (exp) => {
+  const operands = [];
+  const operators = [];
+  for (let i = 0; i < exp.length; i++) {
+    const char = exp[i];
+    const isDigit = (c) => !isNaN(parseInt(c, 10));
+    const isOperator = (c) =>
+      c === "+" || c === "-" || c === "/" || c === "*" || c === "^";
+    if (isDigit(char)) {
+      let num = "";
+      while (isDigit(exp[i])) {
+        num += exp[i];
+        i++;
+      }
+      i--;
+      operands.push(parseInt(num, 10));
+    } else if (char === "(") {
+      operators.push(char);
+    } else if (char === ")") {
+      while (operators.at(-1) !== "(") {
+        const output = performOperation(operands, operators);
+        operands.push(output); //push result back to stack
+      }
+      operators.pop();
+    } else if (isOperator(char)) {
+      const precedence = (c) => {
+        switch (c) {
+          case "+":
+          case "-":
+            return 1;
+          case "*":
+          case "/":
+            return 2;
+          case "^":
+            return 3;
+        }
+        return -1;
+      };
+      while (
+        operators.length > 0 &&
+        precedence(char) <= precedence(operators.at(-1))
+      ) {
+        const output = performOperation(operands, operators);
+        operands.push(output); //push result back to stack
+      }
+      operators.push(char); //push the current operator to stack
+    }
+  }
+  while (operators.length > 0) {
+    const output = performOperation(operands, operators);
+    operands.push(output); // push final result back to stack
+  }
+  return operands.pop();
+};
+
+function performOperation(operands, operators) {
+  const a = operands.pop();
+  const b = operands.pop();
+  const operation = operators.pop();
+  switch (operation) {
+    case "+":
+      return a + b;
+    case "-":
+      return b - a;
+    case "*":
+      return a * b;
+    case "/":
+      if (a == 0) {
+        console.log("Cannot divide by zero");
+        return 0;
+      }
+      return b / a;
+  }
+  return 0;
+}
+
+const expression = "2*(5*(3+6))/5-2";
+
+console.log(evaluate(expression));
 ```
