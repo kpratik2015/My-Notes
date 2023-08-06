@@ -7,6 +7,8 @@
     - [Proper Tail Call](#proper-tail-call)
     - [Differences between arguments object and rest parameter](#differences-between-arguments-object-and-rest-parameter)
     - [Bullet points](#bullet-points)
+  - [React](#react)
+    - [Bullet Points](#bullet-points-1)
 
 ## General
 
@@ -107,3 +109,44 @@ The above pattern returns the same output as the first one. But the accumulator 
   outer();
   ```
 - `const obj = { key: "value" }; const array = [...obj];` TypeError, obj is not iterable
+- `toFixed` rounds w.r.t 2nd decimal digit. For instance `4.94.toFixed(1)` => `'4.9'`, `4.95.toFixed(1)` => `'5.0'`
+
+
+## React
+
+### Bullet Points
+
+- In useEffect, React will first run the cleanup function (if you provided it) with the old values, and then run your setup function with the new values.
+- `useTransition()` wraps the state updating code, whilst `useDeferredValue()` wraps a value that's affected by the state update. You don't need to (and shouldn't) use both together, since they achieve the same goal in the end. Instead, it makes sense to prefer `useTransition()`, if you have some state update that should be treated with a lower priority and you have access to the state updating code. If you don't have that access, use `useDeferredValue()`
+- values you pass to `useDeferredValue` should either be primitive values (like strings and numbers) or objects created outside of rendering
+- Unlike debouncing or throttling, `useDeferredValue` doesn’t require choosing any fixed delay. If the user’s device is fast (e.g. powerful laptop), the deferred re-render would happen almost immediately and wouldn’t be noticeable
+- Hooks can be made conditional by moving them out in separate component and conditionally rendering the component
+- When you update a component during rendering, React throws away the returned JSX and immediately retries rendering
+  - ```jsx
+      function List({ items }) {
+      const [isReverse, setIsReverse] = useState(false);
+      const [selection, setSelection] = useState(null);
+
+      // 🔴 Avoid: Adjusting state on prop change in an Effect
+      useEffect(() => {
+        setSelection(null);
+      }, [items]);
+      // ...
+
+      // Instead:
+
+      const [isReverse, setIsReverse] = useState(false);
+      const [selection, setSelection] = useState(null);
+
+      // Better: Adjust the state while rendering
+      const [prevItems, setPrevItems] = useState(items);
+      if (items !== prevItems) {
+        setPrevItems(items);
+        setSelection(null);
+      }
+    }
+
+    ```
+- update the state of both components (parent and child) within the same event handler - React will batch updates. Whenever you try to keep two different state variables synchronized, try lifting state up instead!
+- [Fetching data](https://react.dev/learn/you-might-not-need-an-effect#fetching-data) use cleanup.
+- Each Effect should represent an independent synchronization process

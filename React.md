@@ -40,7 +40,7 @@ A JavaScript library for building user interfaces.
     - [setInterval + ReactDOM.render()](#setinterval--reactdomrender)
   - [Notes](#notes)
   - [Questions](#questions)
-  - [Q&A](#qa)
+  - [Q\&A](#qa)
     - [What are React components?](#what-are-react-components)
     - [How do you tell React to insert component on page (DOM)?](#how-do-you-tell-react-to-insert-component-on-page-dom)
     - [In React, how are native HTML elements cased?](#in-react-how-are-native-html-elements-cased)
@@ -93,15 +93,15 @@ The features of React 16 include the following:
 - Handling errors
 - Server-side rendering
 
-**(Revamped core arch)[https://reactjs.org/blog/2017/09/26/react-v16.0.html]**
+**[Revamped core arch](https://reactjs.org/blog/2017/09/26/react-v16.0.html)**
 
 Change made to the internal reconciliation code. Instead of rendering every component on the page in a run-tocompilation way, React renders (fibers)[https://github.com/acdlite/react-fiber-architecture]—smaller chunks of the page that can be prioritized and rendered asynchronously.
 
-**(The Context API)[https://reactjs.org/docs/context.html]**
+**[The Context API](https://reactjs.org/docs/context.html)**
 
 Provides a way for you to supply your components with data at any tree level.
 
-**(Portals)[https://reactjs.org/docs/portals.html]**
+**[Portals](https://reactjs.org/docs/portals.html)**
 
 When a React component returns content, it gets rendered into its parent component. Then, that parent's content gets rendered into its parent component and so on, all the way to the tree root. There are times when you want to render something that specifically targets a DOM element. For example, a component that should be rendered as a dialog probably doesn't need to be mounted at the parent. Using a portal, you can control precisely where your component's content is rendered.
 
@@ -111,7 +111,7 @@ React features that were introduced after version 16.6.0:
 - Code splitting and loading
 - Hooks
 
-**(Memoizing functional components)[https://reactjs.org/docs/react-api.html#reactmemo]**
+**[Memoizing functional components](https://reactjs.org/docs/react-api.html#reactmemo)**
 
 Memoized components avoid re-rendering if the component data hasn't changed.
 
