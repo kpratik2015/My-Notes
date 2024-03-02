@@ -19,6 +19,14 @@
   - `<link rel="alternate" hreflang="de" href="http://de.example.com/page.html" />`
 - `async` for independent script like analytics and can execute as soon as available.
 - `defer` respects defer scripts ordering and executes after page finished parsing. It should not contain `document.write`
+- No cache policy forces browser to make a preflight request each time there is a POST or DELETE call (there are no preflight requests for GET calls — it’s a rule). There should be `Access-Control-Max-Age` header provided
+- The browsers send preflight before making HTTP requests, that can cause side-effects on server, to get supported methods from server with HTTP `OPTIONS` request method and then upon approval, sending the actual request.
+- The actual side effect HTTP request (e.g. `POST`) does not include the `Access-Control-Request-*` headers; they are needed only for the `OPTIONS` request.
+- `Access-Control-Max-Age` gives the value in seconds for how long the response to the preflight request can be cached without sending another preflight request. The default value is 5 seconds.
+- When a request is sent with cookie i.e. `new Request(url, { credentials: "include" })` credentials include then server must respond with `Access-Control-Allow-Credentials: true` otherwise response can get ignored.
+- `Access-Control-Expose-Headers` header adds the specified headers to the allowlist that JavaScript (such as `Response.headers`) in browsers is allowed to access.
+- In order to use the export declaration in a source file, the file must be interpreted by the runtime as a module. In HTML, this is done by adding `type="module"` to the `<script>` tag.
+
 
 ## Javascript
 
@@ -110,7 +118,9 @@ The above pattern returns the same output as the first one. But the accumulator 
   ```
 - `const obj = { key: "value" }; const array = [...obj];` TypeError, obj is not iterable
 - `toFixed` rounds w.r.t 2nd decimal digit. For instance `4.94.toFixed(1)` => `'4.9'`, `4.95.toFixed(1)` => `'5.0'`
-
+- Export declarations are not subject to temporal dead zone rules. You can declare that the module exports X before the name X itself is declared. `export { x }; const x = 1; // this works`
+- If there are two wildcard exports statements that implicitly re-export the same name, neither one is re-exported.
+- If importing everything * as an object, then the default property is exactly the default export: `import * as user from './user.js'; let User = user.default; // the default export`
 
 ## React
 
@@ -150,3 +160,58 @@ The above pattern returns the same output as the first one. But the accumulator 
 - update the state of both components (parent and child) within the same event handler - React will batch updates. Whenever you try to keep two different state variables synchronized, try lifting state up instead!
 - [Fetching data](https://react.dev/learn/you-might-not-need-an-effect#fetching-data) use cleanup.
 - Each Effect should represent an independent synchronization process
+- In React, it’s conventional to use onSomething names for props which represent events and handleSomething for the function definitions which handle those events.
+- Why do multiple JSX tags need to be wrapped? JSX looks like HTML, but under the hood it is transformed into plain JavaScript objects. You can’t return two objects from a function without wrapping them into an array. Fragment makes it array.
+- Curly braces open the “window into JavaScript” in JSX.
+- If your data is generated and persisted locally (e.g. notes in a note-taking app), use an incrementing counter, crypto.randomUUID() or a package like uuid when creating items.
+- React, as a UI framework, is platform agnostic. The render tree is only composed of React components.
+- All events propagate in React except onScroll, which only works on the JSX tag you attach it to.
+- Simplified useState
+    ```js
+    let componentHooks = [];
+    let currentHookIndex = 0;
+
+    // How useState works inside React (simplified).
+    function useState(initialState) {
+      let pair = componentHooks[currentHookIndex];
+      if (pair) {
+        // This is not the first render,
+        // so the state pair already exists.
+        // Return it and prepare for next Hook call.
+        currentHookIndex++;
+        return pair;
+      }
+
+      // This is the first time we're rendering,
+      // so create a state pair and store it.
+      pair = [initialState, setState];
+
+      function setState(nextState) {
+        // When the user requests a state change,
+        // put the new value into the pair.
+        pair[0] = nextState;
+        updateDOM();
+      }
+
+      // Store the pair for future renders
+      // and prepare for the next Hook call.
+      componentHooks[currentHookIndex] = pair;
+      currentHookIndex++;
+      return pair;
+    }
+    ```
+- “Rendering” is React calling your components.
+- Updater functions run during rendering, so updater functions must be pure and only return the result. Don’t try to set state from inside of them or run other side effects.
+- It’s common to name the updater function argument by the first letters of the corresponding state variable: `setLastName(ln => ln.reverse()); setFriendCount(fc => fc * 2);`
+- [Objects are not really nested](https://react.dev/learn/updating-objects-in-state#objects-are-not-really-nested)
+- [Avoid deeply nested state - flatten or normalize it](https://react.dev/learn/choosing-the-state-structure#avoid-deeply-nested-state)
+- Ephemeral UI state that doesn’t need to be stored, like whether an item is hovered should lie in child component
+- Avoid duplication in state -- in an example of items, hold selectedItemId in a state instead of the item object itself and then from id u can traverse items to get the selectedItem object
+- [State is preserved by React if a component renders in same position. IMPORTANT READ](https://react.dev/learn/preserving-and-resetting-state#same-component-at-the-same-position-preserves-state)
+- [Comparing useState and useReducer](https://react.dev/learn/extracting-state-logic-into-a-reducer#comparing-usestate-and-usereducer)
+- In React, rendering should be a pure calculation of JSX and should not contain side effects like modifying the DOM
+- Always check whether you can reset all state with a key or calculate everything during rendering
+- Whenever you try to keep two different state variables synchronized, try lifting state up instead!
+- For subscribing to external data store like browser `navigator.onLine` API, we should use `useSyncExternalStore`
+- Effect Events are triggered by you from Effects. Effect Events let you “break the chain” between the reactivity of Effects and code that should not be reactive. Effect Events are non-reactive “pieces” of your Effect code.
+- Every reactive value must be specified as a dependency, or it can potentially get stale over time.
