@@ -39,5 +39,19 @@ item1.next = item2;
 item2.next = item3;
 item3.next = item1;
 
+const removeCyclev2 = (startNode) => {
+    const ws = new WeakSet();
+    let curr = startNode;
+    while(curr.next) {
+        if(ws.has(curr.next)) {
+            curr.next = null;
+            break;
+        } else {
+            ws.add(curr);
+            curr = curr.next;
+        }
+    }
+}
+
 removeCycle(item1);
-console.log(item1);
+console.log(item3);

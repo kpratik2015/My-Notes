@@ -4,21 +4,6 @@
 2) Observer (Subscriber)
 */
 
-const PubSub = function () {
-  this.subscribers = [];
-  this.subscribe = (cb) => {
-    this.subscribers.push(cb);
-  };
-  this.unsubscribe = (cb) => {
-    this.subscribers = this.subscribers.filter((s) => s !== cb);
-  };
-  this.fire = (msg, thisObj = globalThis) => {
-    this.subscribers.forEach((s) => {
-      s.call(thisObj, msg);
-    });
-  };
-};
-
 /** Test */
 
 // 1st observer
@@ -45,3 +30,23 @@ move.fire("event #2");
 move.subscribe(moveHandler);
 move.subscribe(moveHandler2);
 move.fire("event #3");
+
+
+
+
+
+const PubSub = function () {
+  this.subscribers = [];
+  this.subscribe = (cb) => {
+    this.subscribers.push(cb);
+  };
+  this.unsubscribe = (cb) => {
+    this.subscribers = this.subscribers.filter((s) => s !== cb);
+  };
+  this.fire = (msg, thisObj = globalThis) => {
+    this.subscribers.forEach((s) => {
+      s.call(thisObj, msg);
+    });
+  };
+};
+

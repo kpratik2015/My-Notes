@@ -1,4 +1,4 @@
-// Opposite of Promise.all()
+// Opposite of Promise.all() and lets first promise to resolve win
 // All promise reject => AggregateError 
 
 const any = function(promisesArr) {

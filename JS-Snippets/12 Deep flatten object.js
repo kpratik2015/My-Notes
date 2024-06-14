@@ -35,6 +35,25 @@ const deepFlatten = (obj, ancestors = [], output = {}) => {
     return output;
 }
 
+const deepFlattenV2 = (obj) => {
+  let result = {};
+
+  const goThrough = (currObj, prefix) => {
+
+    Object.keys(currObj).forEach(k => {
+      if(typeof currObj[k] !== "object") {
+        result[[...prefix,k].join('.')] = currObj[k]; 
+      } else {
+        goThrough(currObj[k], [...prefix, k]);
+      }
+    })
+  }
+
+  goThrough(obj, prefix = []);
+
+  return result;
+}
+
 deepFlatten({
   A: "12",
   B: 23,

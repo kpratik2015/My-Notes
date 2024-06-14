@@ -1,3 +1,39 @@
+// Driver Code
+const fs = new FileSystem();
+
+console.log(fs.ls("/")); // []
+
+fs.mkdir("/dir1/dir2/dir3");
+fs.mkdir("/dir4/dir2/dir3");
+
+console.log(fs.ls("/")); // ['dir1', 'dir4']
+
+fs.addContentToFile("/dir1/dir2/dir3/file1", "File");
+
+console.log(fs.readContentFromFile("/dir1/dir2/dir3/file1")); // File
+
+fs.addContentToFile("/dir1/dir2/dir3/file1", " System");
+
+console.log(fs.readContentFromFile("/dir1/dir2/dir3/file1")); // File System
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class File {
   constructor() {
     this.isFile = false;
@@ -71,21 +107,3 @@ class FileSystem {
     return temp.files[paths[paths.length - 1]].content;
   }
 }
-
-// Driver Code
-const fs = new FileSystem();
-
-console.log(fs.ls("/")); // []
-
-fs.mkdir("/dir1/dir2/dir3");
-fs.mkdir("/dir4/dir2/dir3");
-
-console.log(fs.ls("/")); // ['dir1', 'dir4']
-
-fs.addContentToFile("/dir1/dir2/dir3/file1", "File");
-
-console.log(fs.readContentFromFile("/dir1/dir2/dir3/file1")); // File
-
-fs.addContentToFile("/dir1/dir2/dir3/file1", " System");
-
-console.log(fs.readContentFromFile("/dir1/dir2/dir3/file1")); // File System

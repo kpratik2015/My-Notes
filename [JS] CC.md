@@ -1,6 +1,7 @@
 # CC
 
 - [CC](#cc)
+  - [Bullet points](#bullet-points)
   - [Common Algos](#common-algos)
     - [Find unique subsets](#find-unique-subsets)
     - [Find permutations](#find-permutations)
@@ -33,7 +34,7 @@
   - [Problems](#problems)
     - [Permutation of string](#permutation-of-string)
     - [Sliding Window - Max Sub array sum](#sliding-window---max-sub-array-sum)
-    - [Length of longest sub string with no repeat chars / Map & 1 pointer](#length-of-longest-sub-string-with-no-repeat-chars--map--1-pointer)
+    - [Length of longest sub string with no repeat chars / Map \& 1 pointer](#length-of-longest-sub-string-with-no-repeat-chars--map--1-pointer)
     - [Median of 2 sorted num arrays / 2 pointer](#median-of-2-sorted-num-arrays--2-pointer)
     - [kth Factor of n](#kth-factor-of-n)
     - [Remove overlap](#remove-overlap)
@@ -48,10 +49,76 @@
       - [Populate next pointer](#populate-next-pointer)
     - [Graph](#graph-1)
       - [Topological sort / Task Scheduling](#topological-sort--task-scheduling)
+        - [Topological sort for course with prerequisites problem](#topological-sort-for-course-with-prerequisites-problem)
     - [Dynamic Programming](#dynamic-programming)
       - [Maximum Length of Repeated Subarray](#maximum-length-of-repeated-subarray)
     - [Stack](#stack)
       - [Infix expression evaluation](#infix-expression-evaluation)
+
+## Bullet points
+
+- For questions where we have to find "every possible" we generally use backtracking. Complexity would be O(2^n). Backtracking can be used for below problems:
+  - Subsets : https://leetcode.com/problems/subsets/
+  - Subsets II (contains duplicates) : https://leetcode.com/problems/subsets-ii/
+  - Permutations : https://leetcode.com/problems/permutations/
+  - Permutations II (contains duplicates) : https://leetcode.com/problems/permutations-ii/
+  - Combination Sum : https://leetcode.com/problems/combination-sum/
+  - Combination Sum II (can't reuse same element) : https://leetcode.com/problems/combination-sum-ii/
+  - Palindrome Partitioning : https://leetcode.com/problems/palindrome-partitioning/
+- Example code for Combination Sum
+  ```js
+  /**
+   * The same number may be chosen from candidates an unlimited number of times. Two combinations are unique if the 
+   * frequency of at least one of the chosen numbers is different.
+   * Input: candidates = [2,3,6,7], target = 7
+   * Output: [[2,2,3],[7]]
+   * @param {number[]} candidates
+   * @param {number} target
+   * @return {number[][]}
+   */
+  var combinationSum = function (candidates, target) {
+      var buffer = [];
+      var result = [];
+      candidates.sort((a, b) => a - b); // not needed if permutation
+      search(0, target);
+      return result;
+
+      function search(startIdx, target) {
+          if (target === 0) return result.push([...buffer]);
+          if (target < 0) return;
+          for(let i = startIdx; i < candidates.length; i++) {
+              // if(i > startIdx && candidates[i] == candidates[i-1]) continue; // if there were duplicates
+              buffer.push(candidates[i]);
+              search(i, target - candidates[i]); // i and not i+1 since we can reuse same element
+              buffer.pop();
+          }
+      }
+  };
+  ```
+  - Example code for subsets
+  ```js
+  // Time complexity: 2^N
+  /**
+   * @param {number[]} nums
+   * @return {number[][]}
+   */
+  var subsets = function (nums) {
+      var result = [];
+      var buffer = [];
+      backtrack(0);
+      return result;
+
+      function backtrack(startIdx) {
+          result.push([...buffer]);
+          for (let i = startIdx; i < nums.length; i++) {
+              // if(i > startIdx && nums[i] == nums[i-1]) continue; // if there were duplicates
+              buffer.push(nums[i]);
+              backtrack(i+1);
+              buffer.pop();
+          }
+      }
+  };
+  ```
 
 ## Common Algos
 
@@ -73,7 +140,7 @@ function find_subsets(nums) {
     const n = subsets.length;
     for (j = 0; j < n; j++) {
       // create a new subset from the existing subset and insert the current element to it
-      const set1 = subsets[j].slice(0); // clone the permutation
+      const set1 = [...subsets[j]]; // clone the permutation
       set1.push(currentNumber);
       subsets.push(set1);
     }
@@ -242,6 +309,33 @@ function merge(intervals) {
   mergedIntervals.push(new Interval(start, end));
   return mergedIntervals;
 }
+```
+
+```js
+/**
+ * Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
+ * Output: [[1,6],[8,10],[15,18]]
+ * @param {number[][]} intervals
+ * @return {number[][]}
+ */
+var merge = function (intervals) {
+    if (!intervals.length) return intervals
+    intervals.sort((a, b) => a[0] - b[0]);
+
+    let res = [intervals[0]];
+    let prev = res[0];
+    for (let curr of intervals) {
+        let [prevLow, prevHigh] = prev;
+        let [currLow, currHigh] = curr;
+        if (currLow <= prevHigh) { // currently traversed interval's low should be below what we hold in res's high
+            prev[1] = Math.max(prevHigh, currHigh); // only modify high because low will remain low due to sort
+        } else {
+            res.push(curr); // disjoint interval spotted, push it.
+            prev = curr; // prev will always be the last pushed
+        }
+    }
+    return res;
+};
 ```
 
 ### Invert Binary Tree
@@ -1227,6 +1321,61 @@ console.log(
     [2, 1],
   ])}`
 );
+```
+
+##### Topological sort for course with prerequisites problem
+
+```js
+/**
+ * There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+
+For example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.
+Return true if you can finish all courses. Otherwise, return false.
+
+Input: numCourses = 2, prerequisites = [[1,0],[0,1]]
+Output: false
+Explanation: There are a total of 2 courses to take. 
+To take course 1 you should have finished course 0, and to take course 0 you should also have finished course 1. So it is impossible.
+ * /
+/**
+ * @param {number} numCourses
+ * @param {number[][]} prerequisites
+ * @return {boolean}
+ */
+var canFinish = function(numCourses, prerequisites) {
+  const order = [];
+  const queue = [];
+  const graph = new Map();
+  const indegree = Array(numCourses).fill(0);
+
+  for (const [e, v] of prerequisites) {
+    // build graph map
+    if (graph.has(v)) {
+      graph.get(v).push(e);
+    } else {
+      graph.set(v, [e]);
+    }
+    // build indegree array
+    indegree[e]++;
+  }
+
+  for (let i = 0; i < indegree.length; i++) {
+    if (indegree[i] === 0) queue.push(i);
+  }
+
+  while (queue.length) {
+    const v = queue.shift();
+    if (graph.has(v)) {
+      for (const e of graph.get(v)) {
+        indegree[e]--;
+        if (indegree[e] === 0) queue.push(e);
+      }
+    }
+    order.push(v);
+  }
+
+  return numCourses === order.length;
+};
 ```
 
 ### Dynamic Programming

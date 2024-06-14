@@ -9,6 +9,7 @@
     - [Bullet points](#bullet-points)
   - [React](#react)
     - [Bullet Points](#bullet-points-1)
+  - [CSS](#css)
 
 ## General
 
@@ -215,3 +216,7 @@ The above pattern returns the same output as the first one. But the accumulator 
 - For subscribing to external data store like browser `navigator.onLine` API, we should use `useSyncExternalStore`
 - Effect Events are triggered by you from Effects. Effect Events let you “break the chain” between the reactivity of Effects and code that should not be reactive. Effect Events are non-reactive “pieces” of your Effect code.
 - Every reactive value must be specified as a dependency, or it can potentially get stale over time.
+
+## CSS
+
+- The [`content-visibility`](https://developer.mozilla.org/en-US/docs/Web/CSS/content-visibility) CSS property controls whether or not an element renders its contents at all, along with forcing a strong set of containments, allowing user agents to potentially omit large swathes of layout and rendering work until it becomes needed.

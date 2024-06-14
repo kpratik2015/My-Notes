@@ -32,6 +32,29 @@ countInArray = (arr, predicate) => {
     return arr.flat(Infinity).filter(predicate).length
 }
 
+/** Alternative */
+
+function countInArray(arr, f) {
+  let count = 0;
+
+  function check(currArr, start, end) {
+    if(start > end) {
+        return;
+    }
+    if (currArr[start] && Array.isArray(currArr[start])) {
+      check(currArr[start], 0, currArr[start].length);
+    } else {
+      if (f(currArr[start])) {
+        count++;
+      }
+      check(currArr, start+1, end);
+    }
+  }
+
+  check(arr, 0, arr.length);
+  return count;
+}
+
 /** Test */
 
 const arr = [[1, [2, [3, 4, "foo", { a: 1, b: 2 }]], "bar"]];

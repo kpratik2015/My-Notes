@@ -3,34 +3,6 @@
  * For simplicity do not alter the push method, instead create a new pushWithEvent method.
  */
 
-Array.prototype.listeners = {};
-
-Array.prototype.addListener = function (eventName, callback) {
-  if (!this.listeners?.[eventName]) {
-    this.listeners[eventName] = [];
-  }
-  this.listeners[eventName].push(callback);
-};
-
-Array.prototype.triggerEvent = function (eventName, ...args) {
-  this.listeners[eventName]?.forEach((callback) => {
-    callback(args, this);
-  });
-};
-
-Array.prototype.pushWithEvent = function (...args) {
-  this.push(...args);
-  /**
-   * If push cannot be used then:
-   */
-  // const size = this.length;
-  // const argsList = Array.prototype.slice.call(arguments);
-  // for (let index = 0; index < argsList.length; index++) {
-  //   this[size + index] = argsList[index];
-  // }
-  this.triggerEvent("add", ...args);
-};
-
 /** Test */
 
 // example
@@ -60,3 +32,44 @@ setTimeout(() => {
 // items were added again [ 55 ]
 // items were added [ 'delayed' ]
 // items were added again [ 'delayed' ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Array.prototype.listeners = {};
+
+Array.prototype.addListener = function (eventName, callback) {
+  if (!this.listeners?.[eventName]) {
+    this.listeners[eventName] = [];
+  }
+  this.listeners[eventName].push(callback);
+};
+
+Array.prototype.triggerEvent = function (eventName, ...args) {
+  this.listeners[eventName]?.forEach((callback) => {
+    callback(args, this);
+  });
+};
+
+Array.prototype.pushWithEvent = function (...args) {
+  this.push(...args);
+  /**
+   * If push cannot be used then:
+   */
+  // const size = this.length;
+  // const argsList = Array.prototype.slice.call(arguments);
+  // for (let index = 0; index < argsList.length; index++) {
+  //   this[size + index] = argsList[index];
+  // }
+  this.triggerEvent("add", ...args);
+};

@@ -1,11 +1,3 @@
-Function.prototype.myBind = function (obj, ...args) {
-  let func = this;
-  // Accepting arguments passed to newFunc
-  return function (...newArgs) {
-    func.apply(obj, [...args, ...newArgs]);
-  };
-};
-
 /** Test */
 
 let obj = {
@@ -19,6 +11,23 @@ let myFunc = function (id, city) {
 let newFunc = myFunc.myBind(obj, "a_random_id");
 newFunc("New York"); // Jack, a_random_id, New York
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Arrow
 
 Function.prototype.myBind = function (obj, ...args) {
@@ -27,3 +36,12 @@ Function.prototype.myBind = function (obj, ...args) {
     this.apply(obj, [...args, ...newArgs]);
   };
 };
+
+Function.prototype.myBind = function (obj, ...args) {
+  let func = this;
+  // Accepting arguments passed to newFunc
+  return function (...newArgs) {
+    func.apply(obj, [...args, ...newArgs]);
+  };
+};
+

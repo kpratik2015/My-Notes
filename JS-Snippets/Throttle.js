@@ -13,11 +13,11 @@ const throttle = (func, limit) => {
     } else {
       clearTimeout(timer);
       timer = setTimeout(() => {
-        if (Date.now() - lastRan >= limit) {
+        if (Date.now() - lastRan >= limit) { // only run if difference between now and last run is more than limit. Here limit is lower limit
           func.apply(this, args);
           lastRan = Date.now();
         }
-      }, limit - (Date.now() - lastRan));
+      }, limit - (Date.now() - lastRan)); // next run would be between limit and difference of now and last run. Here limit is upper limit
     }
   };
 };

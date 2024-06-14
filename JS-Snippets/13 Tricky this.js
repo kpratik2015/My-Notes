@@ -19,6 +19,36 @@ var obj = {
   })(),
 };
 
+
+
+
+console.log(obj.prop.getFullname()); // 
+console.log(obj.getFirstName()); // 
+console.log(obj.getMyName()); // 
+console.log(obj.getLastName); // 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 console.log(obj.prop.getFullname()); // Aurelio De Rosa
 console.log(obj.getFirstName()); // John
 console.log(obj.getMyName()); // Colin Ihrig
